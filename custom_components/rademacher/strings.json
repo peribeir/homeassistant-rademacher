@@ -1,0 +1,18 @@
+{
+  "title": "Rademacher Bridge",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Enter Bridge Host/IP",
+        "description": "Please enter the Hostname or IP Address of your Rademacher Bridge (Start2Smart or Homepilot).\nExample: bridge.local",
+        "data": {
+          "host": "[%key:common::config_flow::data::host%]"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]",
+      "unknown": "[%key:common::config_flow::error::unknown%]"
+    }
+  }
+}

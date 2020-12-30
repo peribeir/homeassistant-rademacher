@@ -58,8 +58,8 @@ class RademacherCover(CoverEntity):
             "identifiers": {(DOMAIN, self._uid)},
             # If desired, the name for the device could be different to the entity
             "name": self.name,
-            "sw_version": self._roller.firmware_version,
-#            "model": self._roller.model,
+            # "sw_version": self._roller.firmware_version,
+            # "model": self._roller.model,
             "manufacturer": "Rademacher",
         }
 
