@@ -1,10 +1,10 @@
-"""Config flow for Hello World integration."""
+"""Config flow for Rademacher integration."""
 import logging
 
 import voluptuous as vol
 
 from homeassistant import config_entries, core, exceptions
-from homeassistant.const import CONF_HOST
+from homeassistant.const import CONF_HOST, CONF_PASSWORD
 from aiohttp import ClientConnectorError
 
 from .hub import Hub
@@ -12,7 +12,7 @@ from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
-DATA_SCHEMA = vol.Schema({vol.Required(CONF_HOST): str})
+DATA_SCHEMA = vol.Schema({vol.Required(CONF_HOST): str, vol.Optional(CONF_PASSWORD): str})
 
 
 async def validate_input(hass: core.HomeAssistant, data: dict):
@@ -25,14 +25,19 @@ async def validate_input(hass: core.HomeAssistant, data: dict):
     # The exceptions are defined at the end of this file, and are used in the
     # `async_step_user` method below.
     host = data[CONF_HOST]
+    password = data[CONF_PASSWORD] if CONF_PASSWORD in data else ''
     if len(host) < 3:
         raise InvalidHost
 
-    hub = Hub(hass, host)
+    hub = Hub(hass, host, password)
     try:
-        is_connection_ok = await hub.test_connection()
-        if not is_connection_ok:
-            raise CannotConnect
+        connection_test = await hub.test_connection()
+        if connection_test == 'forbidden':
+            raise AuthError()
+        elif connection_test == 'error':
+            raise CannotConnect()
+        elif connection_test != 'ok':
+            raise CannotConnect()
     except ClientConnectorError:
         raise CannotConnect()
 
@@ -67,11 +72,9 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             except CannotConnect:
                 errors["base"] = "cannot_connect"
             except InvalidHost:
-                # The error string is set here, and should be translated.
-                # This example does not currently cover translations, see the
-                # comments on `DATA_SCHEMA` for further details.
-                # Set the error on the `host` field, not the entire form.
                 errors[CONF_HOST] = "cannot_connect"
+            except AuthError:
+                errors[CONF_HOST] = "auth_error"
             except Exception:  # pylint: disable=broad-except
                 _LOGGER.exception("Unexpected exception")
                 errors["base"] = "unknown"
@@ -89,3 +92,7 @@ class CannotConnect(exceptions.HomeAssistantError):
 
 class InvalidHost(exceptions.HomeAssistantError):
     """Error to indicate there is an invalid hostname."""
+
+
+class AuthError(exceptions.HomeAssistantError):
+    """Error to indicate an authentication error."""

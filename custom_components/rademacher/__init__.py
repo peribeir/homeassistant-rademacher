@@ -2,6 +2,7 @@
 import asyncio
 import logging
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import CONF_HOST, CONF_PASSWORD
 from homeassistant.core import HomeAssistant
 
 from .hub import Hub
@@ -16,7 +17,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup(hass: HomeAssistant, config: dict):
-    """Set up the Hello World component."""
+    """Set up the Rademacher component."""
     # Ensure our name space for storing objects is a known type. A dict is
     # common/preferred as it allows a separate instance of your class for each
     # instance that has been created in the UI.
@@ -26,10 +27,14 @@ async def async_setup(hass: HomeAssistant, config: dict):
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Set up Hello World from a config entry."""
+    """Set up Rademacher from a config entry."""
     # Store an instance of the "connecting" class that does the work of speaking
     # with your actual devices.
-    hass.data[DOMAIN][entry.entry_id] = Hub(hass, entry.data["host"])
+    hass.data[DOMAIN][entry.entry_id] = Hub(
+        hass,
+        entry.data[CONF_HOST],
+        entry.data[CONF_PASSWORD] if CONF_PASSWORD in entry.data else ''
+    )
 
     # This creates each HA object for each platform your device requires.
     # It's done by calling the `async_setup_entry` function in each platform module.

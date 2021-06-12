@@ -1,18 +1,20 @@
 {
-  "title": "Rademacher Bridge",
-  "config": {
-    "step": {
-      "user": {
-        "title": "Enter Bridge Host/IP",
-        "description": "Please enter the Hostname or IP Address of your Rademacher Bridge (Start2Smart or Homepilot).\nExample: bridge.local",
-        "data": {
-          "host": "Host/IP"
+    "title": "Rademacher Bridge",
+    "config": {
+      "step": {
+        "user": {
+          "title": "Enter Bridge's Hostname/IP Address and Password",
+          "description": "Please enter the Hostname or IP Address and Password of your Rademacher Bridge (Start2Smart or Homepilot).\nIf Bridge has no Authentication enable you must leave Password empty.\nWhen Authentication is enabled, Hostname (FQDN) must be provided, IP Address won't work.",
+          "data": {
+            "host": "Hostname/IP Address",
+            "password": "Password (if auth is enabled)"
+          }
         }
+      },
+      "error": {
+        "cannot_connect": "Error connecting to the bridge. Please verify the bridge is connected to the network, and verify that the Hostname/IP is correct.",
+        "auth_error": "Invalid password. Please verify the password provided is correct. If Authentication is not enabled, leave Password field empty.",
+        "unknown": "Unknown Exception."
       }
-    },
-    "error": {
-      "cannot_connect": "Error connecting to the bridge. Please verify the bridge is connected to the network, and verify that the Hostname/IP is correct.",
-      "unknown": "Unknown Exception."
     }
   }
-}
