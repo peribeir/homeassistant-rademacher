@@ -2,6 +2,7 @@
 import logging
 from typing import Any
 
+from aiohttp import ClientError, ClientOSError, InvalidURL, TooManyRedirects, ServerTimeoutError
 from homeassistant.components.cover import PLATFORM_SCHEMA, CoverEntity
 from homeassistant.const import CONF_HOST
 from homeassistant.components.cover import (
@@ -32,7 +33,7 @@ async def async_setup_entry(hass, config_entry, async_add_devices):
     hub = hass.data[DOMAIN][config_entry.entry_id]
     new_devices = []
     covers = await hub.get_covers()
-    for cover in covers['devices']:
+    for cover in covers:
         cover_entity = RademacherCover(hub, cover)
         new_devices.append(cover_entity)
     # If we have any new devices, add them
@@ -102,8 +103,14 @@ class RademacherCover(CoverEntity):
     async def async_open_cover(self, **kwargs: Any) -> None:
         await self._hub.open_cover(self._did)
 
+    def open_cover(self, **kwargs: Any) -> None:
+        self.async_open_cover()
+
     async def async_close_cover(self, **kwargs: Any) -> None:
         await self._hub.close_cover(self._did)
+
+    def close_cover(self, **kwargs: Any) -> None:
+        self.async_close_cover()
 
     async def async_set_cover_position(self, **kwargs: Any) -> None:
         await self._hub.set_cover_position(self._did, kwargs[ATTR_POSITION])
@@ -112,10 +119,18 @@ class RademacherCover(CoverEntity):
         await self._hub.stop_cover(self._did)
 
     async def async_update(self):
-        device = await self._hub.get_device_status(self._did)
+        try:
+            device = await self._hub.get_device_status(self._did)
 
-        if device['response'] == 'get_device':
-            self._is_opening = False
-            self._is_closing = False
-            self._current_cover_position = 100 - device['device']['statusesMap']['Position']
-            self._available = device['device']['statusValid']
+            if device['response'] == 'get_device':
+                self._is_opening = False
+                self._is_closing = False
+                self._current_cover_position = 100 - device['device']['statusesMap']['Position']
+                self._available = device['device']['statusValid']
+            else:
+                self._available = False
+
+        except (RuntimeError, ClientError, ClientOSError, TooManyRedirects,
+                BaseException, InvalidURL, ServerTimeoutError) as e:
+            _LOGGER.error(e)
+            self._available = False
