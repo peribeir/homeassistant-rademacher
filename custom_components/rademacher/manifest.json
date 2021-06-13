@@ -1,7 +1,7 @@
 {
   "domain": "rademacher",
   "name": "Rademacher",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "documentation": "https://www.home-assistant.io/integrations/rademacher",
   "requirements": [],
   "dhcp": [
