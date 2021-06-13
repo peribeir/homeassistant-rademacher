@@ -132,5 +132,4 @@ class RademacherCover(CoverEntity):
 
         except (RuntimeError, ClientError, ClientOSError, TooManyRedirects,
                 BaseException, InvalidURL, ServerTimeoutError) as e:
-            _LOGGER.error(e)
             self._available = False

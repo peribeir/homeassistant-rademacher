@@ -1,20 +1,26 @@
 {
-    "title": "Rademacher Bridge",
-    "config": {
-      "step": {
-        "user": {
-          "title": "Indique o Nome do Servidor/Endere\u00e7o IP e a Palavra Passe da Bridge",
-          "description": "Por favor indique o nome do Servidor ou o endere\u00e7o IP e a Palavra Passe da Bridge da Rademacher (Start2Smart ou Homepilot).\nSe a Bridge tiver a Autentica\u00e7\u00e3o desativada, deixe o campo da Palavra Passe vazio.\nSe a Bridge tiver a Autentica\u00e7\u00e3o ativada, tem de indicar o nome do Servidor (FQDN), o endere\u00e7o IP n\u00e3o ir\u00e1 funcionar.",
-          "data": {
-            "host": "Nome do Servidor/Endere\u00e7o IP",
-            "password": "Palavra Passe (se a autentica\u00e7\u00e3o estiver ativada)"
-          }
+  "title": "Rademacher Bridge",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Indique o Nome do Servidor/Endere\u00e7o IP da Bridge",
+        "description": "Por favor indique o nome do Servidor ou o endere\u00e7o IP da Bridge da Rademacher (Start2Smart ou Homepilot).",
+        "data": {
+          "host": "Nome do Servidor/Endere\u00e7o IP"
         }
       },
-      "error": {
-        "cannot_connect": "Erro ao contactar a bridge. Por favor verifique que a bridge est\u00e1 ligada \u00e0 rede, e que o Nome de Servidor / IP provideciado est\u00e1 correto.",
-        "auth_error": "Password errada. Por favor verifique se a password indicada est\u00e1 correta. Se a Autentica\u00e7\u00e3o estiver desativada, deixe o campo Palavra Passe vazio.",
-        "unknown": "Exce\u00e7\u00e3o desconhecida."
+      "user_password": {
+        "title": "Indique a Palavra Passe da Bridge",
+        "description": "Por favor indique a Palavra Passe da Bridge da Rademacher (Start2Smart ou Homepilot).",
+        "data": {
+          "password": "Palavra Passe"
+        }
       }
+    },
+    "error": {
+      "cannot_connect": "Erro ao contactar a bridge. Por favor verifique que a bridge est\u00e1 ligada \u00e0 rede, e que o Nome de Servidor / IP provideciado est\u00e1 correto.",
+      "auth_error": "Password errada. Por favor verifique se a password indicada est\u00e1 correta.",
+      "unknown": "Exce\u00e7\u00e3o desconhecida."
     }
   }
+}

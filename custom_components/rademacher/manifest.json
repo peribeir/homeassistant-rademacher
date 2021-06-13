@@ -6,7 +6,7 @@
   "requirements": [],
   "dhcp": [
     {
-      "macaddress": "B01F81*"
+      "macaddress": "B01F81B*"
     }
   ],
   "codeowners": [
