@@ -86,14 +86,14 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_dhcp(
         self, discovery_info: DiscoveryInfoType
     ) -> data_entry_flow.FlowResult:
-        await self.async_set_unique_id(discovery_info[IP_ADDRESS])
+        await self.async_set_unique_id(discovery_info.ip)
         self._abort_if_unique_id_configured()
-        conn_test = await Hub.test_connection(discovery_info[IP_ADDRESS])
+        conn_test = await Hub.test_connection(discovery_info.ip)
         if conn_test == 'ok':
-            data={CONF_HOST:discovery_info[IP_ADDRESS]}
-            return self.async_create_entry(title=f"Host: {discovery_info[IP_ADDRESS]}", data=data)
+            data={CONF_HOST:discovery_info.ip}
+            return self.async_create_entry(title=f"Host: {discovery_info.ip}", data=data)
         elif conn_test == 'auth_required':
-            self.host = discovery_info[IP_ADDRESS]
+            self.host = discovery_info.ip
             return await self.async_step_user_password()
         else:
             return self.async_abort(reason="Cannot connect")
