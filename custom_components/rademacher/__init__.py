@@ -11,7 +11,7 @@ from .const import DOMAIN
 
 # List of platforms to support. There should be a matching .py file for each,
 # eg <cover.py> and <sensor.py>
-PLATFORMS = ["cover"]
+PLATFORMS = ["cover", "button", "switch"]
 
 LOGGER = logging.getLogger(__name__)
 
@@ -33,8 +33,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data[DOMAIN][entry.entry_id] = Hub(
         hass,
         entry.data[CONF_HOST],
-        entry.data[CONF_PASSWORD] if CONF_PASSWORD in entry.data else ''
+        entry.data[CONF_PASSWORD] if CONF_PASSWORD in entry.data else "",
     )
+    await hass.data[DOMAIN][entry.entry_id].fill_supported_devices()
 
     # This creates each HA object for each platform your device requires.
     # It's done by calling the `async_setup_entry` function in each platform module.
