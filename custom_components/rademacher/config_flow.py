@@ -4,10 +4,9 @@ import socket
 
 import voluptuous as vol
 
-from homeassistant import config_entries, core, exceptions, data_entry_flow
-from homeassistant.components.dhcp import IP_ADDRESS
+from homeassistant import config_entries, exceptions, data_entry_flow
+from homeassistant.components.dhcp import DhcpServiceInfo
 from homeassistant.const import CONF_HOST, CONF_PASSWORD
-from homeassistant.helpers.typing import DiscoveryInfoType
 
 from .hub import Hub, CannotConnect, AuthError
 from .const import DOMAIN
@@ -22,7 +21,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     VERSION = 1
     CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_POLL
-    host = ''
+    host = ""
 
     async def async_step_user_password(self, user_input=None):
         errors = {}
@@ -62,9 +61,11 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 await self.async_set_unique_id(ip_address)
                 self._abort_if_unique_id_configured()
                 conn_test = await Hub.test_connection(user_input[CONF_HOST])
-                if conn_test == 'ok':
-                    return self.async_create_entry(title=f"Host: {user_input[CONF_HOST]}", data=user_input)
-                elif conn_test == 'auth_required':
+                if conn_test == "ok":
+                    return self.async_create_entry(
+                        title=f"Host: {user_input[CONF_HOST]}", data=user_input
+                    )
+                elif conn_test == "auth_required":
                     self.host = user_input[CONF_HOST]
                     return await self.async_step_user_password(user_input=user_input)
                 else:
@@ -84,19 +85,24 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         )
 
     async def async_step_dhcp(
-        self, discovery_info: DiscoveryInfoType
+        self, discovery_info: DhcpServiceInfo
     ) -> data_entry_flow.FlowResult:
-        await self.async_set_unique_id(discovery_info.ip)
-        self._abort_if_unique_id_configured()
-        conn_test = await Hub.test_connection(discovery_info.ip)
-        if conn_test == 'ok':
-            data={CONF_HOST:discovery_info.ip}
-            return self.async_create_entry(title=f"Host: {discovery_info.ip}", data=data)
-        elif conn_test == 'auth_required':
-            self.host = discovery_info.ip
-            return await self.async_step_user_password()
+        if hasattr(discovery_info, "ip"):
+            await self.async_set_unique_id(discovery_info.ip)
+            self._abort_if_unique_id_configured()
+            conn_test = await Hub.test_connection(discovery_info.ip)
+            if conn_test == "ok":
+                data = {CONF_HOST: discovery_info.ip}
+                return self.async_create_entry(
+                    title=f"Host: {discovery_info.ip}", data=data
+                )
+            elif conn_test == "auth_required":
+                self.host = discovery_info.ip
+                return await self.async_step_user_password()
+            else:
+                return self.async_abort(reason="Cannot connect")
         else:
-            return self.async_abort(reason="Cannot connect")
+            return self.async_abort(reason="Need latest HA Version for DHCP Discovery")
 
 
 class InvalidHost(exceptions.HomeAssistantError):
