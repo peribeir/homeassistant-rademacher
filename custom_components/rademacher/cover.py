@@ -37,7 +37,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     new_entities = []
     covers = await hub.get_covers()
     for cover in covers:
-        cover_info = await hub.get_device(cover["ID_DEVICE_LOC"])
+        cover_info = await hub.get_device(cover["ID_DEVICE_LOC"]["value"])
         cover_entity = RademacherCover(hub, cover_info)
         new_entities.append(cover_entity)
     # If we have any new devices, add them

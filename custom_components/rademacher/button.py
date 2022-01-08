@@ -26,8 +26,8 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     new_entities = []
     supported_devices = await hub.get_supported_devices()
     for device in supported_devices:
-        device_info = await hub.get_device(device["ID_DEVICE_LOC"])
-        if device_info["PING_CMD"]:
+        device_info = await hub.get_device(device["ID_DEVICE_LOC"]["value"])
+        if "PING_CMD" in device_info:
             new_entities.append(RademacherPingButton(hub, device_info))
     # If we have any new devices, add them
     if new_entities:

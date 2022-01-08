@@ -75,7 +75,17 @@ class Hub:
                     devices = response["payload"]["devices"]
                     return [
                         {
-                            capability["name"]: capability["value"]
+                            capability["name"]: {
+                                "value": capability["value"]
+                                if "value" in capability
+                                else None,
+                                "read_only": capability["read_only"]
+                                if "read_only" in capability
+                                else None,
+                                "timestamp": capability["timestamp"]
+                                if "timestamp" in capability
+                                else None,
+                            }
                             for capability in device["capabilities"]
                         }
                         for device in devices
@@ -113,7 +123,7 @@ class Hub:
         self._devices = [
             device
             for device in await self.get_devices()
-            if SUPPORTED_DEVICES[device["PROD_CODE_DEVICE_LOC"]]["Type"] is not None
+            if SUPPORTED_DEVICES[device["PROD_CODE_DEVICE_LOC"]["value"]]["Type"] is not None
         ]
 
     async def get_supported_devices(self):
@@ -123,14 +133,14 @@ class Hub:
         return [
             device
             for device in self._devices
-            if SUPPORTED_DEVICES[device["PROD_CODE_DEVICE_LOC"]]["Type"] == COVER_TYPE
+            if SUPPORTED_DEVICES[device["PROD_CODE_DEVICE_LOC"]["value"]]["Type"] == COVER_TYPE
         ]
 
     async def get_switch_actuators(self):
         return [
             device
             for device in self._devices
-            if SUPPORTED_DEVICES[device["PROD_CODE_DEVICE_LOC"]]["Type"]
+            if SUPPORTED_DEVICES[device["PROD_CODE_DEVICE_LOC"]["value"]]["Type"]
             == SWITCH_ACTUATOR_TYPE
         ]
 

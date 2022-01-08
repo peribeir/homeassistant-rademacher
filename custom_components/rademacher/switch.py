@@ -22,7 +22,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     new_entities = []
     switch_actuators = await hub.get_switch_actuators()
     for device in switch_actuators:
-        device_info = await hub.get_device(device["ID_DEVICE_LOC"])
+        device_info = await hub.get_device(device["ID_DEVICE_LOC"]["value"])
         new_entities.append(RademacherSwitchActuator(hub, device_info))
     # If we have any new devices, add them
     if new_entities:
