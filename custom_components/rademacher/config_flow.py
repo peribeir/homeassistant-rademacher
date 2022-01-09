@@ -84,9 +84,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             step_id="user", data_schema=DATA_SCHEMA, errors=errors
         )
 
-    async def async_step_dhcp(
-        self, discovery_info
-    ) -> data_entry_flow.FlowResult:
+    async def async_step_dhcp(self, discovery_info) -> data_entry_flow.FlowResult:
         ip_address = (
             discovery_info.ip
             if hasattr(discovery_info, "ip")

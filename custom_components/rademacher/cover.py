@@ -65,7 +65,7 @@ class RademacherCover(CoverEntity):
     def device_info(self):
         """Information about this entity/device."""
         return {
-            "identifiers": {(DOMAIN, self._uid)},
+            "identifiers": {(DOMAIN, self._did)},
             # If desired, the name for the device could be different to the entity
             "name": self.name,
             "sw_version": self.sw_version,

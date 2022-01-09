@@ -37,7 +37,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 class RademacherPingButton(ButtonEntity):
     def __init__(self, hub, device):
         self._hub = hub
-        self._uid = device["PROT_ID_DEVICE_LOC"]["value"]
+        self._uid = f"{device['PROT_ID_DEVICE_LOC']['value']}_ping"
         self._did = device["ID_DEVICE_LOC"]["value"]
         self._device_name = device["NAME_DEVICE_LOC"]["value"]
         self._name = f"{device['NAME_DEVICE_LOC']['value']} Ping"
@@ -49,7 +49,7 @@ class RademacherPingButton(ButtonEntity):
     def device_info(self):
         """Information about this entity/device."""
         return {
-            "identifiers": {(DOMAIN, self._uid)},
+            "identifiers": {(DOMAIN, self._did)},
             # If desired, the name for the device could be different to the entity
             "name": self.device_name,
             "sw_version": self.sw_version,

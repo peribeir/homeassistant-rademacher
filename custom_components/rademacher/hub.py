@@ -6,7 +6,7 @@ from aiohttp.abc import AbstractCookieJar
 from homeassistant import exceptions
 from homeassistant.helpers.entity import get_supported_features
 
-from .const import SUPPORTED_DEVICES, COVER_TYPE, SWITCH_ACTUATOR_TYPE
+from .const import ENV_SENSOR_TYPE, SUPPORTED_DEVICES, COVER_TYPE, SWITCH_ACTUATOR_TYPE
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -155,6 +155,14 @@ class Hub:
             for device in self._devices
             if SUPPORTED_DEVICES[device["PROD_CODE_DEVICE_LOC"]["value"]]["Type"]
             == SWITCH_ACTUATOR_TYPE
+        ]
+
+    async def get_env_sensors(self):
+        return [
+            device
+            for device in self._devices
+            if SUPPORTED_DEVICES[device["PROD_CODE_DEVICE_LOC"]["value"]]["Type"]
+            == ENV_SENSOR_TYPE
         ]
 
     async def open_cover(self, did):

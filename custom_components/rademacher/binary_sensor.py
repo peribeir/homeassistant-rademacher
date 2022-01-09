@@ -6,8 +6,14 @@ from aiohttp import (
     TooManyRedirects,
     ServerTimeoutError,
 )
-from homeassistant.components.switch import PLATFORM_SCHEMA, SwitchEntity
-from homeassistant.const import CONF_HOST
+from homeassistant.components.binary_sensor import (
+    PLATFORM_SCHEMA,
+    BinarySensorEntity,
+    BinarySensorDeviceClass,
+)
+from homeassistant.const import (
+    CONF_HOST,
+)
 import homeassistant.helpers.config_validation as cv
 
 import voluptuous as vol
@@ -20,26 +26,46 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({vol.Required(CONF_HOST): cv.string})
 async def async_setup_entry(hass, config_entry, async_add_entities):
     hub = hass.data[DOMAIN][config_entry.entry_id]
     new_entities = []
-    switch_actuators = await hub.get_switch_actuators()
-    for device in switch_actuators:
+    env_sensors = await hub.get_env_sensors()
+    for device in env_sensors:
         device_info = await hub.get_device(device["ID_DEVICE_LOC"]["value"])
-        new_entities.append(RademacherSwitchActuator(hub, device_info))
+        if "RAIN_DETECTION_MEA" in device_info:
+            new_entities.append(
+                RademacherBinarySensor(
+                    hub,
+                    device_info,
+                    "rain_detect",
+                    "Rain Detection",
+                    "RAIN_DETECTION_MEA",
+                    None,
+                )
+            )
     # If we have any new devices, add them
     if new_entities:
         async_add_entities(new_entities)
 
 
-class RademacherSwitchActuator(SwitchEntity):
-    def __init__(self, hub, device):
+class RademacherBinarySensor(BinarySensorEntity):
+    def __init__(
+        self,
+        hub,
+        device,
+        id_suffix,
+        name_suffix,
+        api_attr,
+        device_class,
+    ):
         self._hub = hub
-        self._uid = device["PROT_ID_DEVICE_LOC"]["value"]
         self._did = device["ID_DEVICE_LOC"]["value"]
-        self._device_name = device["NAME_DEVICE_LOC"]["value"]
-        self._name = f"{device['NAME_DEVICE_LOC']['value']}"
+        self._device_name = f"{device['NAME_DEVICE_LOC']['value']}"
+        self._device_class = device_class
         self._model = SUPPORTED_DEVICES[device["PROD_CODE_DEVICE_LOC"]["value"]]["name"]
         self._sw_version = device["VERSION_CFG"]["value"]
+        self._uid = f"{device['PROT_ID_DEVICE_LOC']['value']}_f{id_suffix}"
+        self._name = f"{device['NAME_DEVICE_LOC']['value']} {name_suffix}"
+        self._api_attr = api_attr
+        self._is_on = device[self._api_attr]["value"] == "true"
         self._available: bool = bool(device["REACHABILITY_EVT"]["value"])
-        self._is_on = device["CURR_SWITCH_POS_CFG"]["value"]
 
     @property
     def device_info(self):
@@ -52,6 +78,10 @@ class RademacherSwitchActuator(SwitchEntity):
             "model": self.model,
             "manufacturer": "Rademacher",
         }
+
+    @property
+    def device_class(self):
+        return self._device_class
 
     @property
     def available(self):
@@ -81,28 +111,13 @@ class RademacherSwitchActuator(SwitchEntity):
     def sw_version(self):
         return self._sw_version
 
-    async def async_turn_on(self, **kwargs):
-        """Turn the entity on."""
-        await self._hub.turn_on(self._did)
-
-    async def async_turn_off(self, **kwargs):
-        """Turn the entity off."""
-        await self._hub.turn_off(self._did)
-
-    async def async_toggle(self, **kwargs):
-        """Toggle the entity."""
-        if self._is_on:
-            await self._hub.turn_off(self._did)
-        else:
-            await self._hub.turn_on(self._did)
-
     async def async_update(self):
         try:
             device = await self._hub.get_device(self._did)
 
             if device:
                 self._available = device["REACHABILITY_EVT"]["value"]
-                self._is_on = device["CURR_SWITCH_POS_CFG"]["value"] == "true"
+                self._is_on = device[self._api_attr]["value"] == "true"
             else:
                 self._available = False
 
