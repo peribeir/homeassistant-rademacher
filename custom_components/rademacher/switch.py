@@ -102,7 +102,7 @@ class RademacherSwitchActuator(SwitchEntity):
 
             if device:
                 self._available = device["REACHABILITY_EVT"]["value"]
-                self._is_on = device["CURR_SWITCH_POS_CFG"]["value"]
+                self._is_on = device["CURR_SWITCH_POS_CFG"]["value"] == "true"
             else:
                 self._available = False
 
