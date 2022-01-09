@@ -119,11 +119,21 @@ class Hub:
                 else:
                     return None
 
+    async def get_supported_device_type(self, device_number: str):
+        return (
+            SUPPORTED_DEVICES[device_number]["Type"]
+            if device_number in SUPPORTED_DEVICES
+            else None
+        )
+
     async def fill_supported_devices(self):
         self._devices = [
             device
             for device in await self.get_devices()
-            if SUPPORTED_DEVICES[device["PROD_CODE_DEVICE_LOC"]["value"]]["Type"] is not None
+            if await self.get_supported_device_type(
+                device["PROD_CODE_DEVICE_LOC"]["value"]
+            )
+            is not None
         ]
 
     async def get_supported_devices(self):
@@ -133,7 +143,10 @@ class Hub:
         return [
             device
             for device in self._devices
-            if SUPPORTED_DEVICES[device["PROD_CODE_DEVICE_LOC"]["value"]]["Type"] == COVER_TYPE
+            if await self.get_supported_device_type(
+                device["PROD_CODE_DEVICE_LOC"]["value"]
+            )
+            == COVER_TYPE
         ]
 
     async def get_switch_actuators(self):
