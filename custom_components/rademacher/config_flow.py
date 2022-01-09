@@ -5,7 +5,7 @@ import socket
 import voluptuous as vol
 
 from homeassistant import config_entries, exceptions, data_entry_flow
-from homeassistant.components.dhcp import DhcpServiceInfo
+from homeassistant.components.dhcp import IP_ADDRESS
 from homeassistant.const import CONF_HOST, CONF_PASSWORD
 
 from .hub import Hub, CannotConnect, AuthError
@@ -85,24 +85,24 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         )
 
     async def async_step_dhcp(
-        self, discovery_info: DhcpServiceInfo
+        self, discovery_info
     ) -> data_entry_flow.FlowResult:
-        if hasattr(discovery_info, "ip"):
-            await self.async_set_unique_id(discovery_info.ip)
-            self._abort_if_unique_id_configured()
-            conn_test = await Hub.test_connection(discovery_info.ip)
-            if conn_test == "ok":
-                data = {CONF_HOST: discovery_info.ip}
-                return self.async_create_entry(
-                    title=f"Host: {discovery_info.ip}", data=data
-                )
-            elif conn_test == "auth_required":
-                self.host = discovery_info.ip
-                return await self.async_step_user_password()
-            else:
-                return self.async_abort(reason="Cannot connect")
+        ip_address = (
+            discovery_info.ip
+            if hasattr(discovery_info, "ip")
+            else discovery_info[IP_ADDRESS]
+        )
+        await self.async_set_unique_id(ip_address)
+        self._abort_if_unique_id_configured()
+        conn_test = await Hub.test_connection(ip_address)
+        if conn_test == "ok":
+            data = {CONF_HOST: ip_address}
+            return self.async_create_entry(title=f"Host: {ip_address}", data=data)
+        elif conn_test == "auth_required":
+            self.host = ip_address
+            return await self.async_step_user_password()
         else:
-            return self.async_abort(reason="Need latest HA Version for DHCP Discovery")
+            return self.async_abort(reason="Cannot connect")
 
 
 class InvalidHost(exceptions.HomeAssistantError):
