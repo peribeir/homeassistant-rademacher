@@ -1,11 +1,4 @@
 """Platform for Rademacher Bridge"""
-from aiohttp import (
-    ClientError,
-    ClientOSError,
-    InvalidURL,
-    TooManyRedirects,
-    ServerTimeoutError,
-)
 from homeassistant.components.sensor import (
     PLATFORM_SCHEMA,
     SensorEntity,
@@ -23,6 +16,8 @@ import homeassistant.helpers.config_validation as cv
 
 import voluptuous as vol
 
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
+
 from .const import DOMAIN, SUPPORTED_DEVICES
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({vol.Required(CONF_HOST): cv.string})
@@ -31,9 +26,9 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({vol.Required(CONF_HOST): cv.string})
 async def async_setup_entry(hass, config_entry, async_add_entities):
     hub = hass.data[DOMAIN][config_entry.entry_id]
     new_entities = []
-    env_sensors = await hub.get_env_sensors()
+    env_sensors = hub.env_sensors
     for device in env_sensors:
-        device_info = await hub.get_device(device["ID_DEVICE_LOC"]["value"])
+        device_info = hub.coordinator.data[device["ID_DEVICE_LOC"]["value"]]
         if "TEMP_CURR_DEG_MEA" in device_info:
             new_entities.append(
                 RademacherSensor(
@@ -104,7 +99,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         async_add_entities(new_entities)
 
 
-class RademacherSensor(SensorEntity):
+class RademacherSensor(CoordinatorEntity, SensorEntity):
     def __init__(
         self,
         hub,
@@ -116,6 +111,7 @@ class RademacherSensor(SensorEntity):
         native_unit_of_measurement,
         icon,
     ):
+        super().__init__(hub.coordinator)
         self._hub = hub
         self._did = device["ID_DEVICE_LOC"]["value"]
         self._device_name = f"{device['NAME_DEVICE_LOC']['value']}"
@@ -131,10 +127,18 @@ class RademacherSensor(SensorEntity):
         self._available: bool = bool(device["REACHABILITY_EVT"]["value"])
 
     @property
+    def hub(self):
+        return self._hub
+
+    @property
+    def did(self):
+        return self._did
+
+    @property
     def device_info(self):
         """Information about this entity/device."""
         return {
-            "identifiers": {(DOMAIN, self._did)},
+            "identifiers": {(DOMAIN, self.did)},
             # If desired, the name for the device could be different to the entity
             "name": self.device_name,
             "sw_version": self.sw_version,
@@ -156,11 +160,11 @@ class RademacherSensor(SensorEntity):
 
     @property
     def available(self):
-        return self._available
+        return self.coordinator.data[self.did]["REACHABILITY_EVT"]["value"]
 
     @property
     def native_value(self):
-        return self._native_value
+        return float(self.coordinator.data[self.did][self._api_attr]["value"])
 
     @property
     def unique_id(self):
@@ -185,24 +189,3 @@ class RademacherSensor(SensorEntity):
     @property
     def icon(self):
         return self._icon
-
-    async def async_update(self):
-        try:
-            device = await self._hub.get_device(self._did)
-
-            if device:
-                self._available = device["REACHABILITY_EVT"]["value"]
-                self._native_value = float(device[self._api_attr]["value"])
-            else:
-                self._available = False
-
-        except (
-            RuntimeError,
-            ClientError,
-            ClientOSError,
-            TooManyRedirects,
-            BaseException,
-            InvalidURL,
-            ServerTimeoutError,
-        ) as e:
-            self._available = False

@@ -4,7 +4,7 @@ import logging
 from aiohttp import ClientConnectorError
 from aiohttp.abc import AbstractCookieJar
 from homeassistant import exceptions
-from homeassistant.helpers.entity import get_supported_features
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from .const import ENV_SENSOR_TYPE, SUPPORTED_DEVICES, COVER_TYPE, SWITCH_ACTUATOR_TYPE
 
@@ -12,12 +12,27 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class Hub:
+    _devices = []
+    _coordinator: DataUpdateCoordinator = None
+
     def __init__(self, hass, host, password=""):
         self._hass = hass
         self._host = host
         self._password = password
         self._cookie_jar = aiohttp.CookieJar()
         self._authenticated = False
+
+    @property
+    def devices(self):
+        return self._devices
+
+    @property
+    def coordinator(self):
+        return self._coordinator
+
+    @coordinator.setter
+    def coordinator(self, coordinator):
+        self._coordinator = coordinator
 
     @staticmethod
     async def test_auth(host: str, password: str) -> AbstractCookieJar:
@@ -119,7 +134,7 @@ class Hub:
                 else:
                     return None
 
-    async def get_supported_device_type(self, device_number: str):
+    def get_supported_device_type(self, device_number: str):
         return (
             SUPPORTED_DEVICES[device_number]["Type"]
             if device_number in SUPPORTED_DEVICES
@@ -130,38 +145,37 @@ class Hub:
         self._devices = [
             device
             for device in await self.get_devices()
-            if await self.get_supported_device_type(
-                device["PROD_CODE_DEVICE_LOC"]["value"]
-            )
+            if self.get_supported_device_type(device["PROD_CODE_DEVICE_LOC"]["value"])
             is not None
         ]
 
     async def get_supported_devices(self):
         return self._devices
 
-    async def get_covers(self):
+    @property
+    def covers(self):
         return [
             device
             for device in self._devices
-            if await self.get_supported_device_type(
-                device["PROD_CODE_DEVICE_LOC"]["value"]
-            )
+            if self.get_supported_device_type(device["PROD_CODE_DEVICE_LOC"]["value"])
             == COVER_TYPE
         ]
 
-    async def get_switch_actuators(self):
+    @property
+    def switch_actuators(self):
         return [
             device
             for device in self._devices
-            if SUPPORTED_DEVICES[device["PROD_CODE_DEVICE_LOC"]["value"]]["Type"]
+            if self.get_supported_device_type(device["PROD_CODE_DEVICE_LOC"]["value"])
             == SWITCH_ACTUATOR_TYPE
         ]
 
-    async def get_env_sensors(self):
+    @property
+    def env_sensors(self):
         return [
             device
             for device in self._devices
-            if SUPPORTED_DEVICES[device["PROD_CODE_DEVICE_LOC"]["value"]]["Type"]
+            if self.get_supported_device_type(device["PROD_CODE_DEVICE_LOC"]["value"])
             == ENV_SENSOR_TYPE
         ]
 
