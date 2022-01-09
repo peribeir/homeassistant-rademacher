@@ -44,6 +44,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                     "TEMP_CURR_DEG_MEA",
                     SensorDeviceClass.TEMPERATURE.value,
                     TEMP_CELSIUS,
+                    None,
                 )
             )
         if "WIND_SPEED_MS_MEA" in device_info:
@@ -56,6 +57,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                     "WIND_SPEED_MS_MEA",
                     None,
                     SPEED_METERS_PER_SECOND,
+                    "mdi:weather-windy",
                 )
             )
         if "LIGHT_VAL_LUX_MEA" in device_info:
@@ -68,6 +70,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                     "LIGHT_VAL_LUX_MEA",
                     SensorDeviceClass.ILLUMINANCE.value,
                     LIGHT_LUX,
+                    None,
                 )
             )
         if "SUN_HEIGHT_DEG_MEA" in device_info:
@@ -80,6 +83,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                     "SUN_HEIGHT_DEG_MEA",
                     None,
                     DEGREE,
+                    "mdi:weather-sunset-up",
                 )
             )
         if "SUN_DIRECTION_MEA" in device_info:
@@ -92,6 +96,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                     "SUN_DIRECTION_MEA",
                     None,
                     DEGREE,
+                    "mdi:sun-compass",
                 )
             )
     # If we have any new devices, add them
@@ -109,6 +114,7 @@ class RademacherSensor(SensorEntity):
         api_attr,
         device_class,
         native_unit_of_measurement,
+        icon,
     ):
         self._hub = hub
         self._did = device["ID_DEVICE_LOC"]["value"]
@@ -120,6 +126,7 @@ class RademacherSensor(SensorEntity):
         self._uid = f"{device['PROT_ID_DEVICE_LOC']['value']}_f{id_suffix}"
         self._name = f"{device['NAME_DEVICE_LOC']['value']} {name_suffix}"
         self._api_attr = api_attr
+        self._icon = icon
         self._native_value = float(device[self._api_attr]["value"])
         self._available: bool = bool(device["REACHABILITY_EVT"]["value"])
 
@@ -174,6 +181,10 @@ class RademacherSensor(SensorEntity):
     @property
     def sw_version(self):
         return self._sw_version
+
+    @property
+    def icon(self):
+        return self._icon
 
     async def async_update(self):
         try:

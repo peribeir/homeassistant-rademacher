@@ -38,6 +38,8 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                     "Rain Detection",
                     "RAIN_DETECTION_MEA",
                     None,
+                    "mdi:weather-rainy",
+                    "mdi:weather-sunny",
                 )
             )
     # If we have any new devices, add them
@@ -54,6 +56,8 @@ class RademacherBinarySensor(BinarySensorEntity):
         name_suffix,
         api_attr,
         device_class,
+        icon_on,
+        icon_off,
     ):
         self._hub = hub
         self._did = device["ID_DEVICE_LOC"]["value"]
@@ -64,6 +68,8 @@ class RademacherBinarySensor(BinarySensorEntity):
         self._uid = f"{device['PROT_ID_DEVICE_LOC']['value']}_f{id_suffix}"
         self._name = f"{device['NAME_DEVICE_LOC']['value']} {name_suffix}"
         self._api_attr = api_attr
+        self._icon_on = icon_on
+        self._icon_off = icon_off
         self._is_on = device[self._api_attr]["value"] == "true"
         self._available: bool = bool(device["REACHABILITY_EVT"]["value"])
 
@@ -110,6 +116,10 @@ class RademacherBinarySensor(BinarySensorEntity):
     @property
     def sw_version(self):
         return self._sw_version
+
+    @property
+    def icon(self):
+        return self._icon_on if self._is_on else self._icon_off
 
     async def async_update(self):
         try:
