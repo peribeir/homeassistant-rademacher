@@ -8,15 +8,13 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_HOST, CONF_PASSWORD
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import (
-    CoordinatorEntity,
     DataUpdateCoordinator,
-    UpdateFailed,
 )
 from homeassistant.exceptions import ConfigEntryAuthFailed
 
 from .hub import AuthError, Hub
 
-from .const import DOMAIN
+from .const import APICAP_ID_DEVICE_LOC, DOMAIN
 
 # List of platforms to support. There should be a matching .py file for each,
 # eg <cover.py> and <sensor.py>
@@ -57,8 +55,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             # handled by the data update coordinator.
             async with async_timeout.timeout(10):
                 return {
-                    device["ID_DEVICE_LOC"]["value"]: await hub.get_device(
-                        device["ID_DEVICE_LOC"]["value"]
+                    device[APICAP_ID_DEVICE_LOC]["value"]: await hub.get_device(
+                        device[APICAP_ID_DEVICE_LOC]["value"]
                     )
                     for device in hub.devices
                 }

@@ -1,13 +1,11 @@
 """Platform for Rademacher Bridge"""
-import logging
 from typing import Any
+from .rademacher_entity import RademacherEntity
 
 from homeassistant.components.cover import (
-    PLATFORM_SCHEMA,
     CoverEntity,
     CoverDeviceClass,
 )
-from homeassistant.const import CONF_HOST
 from homeassistant.components.cover import (
     ATTR_POSITION,
     SUPPORT_OPEN,
@@ -15,16 +13,14 @@ from homeassistant.components.cover import (
     SUPPORT_STOP,
     SUPPORT_SET_POSITION,
 )
-import homeassistant.helpers.config_validation as cv
-
-import voluptuous as vol
-
-from homeassistant.helpers.update_coordinator import CoordinatorEntity
-from .const import DOMAIN, SUPPORTED_DEVICES
-
-PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({vol.Required(CONF_HOST): cv.string})
-
-_LOGGER = logging.getLogger(__name__)
+from .const import (
+    APICAP_CURR_POS_CFG,
+    APICAP_GOTO_POS_CMD,
+    APICAP_ID_DEVICE_LOC,
+    APICAP_NAME_DEVICE_LOC,
+    APICAP_PROT_ID_DEVICE_LOC,
+    DOMAIN,
+)
 
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
@@ -32,78 +28,34 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     new_entities = []
     covers = hub.covers
     for cover in covers:
-        cover_info = hub.coordinator.data[cover["ID_DEVICE_LOC"]["value"]]
-        cover_entity = RademacherCover(hub, cover_info)
+        cover_info = hub.coordinator.data[cover[APICAP_ID_DEVICE_LOC]["value"]]
+        cover_entity = RademacherCoverEntity(hub, cover_info)
         new_entities.append(cover_entity)
     # If we have any new devices, add them
     if new_entities:
         async_add_entities(new_entities)
 
 
-class RademacherCover(CoordinatorEntity, CoverEntity):
+class RademacherCoverEntity(RademacherEntity, CoverEntity):
     def __init__(self, hub, device):
-        super().__init__(hub.coordinator)
-        self._hub = hub
-        self._uid = device["PROT_ID_DEVICE_LOC"]["value"]
-        self._did = device["ID_DEVICE_LOC"]["value"]
-        self._name = device["NAME_DEVICE_LOC"]["value"]
-        self._model = SUPPORTED_DEVICES[device["PROD_CODE_DEVICE_LOC"]["value"]]["name"]
-        self._sw_version = device["VERSION_CFG"]["value"]
+        super().__init__(
+            hub,
+            device,
+            unique_id=device[APICAP_PROT_ID_DEVICE_LOC]["value"],
+            name=device[APICAP_NAME_DEVICE_LOC]["value"],
+            device_class=CoverDeviceClass.SHUTTER.value,
+        )
         self._supported_features = SUPPORT_STOP | SUPPORT_CLOSE | SUPPORT_OPEN
-        if "GOTO_POS_CMD" in device:
+        if APICAP_GOTO_POS_CMD in device:
             self._supported_features |= SUPPORT_SET_POSITION
-
-    @property
-    def hub(self):
-        return self._hub
-
-    @property
-    def did(self):
-        return self._did
-
-    @property
-    def device_info(self):
-        """Information about this entity/device."""
-        return {
-            "identifiers": {(DOMAIN, self.did)},
-            # If desired, the name for the device could be different to the entity
-            "name": self.name,
-            "sw_version": self.sw_version,
-            "model": self.model,
-            "manufacturer": "Rademacher",
-        }
 
     @property
     def supported_features(self):
         return self._supported_features
 
     @property
-    def unique_id(self):
-        return self._uid
-
-    @property
-    def device_class(self):
-        return CoverDeviceClass.SHUTTER.value
-
-    @property
-    def name(self):
-        return self._name
-
-    @property
-    def model(self):
-        return self._model
-
-    @property
-    def sw_version(self):
-        return self._sw_version
-
-    @property
-    def available(self):
-        return self.coordinator.data[self.did]["REACHABILITY_EVT"]["value"]
-
-    @property
     def current_cover_position(self):
-        return 100 - int(self.coordinator.data[self.did]["CURR_POS_CFG"]["value"])
+        return 100 - int(self.coordinator.data[self.did][APICAP_CURR_POS_CFG]["value"])
 
     @property
     def is_closing(self):

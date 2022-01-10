@@ -1,26 +1,27 @@
 """Platform for Rademacher Bridge"""
+from .rademacher_entity import RademacherEntity
 from homeassistant.components.sensor import (
-    PLATFORM_SCHEMA,
     SensorEntity,
     SensorDeviceClass,
     SensorStateClass,
 )
 from homeassistant.const import (
-    CONF_HOST,
     DEGREE,
     LIGHT_LUX,
     SPEED_METERS_PER_SECOND,
     TEMP_CELSIUS,
 )
-import homeassistant.helpers.config_validation as cv
-
-import voluptuous as vol
-
-from homeassistant.helpers.update_coordinator import CoordinatorEntity
-
-from .const import DOMAIN, SUPPORTED_DEVICES
-
-PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({vol.Required(CONF_HOST): cv.string})
+from .const import (
+    APICAP_ID_DEVICE_LOC,
+    APICAP_LIGHT_VAL_LUX_MEA,
+    APICAP_NAME_DEVICE_LOC,
+    APICAP_PROT_ID_DEVICE_LOC,
+    APICAP_SUN_DIRECTION_MEA,
+    APICAP_SUN_HEIGHT_DEG_MEA,
+    APICAP_TEMP_CURR_DEG_MEA,
+    APICAP_WIND_SPEED_MS_MEA,
+    DOMAIN,
+)
 
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
@@ -28,67 +29,67 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     new_entities = []
     env_sensors = hub.env_sensors
     for device in env_sensors:
-        device_info = hub.coordinator.data[device["ID_DEVICE_LOC"]["value"]]
-        if "TEMP_CURR_DEG_MEA" in device_info:
+        device_info = hub.coordinator.data[device[APICAP_ID_DEVICE_LOC]["value"]]
+        if APICAP_TEMP_CURR_DEG_MEA in device_info:
             new_entities.append(
                 RademacherSensor(
                     hub,
                     device_info,
                     "temp",
                     "Temperature",
-                    "TEMP_CURR_DEG_MEA",
+                    APICAP_TEMP_CURR_DEG_MEA,
                     SensorDeviceClass.TEMPERATURE.value,
                     TEMP_CELSIUS,
                     None,
                 )
             )
-        if "WIND_SPEED_MS_MEA" in device_info:
+        if APICAP_WIND_SPEED_MS_MEA in device_info:
             new_entities.append(
                 RademacherSensor(
                     hub,
                     device_info,
                     "wind_speed",
                     "Wind Speed",
-                    "WIND_SPEED_MS_MEA",
+                    APICAP_WIND_SPEED_MS_MEA,
                     None,
                     SPEED_METERS_PER_SECOND,
                     "mdi:weather-windy",
                 )
             )
-        if "LIGHT_VAL_LUX_MEA" in device_info:
+        if APICAP_LIGHT_VAL_LUX_MEA in device_info:
             new_entities.append(
                 RademacherSensor(
                     hub,
                     device_info,
                     "brightness",
                     "Brightness",
-                    "LIGHT_VAL_LUX_MEA",
+                    APICAP_LIGHT_VAL_LUX_MEA,
                     SensorDeviceClass.ILLUMINANCE.value,
                     LIGHT_LUX,
                     None,
                 )
             )
-        if "SUN_HEIGHT_DEG_MEA" in device_info:
+        if APICAP_SUN_HEIGHT_DEG_MEA in device_info:
             new_entities.append(
                 RademacherSensor(
                     hub,
                     device_info,
                     "sun_height",
                     "Sun Height",
-                    "SUN_HEIGHT_DEG_MEA",
+                    APICAP_SUN_HEIGHT_DEG_MEA,
                     None,
                     DEGREE,
                     "mdi:weather-sunset-up",
                 )
             )
-        if "SUN_DIRECTION_MEA" in device_info:
+        if APICAP_SUN_DIRECTION_MEA in device_info:
             new_entities.append(
                 RademacherSensor(
                     hub,
                     device_info,
                     "sun_direction",
                     "Sun Direction",
-                    "SUN_DIRECTION_MEA",
+                    APICAP_SUN_DIRECTION_MEA,
                     None,
                     DEGREE,
                     "mdi:sun-compass",
@@ -99,7 +100,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         async_add_entities(new_entities)
 
 
-class RademacherSensor(CoordinatorEntity, SensorEntity):
+class RademacherSensor(RademacherEntity, SensorEntity):
     def __init__(
         self,
         hub,
@@ -111,44 +112,16 @@ class RademacherSensor(CoordinatorEntity, SensorEntity):
         native_unit_of_measurement,
         icon,
     ):
-        super().__init__(hub.coordinator)
-        self._hub = hub
-        self._did = device["ID_DEVICE_LOC"]["value"]
-        self._device_name = f"{device['NAME_DEVICE_LOC']['value']}"
-        self._device_class = device_class
-        self._native_unit_of_measurement = native_unit_of_measurement
-        self._model = SUPPORTED_DEVICES[device["PROD_CODE_DEVICE_LOC"]["value"]]["name"]
-        self._sw_version = device["VERSION_CFG"]["value"]
-        self._uid = f"{device['PROT_ID_DEVICE_LOC']['value']}_f{id_suffix}"
-        self._name = f"{device['NAME_DEVICE_LOC']['value']} {name_suffix}"
+        super().__init__(
+            hub,
+            device,
+            unique_id=f"{device[APICAP_PROT_ID_DEVICE_LOC]['value']}_f{id_suffix}",
+            name=f"{device[APICAP_NAME_DEVICE_LOC]['value']} {name_suffix}",
+            device_class=device_class,
+            icon=icon,
+        )
         self._api_attr = api_attr
-        self._icon = icon
-        self._native_value = float(device[self._api_attr]["value"])
-        self._available: bool = bool(device["REACHABILITY_EVT"]["value"])
-
-    @property
-    def hub(self):
-        return self._hub
-
-    @property
-    def did(self):
-        return self._did
-
-    @property
-    def device_info(self):
-        """Information about this entity/device."""
-        return {
-            "identifiers": {(DOMAIN, self.did)},
-            # If desired, the name for the device could be different to the entity
-            "name": self.device_name,
-            "sw_version": self.sw_version,
-            "model": self.model,
-            "manufacturer": "Rademacher",
-        }
-
-    @property
-    def device_class(self):
-        return self._device_class
+        self._native_unit_of_measurement = native_unit_of_measurement
 
     @property
     def native_unit_of_measurement(self):
@@ -159,33 +132,5 @@ class RademacherSensor(CoordinatorEntity, SensorEntity):
         return SensorStateClass.MEASUREMENT
 
     @property
-    def available(self):
-        return self.coordinator.data[self.did]["REACHABILITY_EVT"]["value"]
-
-    @property
     def native_value(self):
         return float(self.coordinator.data[self.did][self._api_attr]["value"])
-
-    @property
-    def unique_id(self):
-        return self._uid
-
-    @property
-    def name(self):
-        return self._name
-
-    @property
-    def device_name(self):
-        return self._device_name
-
-    @property
-    def model(self):
-        return self._model
-
-    @property
-    def sw_version(self):
-        return self._sw_version
-
-    @property
-    def icon(self):
-        return self._icon
