@@ -1,33 +1,27 @@
+from .homepilot.device import HomePilotDevice
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
-from .const import (
-    APICAP_ID_DEVICE_LOC,
-    APICAP_NAME_DEVICE_LOC,
-    APICAP_PROD_CODE_DEVICE_LOC,
-    APICAP_REACHABILITY_EVT,
-    APICAP_VERSION_CFG,
-    DOMAIN,
-    SUPPORTED_DEVICES,
-)
+from .const import DOMAIN
 
 
-class RademacherEntity(CoordinatorEntity):
-    def __init__(self, hub, device, unique_id, name, device_class=None, icon=None):
-        super().__init__(hub.coordinator)
-        self._hub = hub
+class HomePilotEntity(CoordinatorEntity):
+    def __init__(
+        self,
+        coordinator,
+        device: HomePilotDevice,
+        unique_id,
+        name,
+        device_class=None,
+        icon=None,
+    ):
+        super().__init__(coordinator)
         self._unique_id = unique_id
         self._name = name
-        self._device_name = device[APICAP_NAME_DEVICE_LOC]["value"]
+        self._device_name = device.name
         self._device_class = device_class
         self._icon = icon
-        self._did = device[APICAP_ID_DEVICE_LOC]["value"]
-        self._model = SUPPORTED_DEVICES[device[APICAP_PROD_CODE_DEVICE_LOC]["value"]][
-            "name"
-        ]
-        self._sw_version = device[APICAP_VERSION_CFG]["value"]
-
-    @property
-    def hub(self):
-        return self._hub
+        self._did = device.did
+        self._model = device.model
+        self._sw_version = device.fw_version
 
     @property
     def did(self):
@@ -75,4 +69,5 @@ class RademacherEntity(CoordinatorEntity):
 
     @property
     def available(self):
-        return self.coordinator.data[self.did][APICAP_REACHABILITY_EVT]["value"]
+        device: HomePilotDevice = self.coordinator.data[self.did]
+        return device.available

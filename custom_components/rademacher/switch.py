@@ -1,52 +1,54 @@
 """Platform for Rademacher Bridge"""
-from .rademacher_entity import RademacherEntity
+from .homepilot.hub import HomePilotHub
+
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
+from .homepilot.device import HomePilotDevice
+from .entity import HomePilotEntity
+from .homepilot.switch import HomePilotSwitch
 from homeassistant.components.switch import SwitchDeviceClass, SwitchEntity
-from .const import (
-    APICAP_CURR_SWITCH_POS_CFG,
-    APICAP_ID_DEVICE_LOC,
-    APICAP_NAME_DEVICE_LOC,
-    APICAP_PROT_ID_DEVICE_LOC,
-    DOMAIN,
-)
+from .const import DOMAIN
 
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
-    hub = hass.data[DOMAIN][config_entry.entry_id]
+    entry = hass.data[DOMAIN][config_entry.entry_id]
+    hub: HomePilotHub = entry[0]
+    coordinator: DataUpdateCoordinator = entry[1]
     new_entities = []
-    switch_actuators = hub.switch_actuators
-    for device in switch_actuators:
-        device_info = hub.coordinator.data[device[APICAP_ID_DEVICE_LOC]["value"]]
-        new_entities.append(RademacherSwitchActuator(hub, device_info))
+    for did in hub.devices:
+        device: HomePilotDevice = hub.devices[did]
+        if isinstance(device, HomePilotSwitch):
+            new_entities.append(HomePilotSwitchEntity(coordinator, device))
     # If we have any new devices, add them
     if new_entities:
         async_add_entities(new_entities)
 
 
-class RademacherSwitchActuator(RademacherEntity, SwitchEntity):
-    def __init__(self, hub, device):
+class HomePilotSwitchEntity(HomePilotEntity, SwitchEntity):
+    def __init__(
+        self, coordinator: DataUpdateCoordinator, device: HomePilotDevice
+    ) -> None:
         super().__init__(
-            hub,
+            coordinator,
             device,
-            unique_id=device[APICAP_PROT_ID_DEVICE_LOC]["value"],
-            name=device[APICAP_NAME_DEVICE_LOC]["value"],
+            unique_id=device.uid,
+            name=device.name,
             device_class=SwitchDeviceClass.SWITCH.value,
         )
 
     @property
     def is_on(self):
-        return (
-            self.coordinator.data[self.did][APICAP_CURR_SWITCH_POS_CFG]["value"]
-            == "true"
-        )
+        return self.coordinator.data[self.did].is_on
 
     async def async_turn_on(self, **kwargs):
         """Turn the entity on."""
-        await self.hub.turn_on(self.did)
+        device: HomePilotSwitch = self.coordinator.data[self.did]
+        await device.async_turn_on()
         await self.coordinator.async_request_refresh()
 
     async def async_turn_off(self, **kwargs):
         """Turn the entity off."""
-        await self.hub.turn_off(self.did)
+        device: HomePilotSwitch = self.coordinator.data[self.did]
+        await device.async_turn_off()
         await self.coordinator.async_request_refresh()
 
     async def async_toggle(self, **kwargs):

@@ -1,65 +1,79 @@
 """Platform for Rademacher Bridge"""
-from .rademacher_entity import RademacherEntity
-from homeassistant.components.binary_sensor import (
-    BinarySensorEntity,
-)
+from .homepilot.device import HomePilotDevice
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
+from .homepilot.sensor import HomePilotSensor
+from .homepilot.hub import HomePilotHub
+from .entity import HomePilotEntity
+from homeassistant.components.binary_sensor import BinarySensorEntity
 
-from .const import (
-    APICAP_ID_DEVICE_LOC,
-    APICAP_NAME_DEVICE_LOC,
-    APICAP_PROT_ID_DEVICE_LOC,
-    APICAP_RAIN_DETECTION_MEA,
-    DOMAIN,
-)
+from .const import DOMAIN
 
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
-    hub = hass.data[DOMAIN][config_entry.entry_id]
+    entry = hass.data[DOMAIN][config_entry.entry_id]
+    hub: HomePilotHub = entry[0]
+    coordinator: DataUpdateCoordinator = entry[1]
     new_entities = []
-    env_sensors = hub.env_sensors
-    for device in env_sensors:
-        device_info = hub.coordinator.data[device[APICAP_ID_DEVICE_LOC]["value"]]
-        if APICAP_RAIN_DETECTION_MEA in device_info:
-            new_entities.append(
-                RademacherBinarySensor(
-                    hub,
-                    device_info,
-                    "rain_detect",
-                    "Rain Detection",
-                    APICAP_RAIN_DETECTION_MEA,
-                    "mdi:weather-rainy",
-                    "mdi:weather-sunny",
+    for did in hub.devices:
+        device: HomePilotDevice = hub.devices[did]
+        if isinstance(device, HomePilotSensor):
+            if device.has_rain_detection:
+                new_entities.append(
+                    HomePilotBinarySensorEntity(
+                        coordinator,
+                        device,
+                        "rain_detect",
+                        "Rain Detection",
+                        "rain_detection_value",
+                        "mdi:weather-rainy",
+                        "mdi:cloud-off-outline",
+                    )
                 )
-            )
+            if device.has_sun_detection:
+                new_entities.append(
+                    HomePilotBinarySensorEntity(
+                        coordinator,
+                        device,
+                        "sun_detect",
+                        "Sun Detection",
+                        "sun_detection_value",
+                        "mdi:weather-sunny",
+                        "mdi:weather-sunny-off",
+                    )
+                )
     # If we have any new devices, add them
     if new_entities:
         async_add_entities(new_entities)
 
 
-class RademacherBinarySensor(RademacherEntity, BinarySensorEntity):
+class HomePilotBinarySensorEntity(HomePilotEntity, BinarySensorEntity):
     def __init__(
         self,
         hub,
-        device,
+        device: HomePilotSensor,
         id_suffix,
         name_suffix,
-        api_attr,
+        value_attr,
         icon_on,
         icon_off,
     ):
         super().__init__(
             hub,
             device,
-            unique_id=f"{device[APICAP_PROT_ID_DEVICE_LOC]['value']}_f{id_suffix}",
-            name=f"{device[APICAP_NAME_DEVICE_LOC]['value']} {name_suffix}",
+            unique_id=f"{device.uid}_f{id_suffix}",
+            name=f"{device.name} {name_suffix}",
         )
-        self._api_attr = api_attr
+        self._value_attr = value_attr
         self._icon_on = icon_on
         self._icon_off = icon_off
 
     @property
+    def value_attr(self):
+        return self._value_attr
+
+    @property
     def is_on(self):
-        return self.coordinator.data[self.did][self._api_attr]["value"] == "true"
+        return getattr(self.coordinator.data[self.did], self.value_attr)
 
     @property
     def icon(self):

@@ -12,9 +12,10 @@ from homeassistant.helpers.update_coordinator import (
 )
 from homeassistant.exceptions import ConfigEntryAuthFailed
 
-from .hub import AuthError, Hub
+from .homepilot.hub import HomePilotHub
+from .homepilot.api import AuthError
 
-from .const import APICAP_ID_DEVICE_LOC, DOMAIN
+from .const import DOMAIN
 
 # List of platforms to support. There should be a matching .py file for each,
 # eg <cover.py> and <sensor.py>
@@ -37,12 +38,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Rademacher from a config entry."""
     # Store an instance of the "connecting" class that does the work of speaking
     # with your actual devices.
-    hub = Hub(
-        hass,
+    hub = await HomePilotHub.build_hub(
         entry.data[CONF_HOST],
         entry.data[CONF_PASSWORD] if CONF_PASSWORD in entry.data else "",
     )
-    await hub.fill_supported_devices()
 
     async def async_update_data():
         """Fetch data from API endpoint.
@@ -54,18 +53,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             # Note: asyncio.TimeoutError and aiohttp.ClientError are already
             # handled by the data update coordinator.
             async with async_timeout.timeout(10):
-                return {
-                    device[APICAP_ID_DEVICE_LOC]["value"]: await hub.get_device(
-                        device[APICAP_ID_DEVICE_LOC]["value"]
-                    )
-                    for device in hub.devices
-                }
+                return await hub.update_states()
         except AuthError as err:
             # Raising ConfigEntryAuthFailed will cancel future updates
             # and start a config flow with SOURCE_REAUTH (async_step_reauth)
             raise ConfigEntryAuthFailed from err
 
-    hub.coordinator = DataUpdateCoordinator(
+    coordinator = DataUpdateCoordinator(
         hass,
         _LOGGER,
         # Name of the data. For logging purposes.
@@ -75,9 +69,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         update_interval=timedelta(seconds=30),
     )
 
-    hass.data[DOMAIN][entry.entry_id] = hub
+    hass.data[DOMAIN][entry.entry_id] = (hub, coordinator)
 
-    await hub.coordinator.async_config_entry_first_refresh()
+    await coordinator.async_config_entry_first_refresh()
 
     # This creates each HA object for each platform your device requires.
     # It's done by calling the `async_setup_entry` function in each platform module.
