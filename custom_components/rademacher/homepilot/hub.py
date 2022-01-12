@@ -33,13 +33,21 @@ class HomePilotHub:
         return None
 
     async def update_states(self):
-        states = await self.api.get_devices_state()
+        try:
+            states = await self.api.get_devices_state()
+        except Exception:
+            for did in self.devices:
+                device: HomePilotDevice = self.devices[did]
+                device.available = False
+            raise
+
         for did in self.devices:
             device: HomePilotDevice = self.devices[did]
             if device.did in states:
                 device.update_state(states[did])
             else:
                 device.available = False
+
         return self.devices
 
     async def get_device_ids_types(self):
