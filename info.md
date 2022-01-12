@@ -8,10 +8,29 @@ Works exclusively when devices are connected through HomePilot or Start2Smart Br
 **See full device list support at the end.**
 
 # Installation
+
+## Manual
+
 Copy the `rademacher` folder into yout Home Assistant's `custom_components` folder.
 This should be located under the `/config` folder.
 
 If you haven't done it already, you should create the `custom_components` folder on your `/config`.
+
+Restart Home Assistant.
+
+## Using HACS
+
+Navigate to HACS in you Home Assistants Interface.
+
+Select "Integrations", then click the options menu on the upper right corner ans select "Custom Repositories".
+
+Paste the repo URL: `https://github.com/peribeir/homeassistant-rademacher` and click "Add".
+
+In the new card that shows up, click "Download".
+
+Select the version you wish do download and finally click "Download".
+
+Restart Home Assistant.
 
 # Usage
 
