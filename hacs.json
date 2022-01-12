@@ -1,0 +1,7 @@
+{
+    "name": "Rademacher HomePilot Bridge Integration",
+    "render_readme": true,
+    "domains": ["cover", "button", "switch", "sensor", "binary_sensor"],
+    "country": "PT",
+    "homeassistant": "2021.12.8"
+}
