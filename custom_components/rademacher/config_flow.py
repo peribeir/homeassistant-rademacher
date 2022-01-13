@@ -1,7 +1,6 @@
 """Config flow for Rademacher integration."""
 import logging
 import socket
-from typing import Any
 
 import voluptuous as vol
 
@@ -30,15 +29,22 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             try:
                 await HomePilotApi.test_auth(self.host, user_input[CONF_PASSWORD])
                 data = {CONF_HOST: self.host, CONF_PASSWORD: user_input[CONF_PASSWORD]}
+                _LOGGER.info(
+                    "Password correct (IP %s), creating entries",
+                    self.host,
+                )
                 return self.async_create_entry(title=f"Host: {self.host}", data=data)
             except CannotConnect:
+                _LOGGER.warning("Connect error (IP %s)", self.host)
                 errors["base"] = "cannot_connect"
             except InvalidHost:
+                _LOGGER.warning("Invalid Host (IP %s)", self.host)
                 errors["base"] = "cannot_connect"
             except AuthError:
+                _LOGGER.warning("Wrong Password (IP %s)", self.host)
                 errors["base"] = "auth_error"
             except Exception:  # pylint: disable=broad-except
-                _LOGGER.exception("Unexpected exception")
+                _LOGGER.exception("Unexpected exception", exc_info=True)
                 errors["base"] = "unknown"
 
             # If there is no user input or there were errors, show the form again, including any errors that were found
@@ -58,22 +64,33 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors = {}
         if user_input is not None:
             try:
-                ip_address = socket.gethostbyname(user_input[CONF_HOST])
-                await self.async_set_unique_id(ip_address)
+                self.host = socket.gethostbyname(user_input[CONF_HOST])
+                _LOGGER.info("Starting manual config for IP %s", self.host)
+                await self.async_set_unique_id(self.host)
                 self._abort_if_unique_id_configured()
                 conn_test = await HomePilotApi.test_connection(user_input[CONF_HOST])
                 if conn_test == "ok":
+                    _LOGGER.info(
+                        "Connection Test Successful (IP %s), no Password required",
+                        self.host,
+                    )
                     return self.async_create_entry(
                         title=f"Host: {user_input[CONF_HOST]}", data=user_input
                     )
-                elif conn_test == "auth_required":
-                    self.host = user_input[CONF_HOST]
+                if conn_test == "auth_required":
+                    _LOGGER.info(
+                        "Connection Test Successful (IP %s), Password needed",
+                        self.host,
+                    )
                     return await self.async_step_user_password(user_input=user_input)
-                else:
-                    errors["base"] = "cannot_connect"
+
+                _LOGGER.warning("Connection Test not Successful (IP %s)", self.host)
+                errors["base"] = "cannot_connect"
             except (CannotConnect, InvalidHost, socket.gaierror):
+                _LOGGER.warning("Connect error (IP %s)", self.host)
                 errors["base"] = "cannot_connect"
             except AuthError:
+                _LOGGER.warning("Auth (IP %s)", self.host)
                 errors["base"] = "auth_error"
             except Exception:  # pylint: disable=broad-except
                 _LOGGER.exception("Unexpected exception")
@@ -86,18 +103,22 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         )
 
     async def async_step_confirm_discovery(
-        self, user_input = None
+        self, user_input=None
     ) -> data_entry_flow.FlowResult:
         """Handle discovery confirm."""
         errors: dict[str, str] = {}
 
         if user_input is not None:
+            _LOGGER.info(
+                "User confirmed integration (IP %s), creating entries", self.host
+            )
             return self.async_create_entry(
                 title=f"Host: {self.host}", data={CONF_HOST: self.host}
             )
 
         self._set_confirm_only()
 
+        _LOGGER.info("Waiting for user confirmation (IP %s)", self.host)
         return self.async_show_form(
             step_id="confirm_discovery",
             description_placeholders={"host": self.host},
@@ -110,15 +131,22 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             if hasattr(discovery_info, "ip")
             else discovery_info[IP_ADDRESS]
         )
+        _LOGGER.info("Starting DHCP Discovery with IP Address %s", self.host)
         await self.async_set_unique_id(self.host)
         self._abort_if_unique_id_configured()
         conn_test = await HomePilotApi.test_connection(self.host)
         if conn_test == "ok":
+            _LOGGER.info(
+                "Connection Test Successful (IP %s), no Password required", self.host
+            )
             return await self.async_step_confirm_discovery()
-        elif conn_test == "auth_required":
+        if conn_test == "auth_required":
+            _LOGGER.info(
+                "Connection Test Successful (IP %s), Password needed", self.host
+            )
             return await self.async_step_user_password()
-        else:
-            return self.async_abort(reason="Cannot connect")
+        _LOGGER.warning("Connection Test not Successful (IP %s)", self.host)
+        return self.async_abort(reason="Cannot connect")
 
 
 class InvalidHost(exceptions.HomeAssistantError):

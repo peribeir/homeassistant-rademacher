@@ -1,4 +1,5 @@
 """Platform for Rademacher Bridge"""
+import logging
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from .homepilot.hub import HomePilotHub
 from .homepilot.device import HomePilotDevice
@@ -17,6 +18,7 @@ from homeassistant.const import (
 )
 from .const import DOMAIN
 
+_LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
     entry = hass.data[DOMAIN][config_entry.entry_id]
@@ -27,6 +29,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         device: HomePilotDevice = hub.devices[did]
         if isinstance(device, HomePilotSensor):
             if device.has_temperature:
+                _LOGGER.info("Found Temperature Sensor for Device ID: %s", device.did)
                 new_entities.append(
                     HomePilotSensorEntity(
                         coordinator,
@@ -40,6 +43,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                     )
                 )
             if device.has_wind_speed:
+                _LOGGER.info("Found Wind Speed Sensor for Device ID: %s", device.did)
                 new_entities.append(
                     HomePilotSensorEntity(
                         coordinator,
@@ -53,6 +57,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                     )
                 )
             if device.has_brightness:
+                _LOGGER.info("Found Brightness Sensor for Device ID: %s", device.did)
                 new_entities.append(
                     HomePilotSensorEntity(
                         coordinator,
@@ -65,7 +70,8 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                         None,
                     )
                 )
-            if device.has_brightness:
+            if device.has_sun_height:
+                _LOGGER.info("Found Sun Height Sensor for Device ID: %s", device.did)
                 new_entities.append(
                     HomePilotSensorEntity(
                         coordinator,
@@ -78,7 +84,8 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                         "mdi:weather-sunset-up",
                     )
                 )
-            if device.has_brightness:
+            if device.has_sun_direction:
+                _LOGGER.info("Found Sun Direction Sensor for Device ID: %s", device.did)
                 new_entities.append(
                     HomePilotSensorEntity(
                         coordinator,

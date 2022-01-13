@@ -1,4 +1,5 @@
 """Platform for Rademacher Bridge"""
+import logging
 from .homepilot.device import HomePilotDevice
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from .homepilot.sensor import HomePilotSensor
@@ -7,6 +8,8 @@ from .entity import HomePilotEntity
 from homeassistant.components.binary_sensor import BinarySensorEntity
 
 from .const import DOMAIN
+
+_LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
@@ -18,6 +21,9 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         device: HomePilotDevice = hub.devices[did]
         if isinstance(device, HomePilotSensor):
             if device.has_rain_detection:
+                _LOGGER.info(
+                    "Found Rain Detection Sensor for Device ID: %s", device.did
+                )
                 new_entities.append(
                     HomePilotBinarySensorEntity(
                         coordinator,
@@ -30,6 +36,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                     )
                 )
             if device.has_sun_detection:
+                _LOGGER.info("Found Sun Detection Sensor for Device ID: %s", device.did)
                 new_entities.append(
                     HomePilotBinarySensorEntity(
                         coordinator,

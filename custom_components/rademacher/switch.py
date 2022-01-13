@@ -1,4 +1,5 @@
 """Platform for Rademacher Bridge"""
+import logging
 from .homepilot.hub import HomePilotHub
 
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
@@ -7,6 +8,8 @@ from .entity import HomePilotEntity
 from .homepilot.switch import HomePilotSwitch
 from homeassistant.components.switch import SwitchDeviceClass, SwitchEntity
 from .const import DOMAIN
+
+_LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
@@ -17,6 +20,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     for did in hub.devices:
         device: HomePilotDevice = hub.devices[did]
         if isinstance(device, HomePilotSwitch):
+            _LOGGER.info("Found Switch for Device ID: %s", device.did)
             new_entities.append(HomePilotSwitchEntity(coordinator, device))
     # If we have any new devices, add them
     if new_entities:

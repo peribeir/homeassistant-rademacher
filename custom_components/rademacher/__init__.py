@@ -42,6 +42,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         entry.data[CONF_HOST],
         entry.data[CONF_PASSWORD] if CONF_PASSWORD in entry.data else "",
     )
+    _LOGGER.info("Hub instance created, found %s devices", len(hub.devices))
+    _LOGGER.debug("Device IDs: %s", [did for did in hub.devices])
 
     async def async_update_data():
         """Fetch data from API endpoint.
@@ -73,6 +75,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     await coordinator.async_config_entry_first_refresh()
 
+    _LOGGER.info("Starting entry setup for each platform")
     # This creates each HA object for each platform your device requires.
     # It's done by calling the `async_setup_entry` function in each platform module.
     for component in PLATFORMS:
