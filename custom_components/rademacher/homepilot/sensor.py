@@ -104,19 +104,19 @@ class HomePilotSensor(HomePilotDevice):
     def update_state(self, state):
         super().update_state(state)
         if self.has_temperature:
-            self.temperature_value = state["statusesMap"]["temperature_primary"]
+            self.temperature_value = state["readings"]["temperature_primary"]
         if self.has_wind_speed:
-            self.wind_speed_value = state["statusesMap"]["wind_speed"]
+            self.wind_speed_value = state["readings"]["wind_speed"]
         if self.has_brightness:
-            self.brightness_value = state["statusesMap"]["sun_brightness"]
+            self.brightness_value = state["readings"]["sun_brightness"]
         if self.has_sun_height:
-            self.sun_height_value = state["statusesMap"]["sun_elevation"]
+            self.sun_height_value = state["readings"]["sun_elevation"]
         if self.has_sun_direction:
-            self.sun_direction_value = state["statusesMap"]["sun_direction"]
+            self.sun_direction_value = state["readings"]["sun_direction"]
         if self.has_rain_detection:
-            self.rain_detection_value = state["statusesMap"]["rain_detected"]
+            self.rain_detection_value = state["readings"]["rain_detected"]
         if self.has_sun_detection:
-            self.sun_detection_value = state["statusesMap"]["sun_detected"]
+            self.sun_detection_value = state["readings"]["sun_detected"]
 
     @property
     def has_temperature(self) -> bool:

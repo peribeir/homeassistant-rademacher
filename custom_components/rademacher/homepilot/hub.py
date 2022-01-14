@@ -1,4 +1,3 @@
-from typing import Dict
 from .sensor import HomePilotSensor
 from .switch import HomePilotSwitch
 from .cover import HomePilotCover
