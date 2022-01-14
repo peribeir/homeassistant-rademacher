@@ -1,3 +1,4 @@
+from typing import Dict
 from .sensor import HomePilotSensor
 from .switch import HomePilotSwitch
 from .cover import HomePilotCover
@@ -8,7 +9,7 @@ from .device import HomePilotDevice
 
 class HomePilotHub:
     _api: HomePilotApi
-    _devices: list[HomePilotDevice]
+    _devices: dict[str, HomePilotDevice]
 
     def __init__(self, host: str, password: str) -> None:
         self._api = HomePilotApi(host, password)
@@ -19,6 +20,7 @@ class HomePilotHub:
         hub.devices = {
             id_type["did"]: await HomePilotHub.build_device(hub.api, id_type)
             for id_type in await hub.get_device_ids_types()
+            if id_type["type"] in ["1", "2", "3"]
         }
         return hub
 
