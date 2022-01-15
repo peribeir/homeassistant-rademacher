@@ -1,5 +1,10 @@
+![release](https://img.shields.io/github/v/release/peribeir/homeassistant-rademacher)
+![downloads](https://img.shields.io/github/downloads/peribeir/homeassistant-rademacher/latest/total)
+![issues](https://img.shields.io/github/issues/peribeir/homeassistant-rademacher)
+[![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://hacs.xyz/)
+
 ![logo](https://github.com/peribeir/homeassistant-rademacher/raw/master/img/logo.png)
-A Home Assistant custom Integration for local handling of Devices connected to Rademacher bridge.
+A Home Assistant custom Integration for local handling of Devices connec to Rademacher bridge.
 
 Works exclusively when devices are connected through HomePilot or Start2Smart Bridge.
 
@@ -9,16 +14,9 @@ Works exclusively when devices are connected through HomePilot or Start2Smart Br
 
 # Installation
 
-## Manual
+## 1. Using HACS
 
-Copy the `rademacher` folder into yout Home Assistant's `custom_components` folder.
-This should be located under the `/config` folder.
-
-If you haven't done it already, you should create the `custom_components` folder on your `/config`.
-
-Restart Home Assistant.
-
-## Using HACS
+> HACS is a community store for integrations, Frontend extensions, etc. It makes installation and maintenance of this component much easier. You can find instructions on how to install HACS [here](https://hacs.xyz/).
 
 Navigate to HACS in you Home Assistants Interface.
 
@@ -29,6 +27,15 @@ Paste the repo URL: `https://github.com/peribeir/homeassistant-rademacher` and c
 In the new card that shows up, click "Download".
 
 Select the version you wish do download and finally click "Download".
+
+Restart Home Assistant.
+
+## 2. Manually
+
+Copy the `rademacher` folder into yout Home Assistant's `custom_components` folder.
+This should be located under the `/config` folder.
+
+If you haven't done it already, you should create the `custom_components` folder on your `/config`.
 
 Restart Home Assistant.
 
@@ -58,6 +65,8 @@ Then, search for Rademacher and select it.
 In the Dialog that appears, insert the HostName/IP Address of the Rademacher Bridge. Ex: `bridge.local` or `192.168.1.60`
 
 Press "Submit".
+
+If you have configured a password for the hub, you'll be asked for it. Just insert it and press "Submit".
 
 You should now be presented with Device/Entities detected, you should select the HA Area where you want to add them.
 
