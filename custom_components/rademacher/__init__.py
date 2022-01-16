@@ -5,7 +5,7 @@ import logging
 import async_timeout
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_HOST, CONF_PASSWORD
+from homeassistant.const import CONF_BINARY_SENSORS, CONF_HOST, CONF_PASSWORD
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import (
     DataUpdateCoordinator,
@@ -71,7 +71,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         update_interval=timedelta(seconds=30),
     )
 
-    hass.data[DOMAIN][entry.entry_id] = (hub, coordinator)
+    hass.data[DOMAIN][entry.entry_id] = (
+        hub,
+        coordinator,
+        {CONF_BINARY_SENSORS: entry.data[CONF_BINARY_SENSORS]},
+    )
 
     await coordinator.async_config_entry_first_refresh()
 

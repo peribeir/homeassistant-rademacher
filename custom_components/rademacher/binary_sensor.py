@@ -1,5 +1,8 @@
 """Platform for Rademacher Bridge"""
 import logging
+
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import CONF_BINARY_SENSORS
 from .homepilot.device import HomePilotDevice
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from .homepilot.sensor import HomePilotSensor
@@ -12,15 +15,16 @@ from .const import DOMAIN
 _LOGGER = logging.getLogger(__name__)
 
 
-async def async_setup_entry(hass, config_entry, async_add_entities):
+async def async_setup_entry(hass, config_entry: ConfigEntry, async_add_entities):
     entry = hass.data[DOMAIN][config_entry.entry_id]
     hub: HomePilotHub = entry[0]
     coordinator: DataUpdateCoordinator = entry[1]
+    binary_sensors: bool = entry[2][CONF_BINARY_SENSORS]
     new_entities = []
     for did in hub.devices:
         device: HomePilotDevice = hub.devices[did]
         if isinstance(device, HomePilotSensor):
-            if device.has_rain_detection:
+            if device.has_rain_detection and binary_sensors:
                 _LOGGER.info(
                     "Found Rain Detection Sensor for Device ID: %s", device.did
                 )
@@ -35,7 +39,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                         "mdi:cloud-off-outline",
                     )
                 )
-            if device.has_sun_detection:
+            if device.has_sun_detection and binary_sensors:
                 _LOGGER.info("Found Sun Detection Sensor for Device ID: %s", device.did)
                 new_entities.append(
                     HomePilotBinarySensorEntity(

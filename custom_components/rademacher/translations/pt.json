@@ -15,6 +15,13 @@
         "data": {
           "password": "Palavra Passe"
         }
+      },
+      "config": {
+        "title": "Configura\u00e7\u00e3o",
+        "description": "",
+        "data": {
+          "binary_sensors": "Criar os Sensores de Sol/Chuva como Sensores Bin\u00e1rios"
+        }
       }
     },
     "error": {

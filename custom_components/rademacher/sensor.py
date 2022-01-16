@@ -11,6 +11,7 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.const import (
+    CONF_BINARY_SENSORS,
     DEGREE,
     LIGHT_LUX,
     SPEED_METERS_PER_SECOND,
@@ -20,14 +21,46 @@ from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
+
 async def async_setup_entry(hass, config_entry, async_add_entities):
     entry = hass.data[DOMAIN][config_entry.entry_id]
     hub: HomePilotHub = entry[0]
     coordinator: DataUpdateCoordinator = entry[1]
+    binary_sensors: bool = entry[2][CONF_BINARY_SENSORS]
     new_entities = []
     for did in hub.devices:
         device: HomePilotDevice = hub.devices[did]
         if isinstance(device, HomePilotSensor):
+            if device.has_sun_detection and not binary_sensors:
+                _LOGGER.info("Found Sun Detection Sensor for Device ID: %s", device.did)
+                new_entities.append(
+                    HomePilotSensorEntity(
+                        coordinator,
+                        device,
+                        "sun_detection",
+                        "Sun Detection",
+                        "sun_detection_value",
+                        None,
+                        None,
+                        "mdi:weather-sunny",
+                    )
+                )
+            if device.has_rain_detection and not binary_sensors:
+                _LOGGER.info(
+                    "Found Rain Detection Sensor for Device ID: %s", device.did
+                )
+                new_entities.append(
+                    HomePilotSensorEntity(
+                        coordinator,
+                        device,
+                        "rain_detection",
+                        "Rain Detection",
+                        "rain_detection_value",
+                        None,
+                        None,
+                        "mdi:weather-rainy",
+                    )
+                )
             if device.has_temperature:
                 _LOGGER.info("Found Temperature Sensor for Device ID: %s", device.did)
                 new_entities.append(
@@ -125,6 +158,7 @@ class HomePilotSensorEntity(HomePilotEntity, SensorEntity):
         )
         self._value_attr = value_attr
         self._native_unit_of_measurement = native_unit_of_measurement
+        self._id_suffix = id_suffix
 
     @property
     def value_attr(self):
@@ -140,4 +174,16 @@ class HomePilotSensorEntity(HomePilotEntity, SensorEntity):
 
     @property
     def native_value(self):
+        if self._id_suffix == "sun_detection":
+            return (
+                "Sun Detected"
+                if getattr(self.coordinator.data[self.did], self.value_attr)
+                else "No Sun Detected"
+            )
+        if self._id_suffix == "rain_detection":
+            return (
+                "Rain Detected"
+                if getattr(self.coordinator.data[self.did], self.value_attr)
+                else "No Rain Detected"
+            )
         return getattr(self.coordinator.data[self.did], self.value_attr)

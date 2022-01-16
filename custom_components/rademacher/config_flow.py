@@ -6,7 +6,8 @@ import voluptuous as vol
 
 from homeassistant import config_entries, exceptions, data_entry_flow
 from homeassistant.components.dhcp import IP_ADDRESS
-from homeassistant.const import CONF_HOST, CONF_PASSWORD
+from homeassistant.const import CONF_BINARY_SENSORS, CONF_HOST, CONF_PASSWORD
+from homeassistant.core import callback
 
 from .homepilot.api import CannotConnect, AuthError, HomePilotApi
 from .const import DOMAIN
@@ -15,25 +16,49 @@ _LOGGER = logging.getLogger(__name__)
 
 DATA_SCHEMA = vol.Schema({vol.Required(CONF_HOST): str})
 DATA_SCHEMA_PASSWORD = vol.Schema({vol.Required(CONF_PASSWORD): str})
+DATA_SCHEMA_CONFIG = vol.Schema({vol.Optional(CONF_BINARY_SENSORS, default=True): bool})
 
 
 class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     VERSION = 1
     CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_POLL
-    host = ""
+    host: str = ""
+    password: str = ""
+    binary_sensors: bool = True
+
+    async def async_step_config(self, user_input=None):
+        errors = {}
+        if user_input is not None and CONF_BINARY_SENSORS in user_input:
+            try:
+                self.binary_sensors = user_input[CONF_BINARY_SENSORS]
+                data = {
+                    CONF_HOST: self.host,
+                    CONF_PASSWORD: self.password,
+                    CONF_BINARY_SENSORS: self.binary_sensors,
+                }
+                return self.async_create_entry(title=f"Host: {self.host}", data=data)
+            except Exception:  # pylint: disable=broad-except
+                _LOGGER.exception("Unexpected exception", exc_info=True)
+                errors["base"] = "unknown"
+
+            # If there is no user input or there were errors, show the form again, including any errors that were found
+            # with the input.
+        return self.async_show_form(
+            step_id="config", data_schema=DATA_SCHEMA_CONFIG, errors=errors
+        )
 
     async def async_step_user_password(self, user_input=None):
         errors = {}
         if user_input is not None and CONF_PASSWORD in user_input:
             try:
-                await HomePilotApi.test_auth(self.host, user_input[CONF_PASSWORD])
-                data = {CONF_HOST: self.host, CONF_PASSWORD: user_input[CONF_PASSWORD]}
+                self.password = user_input[CONF_PASSWORD]
+                await HomePilotApi.test_auth(self.host, self.password)
                 _LOGGER.info(
                     "Password correct (IP %s), creating entries",
                     self.host,
                 )
-                return self.async_create_entry(title=f"Host: {self.host}", data=data)
+                return await self.async_step_config(user_input=user_input)
             except CannotConnect:
                 _LOGGER.warning("Connect error (IP %s)", self.host)
                 errors["base"] = "cannot_connect"
@@ -74,9 +99,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         "Connection Test Successful (IP %s), no Password required",
                         self.host,
                     )
-                    return self.async_create_entry(
-                        title=f"Host: {user_input[CONF_HOST]}", data=user_input
-                    )
+                    return await self.async_step_config(user_input=user_input)
                 if conn_test == "auth_required":
                     _LOGGER.info(
                         "Connection Test Successful (IP %s), Password needed",

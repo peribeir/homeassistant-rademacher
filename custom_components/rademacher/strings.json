@@ -15,6 +15,13 @@
         "data": {
           "password": "[%key:common::config_flow::data::password%]"
         }
+      },
+      "config": {
+        "title": "[%key:common::config_flow::title%]",
+        "description": "[%key:common::config_flow::description%]",
+        "data": {
+          "binary_sensors": "[%key:common::config_flow::data::binary_sensors%]"
+        }
       }
     },
     "error": {
