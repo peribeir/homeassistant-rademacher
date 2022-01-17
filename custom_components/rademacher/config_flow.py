@@ -209,20 +209,20 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 ): cv.multi_select(devices_to_include),
             }
         )
-        devices_with_detect = {
-            did: f"{devices[did].name} (id: {devices[did].did})"
-            for did in devices
-            if isinstance(devices[did], HomePilotSensor)
-            and (devices[did].has_sun_detection or devices[did].has_rain_detection)
-        }
-        if devices_with_detect:
-            schema = schema.extend(
-                {
-                    vol.Optional(
-                        CONF_BINARY_SENSORS, default=list(devices_with_detect)
-                    ): cv.multi_select(devices_with_detect),
-                }
-            )
+        # devices_with_detect = {
+        #     did: f"{devices[did].name} (id: {devices[did].did})"
+        #     for did in devices
+        #     if isinstance(devices[did], HomePilotSensor)
+        #     and (devices[did].has_sun_detection or devices[did].has_rain_detection)
+        # }
+        # if devices_with_detect:
+        #     schema = schema.extend(
+        #         {
+        #             vol.Optional(
+        #                 CONF_BINARY_SENSORS, default=list(devices_with_detect)
+        #             ): cv.multi_select(devices_with_detect),
+        #         }
+        #     )
         return schema
 
 

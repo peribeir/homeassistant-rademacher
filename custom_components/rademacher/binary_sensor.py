@@ -8,7 +8,10 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from .homepilot.sensor import HomePilotSensor
 from .homepilot.hub import HomePilotHub
 from .entity import HomePilotEntity
-from homeassistant.components.binary_sensor import BinarySensorEntity
+from homeassistant.components.binary_sensor import (
+    BinarySensorDeviceClass,
+    BinarySensorEntity,
+)
 
 from .const import DOMAIN
 
@@ -26,7 +29,7 @@ async def async_setup_entry(hass, config_entry: ConfigEntry, async_add_entities)
         if did in devices:
             device: HomePilotDevice = hub.devices[did]
             if isinstance(device, HomePilotSensor):
-                if device.has_rain_detection and did in binary_sensors:
+                if device.has_rain_detection:  # and did in binary_sensors:
                     _LOGGER.info(
                         "Found Rain Detection Sensor for Device ID: %s", device.did
                     )
@@ -37,11 +40,14 @@ async def async_setup_entry(hass, config_entry: ConfigEntry, async_add_entities)
                             "rain_detect",
                             "Rain Detection",
                             "rain_detection_value",
-                            "mdi:weather-rainy",
-                            "mdi:cloud-off-outline",
+                            BinarySensorDeviceClass.MOISTURE,
+                            None,
+                            None
+                            # "mdi:weather-rainy",
+                            # "mdi:cloud-off-outline",
                         )
                     )
-                if device.has_sun_detection and did in binary_sensors:
+                if device.has_sun_detection:  # and did in binary_sensors:
                     _LOGGER.info(
                         "Found Sun Detection Sensor for Device ID: %s", device.did
                     )
@@ -52,8 +58,11 @@ async def async_setup_entry(hass, config_entry: ConfigEntry, async_add_entities)
                             "sun_detect",
                             "Sun Detection",
                             "sun_detection_value",
-                            "mdi:weather-sunny",
-                            "mdi:weather-sunny-off",
+                            BinarySensorDeviceClass.LIGHT,
+                            None,
+                            None
+                            # "mdi:weather-sunny",
+                            # "mdi:weather-sunny-off",
                         )
                     )
     # If we have any new devices, add them
@@ -69,6 +78,7 @@ class HomePilotBinarySensorEntity(HomePilotEntity, BinarySensorEntity):
         id_suffix,
         name_suffix,
         value_attr,
+        device_class,
         icon_on,
         icon_off,
     ):
@@ -77,6 +87,7 @@ class HomePilotBinarySensorEntity(HomePilotEntity, BinarySensorEntity):
             device,
             unique_id=f"{device.uid}_f{id_suffix}",
             name=f"{device.name} {name_suffix}",
+            device_class=device_class,
         )
         self._value_attr = value_attr
         self._icon_on = icon_on

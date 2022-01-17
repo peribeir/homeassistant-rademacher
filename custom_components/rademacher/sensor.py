@@ -34,38 +34,38 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         if did in devices:
             device: HomePilotDevice = hub.devices[did]
             if isinstance(device, HomePilotSensor):
-                if device.has_sun_detection and did not in binary_sensors:
-                    _LOGGER.info(
-                        "Found Sun Detection Sensor for Device ID: %s", device.did
-                    )
-                    new_entities.append(
-                        HomePilotSensorEntity(
-                            coordinator,
-                            device,
-                            "sun_detection",
-                            "Sun Detection",
-                            "sun_detection_value",
-                            None,
-                            None,
-                            "mdi:weather-sunny",
-                        )
-                    )
-                if device.has_rain_detection and did not in binary_sensors:
-                    _LOGGER.info(
-                        "Found Rain Detection Sensor for Device ID: %s", device.did
-                    )
-                    new_entities.append(
-                        HomePilotSensorEntity(
-                            coordinator,
-                            device,
-                            "rain_detection",
-                            "Rain Detection",
-                            "rain_detection_value",
-                            None,
-                            None,
-                            "mdi:weather-rainy",
-                        )
-                    )
+                # if device.has_sun_detection and did not in binary_sensors:
+                #     _LOGGER.info(
+                #         "Found Sun Detection Sensor for Device ID: %s", device.did
+                #     )
+                #     new_entities.append(
+                #         HomePilotSensorEntity(
+                #             coordinator,
+                #             device,
+                #             "sun_detection",
+                #             "Sun Detection",
+                #             "sun_detection_value",
+                #             None,
+                #             None,
+                #             "mdi:weather-sunny",
+                #         )
+                #     )
+                # if device.has_rain_detection and did not in binary_sensors:
+                #     _LOGGER.info(
+                #         "Found Rain Detection Sensor for Device ID: %s", device.did
+                #     )
+                #     new_entities.append(
+                #         HomePilotSensorEntity(
+                #             coordinator,
+                #             device,
+                #             "rain_detection",
+                #             "Rain Detection",
+                #             "rain_detection_value",
+                #             None,
+                #             None,
+                #             "mdi:weather-rainy",
+                #         )
+                #     )
                 if device.has_temperature:
                     _LOGGER.info(
                         "Found Temperature Sensor for Device ID: %s", device.did
