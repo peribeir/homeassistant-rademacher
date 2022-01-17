@@ -1,5 +1,6 @@
 """Platform for Rademacher Bridge"""
 import logging
+from homeassistant.const import CONF_DEVICES
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from .homepilot.device import HomePilotDevice
 from .homepilot.hub import HomePilotHub
@@ -15,12 +16,14 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     entry = hass.data[DOMAIN][config_entry.entry_id]
     hub: HomePilotHub = entry[0]
     coordinator: DataUpdateCoordinator = entry[1]
+    devices: bool = entry[2][CONF_DEVICES]
     new_entities = []
     for did in hub.devices:
-        device: HomePilotDevice = hub.devices[did]
-        if device.has_ping_cmd:
-            _LOGGER.info("Found Ping Command Button for Device ID: %s", device.did)
-            new_entities.append(HomePilotPingButtonEntity(coordinator, device))
+        if did in devices:
+            device: HomePilotDevice = hub.devices[did]
+            if device.has_ping_cmd:
+                _LOGGER.info("Found Ping Command Button for Device ID: %s", device.did)
+                new_entities.append(HomePilotPingButtonEntity(coordinator, device))
     # If we have any new devices, add them
     if new_entities:
         async_add_entities(new_entities)

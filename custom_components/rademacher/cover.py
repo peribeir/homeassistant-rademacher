@@ -1,6 +1,8 @@
 """Platform for Rademacher Bridge"""
 import logging
 from typing import Any
+
+from homeassistant.const import CONF_DEVICES
 from .homepilot.device import HomePilotDevice
 
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
@@ -30,12 +32,14 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     entry = hass.data[DOMAIN][config_entry.entry_id]
     hub: HomePilotHub = entry[0]
     coordinator: DataUpdateCoordinator = entry[1]
+    devices: bool = entry[2][CONF_DEVICES]
     new_entities = []
     for did in hub.devices:
-        device: HomePilotDevice = hub.devices[did]
-        if isinstance(device, HomePilotCover):
-            _LOGGER.info("Found Cover for Device ID: %s", device.did)
-            new_entities.append(HomePilotCoverEntity(coordinator, device))
+        if did in devices:
+            device: HomePilotDevice = hub.devices[did]
+            if isinstance(device, HomePilotCover):
+                _LOGGER.info("Found Cover for Device ID: %s", device.did)
+                new_entities.append(HomePilotCoverEntity(coordinator, device))
     # If we have any new devices, add them
     if new_entities:
         async_add_entities(new_entities)

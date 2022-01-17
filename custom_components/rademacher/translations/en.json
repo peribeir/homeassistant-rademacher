@@ -20,14 +20,20 @@
         "title": "Configuration",
         "description": "",
         "data": {
-          "binary_sensors": "Create Sun/Rain Detection Sensors as Binary Sensors"
+          "binary_sensors": "Create Sun/Rain Detection Sensors as Binary Sensors",
+          "devices": "Devices (unselect devices that you don't want to add):"
         }
       }
     },
     "error": {
+      "no_device_selected": "You need to select at least one device.",
       "cannot_connect": "Error connecting to the bridge. Please verify the bridge is connected to the network, and verify that the Hostname/IP is correct.",
       "auth_error": "Invalid password. Please verify the password provided is correct.",
       "unknown": "Unknown Exception."
+    },
+    "abort": {
+      "no_devices_found": "No devices were found.",
+      "cannot_connect": "Error connecting to the bridge. Please verify the bridge is connected to the network, and verify that the Hostname/IP is correct."
     }
   }
 }

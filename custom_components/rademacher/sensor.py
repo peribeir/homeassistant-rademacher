@@ -12,6 +12,7 @@ from homeassistant.components.sensor import (
 )
 from homeassistant.const import (
     CONF_BINARY_SENSORS,
+    CONF_DEVICES,
     DEGREE,
     LIGHT_LUX,
     SPEED_METERS_PER_SECOND,
@@ -27,110 +28,124 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     hub: HomePilotHub = entry[0]
     coordinator: DataUpdateCoordinator = entry[1]
     binary_sensors: bool = entry[2][CONF_BINARY_SENSORS]
+    devices: bool = entry[2][CONF_DEVICES]
     new_entities = []
     for did in hub.devices:
-        device: HomePilotDevice = hub.devices[did]
-        if isinstance(device, HomePilotSensor):
-            if device.has_sun_detection and not binary_sensors:
-                _LOGGER.info("Found Sun Detection Sensor for Device ID: %s", device.did)
-                new_entities.append(
-                    HomePilotSensorEntity(
-                        coordinator,
-                        device,
-                        "sun_detection",
-                        "Sun Detection",
-                        "sun_detection_value",
-                        None,
-                        None,
-                        "mdi:weather-sunny",
+        if did in devices:
+            device: HomePilotDevice = hub.devices[did]
+            if isinstance(device, HomePilotSensor):
+                if device.has_sun_detection and did not in binary_sensors:
+                    _LOGGER.info(
+                        "Found Sun Detection Sensor for Device ID: %s", device.did
                     )
-                )
-            if device.has_rain_detection and not binary_sensors:
-                _LOGGER.info(
-                    "Found Rain Detection Sensor for Device ID: %s", device.did
-                )
-                new_entities.append(
-                    HomePilotSensorEntity(
-                        coordinator,
-                        device,
-                        "rain_detection",
-                        "Rain Detection",
-                        "rain_detection_value",
-                        None,
-                        None,
-                        "mdi:weather-rainy",
+                    new_entities.append(
+                        HomePilotSensorEntity(
+                            coordinator,
+                            device,
+                            "sun_detection",
+                            "Sun Detection",
+                            "sun_detection_value",
+                            None,
+                            None,
+                            "mdi:weather-sunny",
+                        )
                     )
-                )
-            if device.has_temperature:
-                _LOGGER.info("Found Temperature Sensor for Device ID: %s", device.did)
-                new_entities.append(
-                    HomePilotSensorEntity(
-                        coordinator,
-                        device,
-                        "temp",
-                        "Temperature",
-                        "temperature_value",
-                        SensorDeviceClass.TEMPERATURE.value,
-                        TEMP_CELSIUS,
-                        None,
+                if device.has_rain_detection and did not in binary_sensors:
+                    _LOGGER.info(
+                        "Found Rain Detection Sensor for Device ID: %s", device.did
                     )
-                )
-            if device.has_wind_speed:
-                _LOGGER.info("Found Wind Speed Sensor for Device ID: %s", device.did)
-                new_entities.append(
-                    HomePilotSensorEntity(
-                        coordinator,
-                        device,
-                        "wind_speed",
-                        "Wind Speed",
-                        "wind_speed_value",
-                        None,
-                        SPEED_METERS_PER_SECOND,
-                        "mdi:weather-windy",
+                    new_entities.append(
+                        HomePilotSensorEntity(
+                            coordinator,
+                            device,
+                            "rain_detection",
+                            "Rain Detection",
+                            "rain_detection_value",
+                            None,
+                            None,
+                            "mdi:weather-rainy",
+                        )
                     )
-                )
-            if device.has_brightness:
-                _LOGGER.info("Found Brightness Sensor for Device ID: %s", device.did)
-                new_entities.append(
-                    HomePilotSensorEntity(
-                        coordinator,
-                        device,
-                        "brightness",
-                        "Brightness",
-                        "brightness_value",
-                        SensorDeviceClass.ILLUMINANCE.value,
-                        LIGHT_LUX,
-                        None,
+                if device.has_temperature:
+                    _LOGGER.info(
+                        "Found Temperature Sensor for Device ID: %s", device.did
                     )
-                )
-            if device.has_sun_height:
-                _LOGGER.info("Found Sun Height Sensor for Device ID: %s", device.did)
-                new_entities.append(
-                    HomePilotSensorEntity(
-                        coordinator,
-                        device,
-                        "sun_height",
-                        "Sun Height",
-                        "sun_height_value",
-                        None,
-                        DEGREE,
-                        "mdi:weather-sunset-up",
+                    new_entities.append(
+                        HomePilotSensorEntity(
+                            coordinator,
+                            device,
+                            "temp",
+                            "Temperature",
+                            "temperature_value",
+                            SensorDeviceClass.TEMPERATURE.value,
+                            TEMP_CELSIUS,
+                            None,
+                        )
                     )
-                )
-            if device.has_sun_direction:
-                _LOGGER.info("Found Sun Direction Sensor for Device ID: %s", device.did)
-                new_entities.append(
-                    HomePilotSensorEntity(
-                        coordinator,
-                        device,
-                        "sun_direction",
-                        "Sun Direction",
-                        "sun_direction_value",
-                        None,
-                        DEGREE,
-                        "mdi:sun-compass",
+                if device.has_wind_speed:
+                    _LOGGER.info(
+                        "Found Wind Speed Sensor for Device ID: %s", device.did
                     )
-                )
+                    new_entities.append(
+                        HomePilotSensorEntity(
+                            coordinator,
+                            device,
+                            "wind_speed",
+                            "Wind Speed",
+                            "wind_speed_value",
+                            None,
+                            SPEED_METERS_PER_SECOND,
+                            "mdi:weather-windy",
+                        )
+                    )
+                if device.has_brightness:
+                    _LOGGER.info(
+                        "Found Brightness Sensor for Device ID: %s", device.did
+                    )
+                    new_entities.append(
+                        HomePilotSensorEntity(
+                            coordinator,
+                            device,
+                            "brightness",
+                            "Brightness",
+                            "brightness_value",
+                            SensorDeviceClass.ILLUMINANCE.value,
+                            LIGHT_LUX,
+                            None,
+                        )
+                    )
+                if device.has_sun_height:
+                    _LOGGER.info(
+                        "Found Sun Height Sensor for Device ID: %s", device.did
+                    )
+                    new_entities.append(
+                        HomePilotSensorEntity(
+                            coordinator,
+                            device,
+                            "sun_height",
+                            "Sun Height",
+                            "sun_height_value",
+                            None,
+                            DEGREE,
+                            "mdi:weather-sunset-up",
+                        )
+                    )
+                if device.has_sun_direction:
+                    _LOGGER.info(
+                        "Found Sun Direction Sensor for Device ID: %s", device.did
+                    )
+                    new_entities.append(
+                        HomePilotSensorEntity(
+                            coordinator,
+                            device,
+                            "sun_direction",
+                            "Sun Direction",
+                            "sun_direction_value",
+                            None,
+                            DEGREE,
+                            "mdi:sun-compass",
+                        )
+                    )
     # If we have any new devices, add them
     if new_entities:
         async_add_entities(new_entities)

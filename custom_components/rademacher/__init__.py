@@ -43,7 +43,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         entry.data[CONF_PASSWORD] if CONF_PASSWORD in entry.data else "",
     )
     _LOGGER.info("Hub instance created, found %s devices", len(hub.devices))
-    _LOGGER.debug("Device IDs: %s", [did for did in hub.devices])
+    _LOGGER.debug("Device IDs: %s", list(hub.devices))
 
     async def async_update_data():
         """Fetch data from API endpoint.
@@ -74,7 +74,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data[DOMAIN][entry.entry_id] = (
         hub,
         coordinator,
-        {CONF_BINARY_SENSORS: entry.data[CONF_BINARY_SENSORS]},
+        entry.data,
     )
 
     await coordinator.async_config_entry_first_refresh()
