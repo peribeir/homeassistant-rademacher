@@ -1,7 +1,7 @@
-![release](https://img.shields.io/github/v/release/peribeir/homeassistant-rademacher)
-![downloads](https://img.shields.io/github/downloads/peribeir/homeassistant-rademacher/total)
-![issues](https://img.shields.io/github/issues/peribeir/homeassistant-rademacher)
-[![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://hacs.xyz/)
+[![release](https://img.shields.io/github/v/release/peribeir/homeassistant-rademacher)](https://github.com/peribeir/homeassistant-rademacher/releases/latest)
+[![downloads](https://img.shields.io/github/downloads/peribeir/homeassistant-rademacher/total)](https://github.com/peribeir/homeassistant-rademacher/releases/latest)
+[![issues](https://img.shields.io/github/issues/peribeir/homeassistant-rademacher)](https://github.com/peribeir/homeassistant-rademacher/issues)
+[![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
 
 ![logo](https://github.com/peribeir/homeassistant-rademacher/raw/master/img/logo.png)
 A Home Assistant custom Integration for local handling of Devices connec to Rademacher bridge.
@@ -95,6 +95,9 @@ The integration should work with the following devices (tested devices are marke
 - Sun sensor RolloTron Comfort DuoFern (DN:16234511_S)
 - **Sensor DuoFern Environmental sensor (DN:32000064_S)**
   - Tested on DuoFern Environmental Sensor Weather Station 9475
+- Z-Wave window/door contact (DN: 32002119)
+- DuoFern Window/Door Contact (DN: 32003164)
+
 
 ## Switches
 - DuoFern Switch actuator (DN:35001164)
