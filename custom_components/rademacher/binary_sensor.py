@@ -41,9 +41,7 @@ async def async_setup_entry(hass, config_entry: ConfigEntry, async_add_entities)
                             "rain_detection_value",
                             BinarySensorDeviceClass.MOISTURE,
                             None,
-                            None
-                            # "mdi:weather-rainy",
-                            # "mdi:cloud-off-outline",
+                            None,
                         )
                     )
                 if device.has_sun_detection:
@@ -59,9 +57,21 @@ async def async_setup_entry(hass, config_entry: ConfigEntry, async_add_entities)
                             "sun_detection_value",
                             BinarySensorDeviceClass.LIGHT,
                             None,
-                            None
-                            # "mdi:weather-sunny",
-                            # "mdi:weather-sunny-off",
+                            None,
+                        )
+                    )
+                if device.has_contact_state:
+                    _LOGGER.info("Found Contact Sensor for Device ID: %s", device.did)
+                    new_entities.append(
+                        HomePilotBinarySensorEntity(
+                            coordinator,
+                            device,
+                            "contact_state",
+                            "Contact State",
+                            "contact_state_value",
+                            BinarySensorDeviceClass.OPENING,
+                            None,
+                            None,
                         )
                     )
     # If we have any new devices, add them
@@ -98,7 +108,8 @@ class HomePilotBinarySensorEntity(HomePilotEntity, BinarySensorEntity):
 
     @property
     def is_on(self):
-        return getattr(self.coordinator.data[self.did], self.value_attr)
+        value = getattr(self.coordinator.data[self.did], self.value_attr)
+        return value if isinstance(value, bool) else value.value
 
     @property
     def icon(self):
