@@ -1,12 +1,18 @@
 """Config flow for Rademacher integration."""
 import logging
 import socket
+import homeassistant.helpers.config_validation as cv
 
 import voluptuous as vol
+from .homepilot.hub import HomePilotHub
 
 from homeassistant import config_entries, exceptions, data_entry_flow
 from homeassistant.components.dhcp import IP_ADDRESS
-from homeassistant.const import CONF_HOST, CONF_PASSWORD
+from homeassistant.const import (
+    CONF_DEVICES,
+    CONF_HOST,
+    CONF_PASSWORD,
+)
 
 from .homepilot.api import CannotConnect, AuthError, HomePilotApi
 from .const import DOMAIN
@@ -21,19 +27,55 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     VERSION = 1
     CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_POLL
-    host = ""
+    host: str = ""
+    password: str = ""
+    devices: dict = {}
+
+    async def async_step_config(self, user_input=None):
+        errors = {}
+        if user_input is not None and CONF_DEVICES in user_input:
+            if user_input[CONF_DEVICES]:
+                try:
+                    self.devices = user_input[CONF_DEVICES]
+                    data = {
+                        CONF_HOST: self.host,
+                        CONF_PASSWORD: self.password,
+                        CONF_DEVICES: self.devices,
+                    }
+                    return self.async_create_entry(
+                        title=f"Host: {self.host}", data=data
+                    )
+                except Exception:  # pylint: disable=broad-except
+                    _LOGGER.exception("Unexpected exception", exc_info=True)
+                    errors["base"] = "unknown"
+            else:
+                errors["base"] = "no_device_selected"
+        hub = await HomePilotHub.build_hub(
+            self.host,
+            self.password,
+        )
+        if not hub.devices:
+            return self.async_abort(reason="no_devices_found")
+        DATA_SCHEMA_CONFIG = self.build_data_schema(hub.devices)
+        # If there is no user input or there were errors, show the form again, including any errors that were found
+        # with the input.
+        return self.async_show_form(
+            step_id="config",
+            data_schema=DATA_SCHEMA_CONFIG,
+            errors=errors,
+        )
 
     async def async_step_user_password(self, user_input=None):
         errors = {}
         if user_input is not None and CONF_PASSWORD in user_input:
             try:
-                await HomePilotApi.test_auth(self.host, user_input[CONF_PASSWORD])
-                data = {CONF_HOST: self.host, CONF_PASSWORD: user_input[CONF_PASSWORD]}
+                self.password = user_input[CONF_PASSWORD]
+                await HomePilotApi.test_auth(self.host, self.password)
                 _LOGGER.info(
                     "Password correct (IP %s), creating entries",
                     self.host,
                 )
-                return self.async_create_entry(title=f"Host: {self.host}", data=data)
+                return await self.async_step_config(user_input=user_input)
             except CannotConnect:
                 _LOGGER.warning("Connect error (IP %s)", self.host)
                 errors["base"] = "cannot_connect"
@@ -74,9 +116,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         "Connection Test Successful (IP %s), no Password required",
                         self.host,
                     )
-                    return self.async_create_entry(
-                        title=f"Host: {user_input[CONF_HOST]}", data=user_input
-                    )
+                    return await self.async_step_config(user_input=user_input)
                 if conn_test == "auth_required":
                     _LOGGER.info(
                         "Connection Test Successful (IP %s), Password needed",
@@ -139,14 +179,28 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             _LOGGER.info(
                 "Connection Test Successful (IP %s), no Password required", self.host
             )
-            return await self.async_step_confirm_discovery()
+            return await self.async_step_config()
         if conn_test == "auth_required":
             _LOGGER.info(
                 "Connection Test Successful (IP %s), Password needed", self.host
             )
             return await self.async_step_user_password()
         _LOGGER.warning("Connection Test not Successful (IP %s)", self.host)
-        return self.async_abort(reason="Cannot connect")
+        return self.async_abort(reason="cannot_connect")
+
+    def build_data_schema(self, devices):
+        devices_to_include = {
+            did: f"{devices[did].name} (id: {devices[did].did})" for did in devices
+        }
+        schema = vol.Schema({})
+        schema = schema.extend(
+            {
+                vol.Optional(
+                    CONF_DEVICES, default=list(devices_to_include)
+                ): cv.multi_select(devices_to_include),
+            }
+        )
+        return schema
 
 
 class InvalidHost(exceptions.HomeAssistantError):

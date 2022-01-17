@@ -1,4 +1,6 @@
+from enum import Enum
 from .const import (
+    APICAP_CLOSE_CONTACT_MEA,
     APICAP_DEVICE_TYPE_LOC,
     APICAP_ID_DEVICE_LOC,
     APICAP_LIGHT_VAL_LUX_MEA,
@@ -19,6 +21,11 @@ from .api import HomePilotApi
 from .device import HomePilotDevice
 
 
+class ContactState(Enum):
+    OPENED = True
+    CLOSED = False
+
+
 class HomePilotSensor(HomePilotDevice):
     _has_temperature: bool
     _temperature_value: float
@@ -34,6 +41,8 @@ class HomePilotSensor(HomePilotDevice):
     _rain_detection_value: bool
     _has_sun_detection: bool
     _sun_detection_value: bool
+    _has_contact_state: bool
+    _contact_state_value: ContactState
 
     def __init__(
         self,
@@ -53,6 +62,7 @@ class HomePilotSensor(HomePilotDevice):
         has_sun_direction: bool = False,
         has_rain_detection: bool = False,
         has_sun_detection: bool = False,
+        has_contact_state: bool = False,
     ) -> None:
         super().__init__(
             api=api,
@@ -72,6 +82,7 @@ class HomePilotSensor(HomePilotDevice):
         self._has_sun_direction = has_sun_direction
         self._has_rain_detection = has_rain_detection
         self._has_sun_detection = has_sun_detection
+        self._has_contact_state = has_contact_state
 
     @staticmethod
     async def build_from_api(api: HomePilotApi, did):
@@ -99,6 +110,7 @@ class HomePilotSensor(HomePilotDevice):
             has_sun_direction=APICAP_SUN_DIRECTION_MEA in device_map,
             has_rain_detection=APICAP_RAIN_DETECTION_MEA in device_map,
             has_sun_detection=APICAP_SUN_DETECTION_MEA in device_map,
+            has_contact_state=APICAP_CLOSE_CONTACT_MEA in device_map,
         )
 
     def update_state(self, state):
@@ -117,6 +129,12 @@ class HomePilotSensor(HomePilotDevice):
             self.rain_detection_value = state["readings"]["rain_detected"]
         if self.has_sun_detection:
             self.sun_detection_value = state["readings"]["sun_detected"]
+        if self.has_contact_state:
+            self.contact_state_value = (
+                ContactState.CLOSED
+                if state["readings"]["contact_state"] == "closed"
+                else ContactState.OPENED
+            )
 
     @property
     def has_temperature(self) -> bool:
@@ -145,6 +163,10 @@ class HomePilotSensor(HomePilotDevice):
     @property
     def has_sun_detection(self) -> bool:
         return self._has_sun_detection
+
+    @property
+    def has_contact_state(self) -> bool:
+        return self._has_contact_state
 
     @property
     def temperature_value(self) -> float:
@@ -201,3 +223,11 @@ class HomePilotSensor(HomePilotDevice):
     @sun_detection_value.setter
     def sun_detection_value(self, sun_detection_value):
         self._sun_detection_value = sun_detection_value
+
+    @property
+    def contact_state_value(self) -> ContactState:
+        return self._contact_state_value
+
+    @contact_state_value.setter
+    def contact_state_value(self, contact_state_value):
+        self._contact_state_value = contact_state_value

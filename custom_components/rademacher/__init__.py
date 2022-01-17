@@ -5,7 +5,7 @@ import logging
 import async_timeout
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_HOST, CONF_PASSWORD
+from homeassistant.const import CONF_BINARY_SENSORS, CONF_HOST, CONF_PASSWORD
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import (
     DataUpdateCoordinator,
@@ -43,7 +43,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         entry.data[CONF_PASSWORD] if CONF_PASSWORD in entry.data else "",
     )
     _LOGGER.info("Hub instance created, found %s devices", len(hub.devices))
-    _LOGGER.debug("Device IDs: %s", [did for did in hub.devices])
+    _LOGGER.debug("Device IDs: %s", list(hub.devices))
 
     async def async_update_data():
         """Fetch data from API endpoint.
@@ -71,7 +71,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         update_interval=timedelta(seconds=30),
     )
 
-    hass.data[DOMAIN][entry.entry_id] = (hub, coordinator)
+    hass.data[DOMAIN][entry.entry_id] = (
+        hub,
+        coordinator,
+        entry.data,
+    )
 
     await coordinator.async_config_entry_first_refresh()
 

@@ -1,53 +1,79 @@
 """Platform for Rademacher Bridge"""
 import logging
+
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import CONF_DEVICES
 from .homepilot.device import HomePilotDevice
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from .homepilot.sensor import HomePilotSensor
 from .homepilot.hub import HomePilotHub
 from .entity import HomePilotEntity
-from homeassistant.components.binary_sensor import BinarySensorEntity
+from homeassistant.components.binary_sensor import (
+    BinarySensorDeviceClass,
+    BinarySensorEntity,
+)
 
 from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
 
-async def async_setup_entry(hass, config_entry, async_add_entities):
+async def async_setup_entry(hass, config_entry: ConfigEntry, async_add_entities):
     entry = hass.data[DOMAIN][config_entry.entry_id]
     hub: HomePilotHub = entry[0]
     coordinator: DataUpdateCoordinator = entry[1]
+    devices: bool = entry[2][CONF_DEVICES]
     new_entities = []
     for did in hub.devices:
-        device: HomePilotDevice = hub.devices[did]
-        if isinstance(device, HomePilotSensor):
-            if device.has_rain_detection:
-                _LOGGER.info(
-                    "Found Rain Detection Sensor for Device ID: %s", device.did
-                )
-                new_entities.append(
-                    HomePilotBinarySensorEntity(
-                        coordinator,
-                        device,
-                        "rain_detect",
-                        "Rain Detection",
-                        "rain_detection_value",
-                        "mdi:weather-rainy",
-                        "mdi:cloud-off-outline",
+        if did in devices:
+            device: HomePilotDevice = hub.devices[did]
+            if isinstance(device, HomePilotSensor):
+                if device.has_rain_detection:
+                    _LOGGER.info(
+                        "Found Rain Detection Sensor for Device ID: %s", device.did
                     )
-                )
-            if device.has_sun_detection:
-                _LOGGER.info("Found Sun Detection Sensor for Device ID: %s", device.did)
-                new_entities.append(
-                    HomePilotBinarySensorEntity(
-                        coordinator,
-                        device,
-                        "sun_detect",
-                        "Sun Detection",
-                        "sun_detection_value",
-                        "mdi:weather-sunny",
-                        "mdi:weather-sunny-off",
+                    new_entities.append(
+                        HomePilotBinarySensorEntity(
+                            coordinator,
+                            device,
+                            "rain_detect",
+                            "Rain Detection",
+                            "rain_detection_value",
+                            BinarySensorDeviceClass.MOISTURE,
+                            None,
+                            None,
+                        )
                     )
-                )
+                if device.has_sun_detection:
+                    _LOGGER.info(
+                        "Found Sun Detection Sensor for Device ID: %s", device.did
+                    )
+                    new_entities.append(
+                        HomePilotBinarySensorEntity(
+                            coordinator,
+                            device,
+                            "sun_detect",
+                            "Sun Detection",
+                            "sun_detection_value",
+                            BinarySensorDeviceClass.LIGHT,
+                            None,
+                            None,
+                        )
+                    )
+                if device.has_contact_state:
+                    _LOGGER.info("Found Contact Sensor for Device ID: %s", device.did)
+                    new_entities.append(
+                        HomePilotBinarySensorEntity(
+                            coordinator,
+                            device,
+                            "contact_state",
+                            "Contact State",
+                            "contact_state_value",
+                            BinarySensorDeviceClass.OPENING,
+                            None,
+                            None,
+                        )
+                    )
     # If we have any new devices, add them
     if new_entities:
         async_add_entities(new_entities)
@@ -61,6 +87,7 @@ class HomePilotBinarySensorEntity(HomePilotEntity, BinarySensorEntity):
         id_suffix,
         name_suffix,
         value_attr,
+        device_class,
         icon_on,
         icon_off,
     ):
@@ -69,6 +96,7 @@ class HomePilotBinarySensorEntity(HomePilotEntity, BinarySensorEntity):
             device,
             unique_id=f"{device.uid}_f{id_suffix}",
             name=f"{device.name} {name_suffix}",
+            device_class=device_class,
         )
         self._value_attr = value_attr
         self._icon_on = icon_on
@@ -80,7 +108,8 @@ class HomePilotBinarySensorEntity(HomePilotEntity, BinarySensorEntity):
 
     @property
     def is_on(self):
-        return getattr(self.coordinator.data[self.did], self.value_attr)
+        value = getattr(self.coordinator.data[self.did], self.value_attr)
+        return value if isinstance(value, bool) else value.value
 
     @property
     def icon(self):

@@ -1,5 +1,5 @@
 {
-  "title": "Rademacher HomePilot",
+  "title": "Rademacher Bridge",
   "config": {
     "step": {
       "user": {
@@ -15,12 +15,25 @@
         "data": {
           "password": "[%key:common::config_flow::data::password%]"
         }
+      },
+      "config": {
+        "title": "[%key:common::config_flow::title%]",
+        "description": "[%key:common::config_flow::description%]",
+        "data": {
+          "binary_sensors": "[%key:common::config_flow::data::binary_sensors%]",
+          "devices": "[%key:common::config_flow::data::devices%]"
+        }
       }
     },
     "error": {
+      "no_device_selected": "[%key:common::config_flow::error::no_device_selected%]",
       "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]",
       "auth_error": "[%key:common::config_flow::error::auth_error%]",
       "unknown": "[%key:common::config_flow::error::unknown%]"
+    },
+    "abort": {
+      "no_devices_found": "[%key:common::config_flow::abort::no_devices_found%]",
+      "cannot_connect": "[%key:common::config_flow::abort::cannot_connect%]"
     }
   }
 }

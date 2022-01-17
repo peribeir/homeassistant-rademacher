@@ -1,5 +1,5 @@
 ![release](https://img.shields.io/github/v/release/peribeir/homeassistant-rademacher)
-![downloads](https://img.shields.io/github/downloads/peribeir/homeassistant-rademacher/latest/total)
+![downloads](https://img.shields.io/github/downloads/peribeir/homeassistant-rademacher/total)
 ![issues](https://img.shields.io/github/issues/peribeir/homeassistant-rademacher)
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://hacs.xyz/)
 
