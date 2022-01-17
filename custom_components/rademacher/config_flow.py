@@ -1,7 +1,6 @@
 """Config flow for Rademacher integration."""
 import logging
 import socket
-from .homepilot.sensor import HomePilotSensor
 import homeassistant.helpers.config_validation as cv
 
 import voluptuous as vol
@@ -10,7 +9,6 @@ from .homepilot.hub import HomePilotHub
 from homeassistant import config_entries, exceptions, data_entry_flow
 from homeassistant.components.dhcp import IP_ADDRESS
 from homeassistant.const import (
-    CONF_BINARY_SENSORS,
     CONF_DEVICES,
     CONF_HOST,
     CONF_PASSWORD,
@@ -31,7 +29,6 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_POLL
     host: str = ""
     password: str = ""
-    binary_sensors: dict = {}
     devices: dict = {}
 
     async def async_step_config(self, user_input=None):
@@ -39,16 +36,10 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is not None and CONF_DEVICES in user_input:
             if user_input[CONF_DEVICES]:
                 try:
-                    self.binary_sensors = (
-                        user_input[CONF_BINARY_SENSORS]
-                        if CONF_BINARY_SENSORS in user_input
-                        else {}
-                    )
                     self.devices = user_input[CONF_DEVICES]
                     data = {
                         CONF_HOST: self.host,
                         CONF_PASSWORD: self.password,
-                        CONF_BINARY_SENSORS: self.binary_sensors,
                         CONF_DEVICES: self.devices,
                     }
                     return self.async_create_entry(
@@ -209,20 +200,6 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 ): cv.multi_select(devices_to_include),
             }
         )
-        # devices_with_detect = {
-        #     did: f"{devices[did].name} (id: {devices[did].did})"
-        #     for did in devices
-        #     if isinstance(devices[did], HomePilotSensor)
-        #     and (devices[did].has_sun_detection or devices[did].has_rain_detection)
-        # }
-        # if devices_with_detect:
-        #     schema = schema.extend(
-        #         {
-        #             vol.Optional(
-        #                 CONF_BINARY_SENSORS, default=list(devices_with_detect)
-        #             ): cv.multi_select(devices_with_detect),
-        #         }
-        #     )
         return schema
 
 

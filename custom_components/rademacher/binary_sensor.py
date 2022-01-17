@@ -2,7 +2,7 @@
 import logging
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_BINARY_SENSORS, CONF_DEVICES
+from homeassistant.const import CONF_DEVICES
 from .homepilot.device import HomePilotDevice
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from .homepilot.sensor import HomePilotSensor
@@ -22,14 +22,13 @@ async def async_setup_entry(hass, config_entry: ConfigEntry, async_add_entities)
     entry = hass.data[DOMAIN][config_entry.entry_id]
     hub: HomePilotHub = entry[0]
     coordinator: DataUpdateCoordinator = entry[1]
-    binary_sensors: bool = entry[2][CONF_BINARY_SENSORS]
     devices: bool = entry[2][CONF_DEVICES]
     new_entities = []
     for did in hub.devices:
         if did in devices:
             device: HomePilotDevice = hub.devices[did]
             if isinstance(device, HomePilotSensor):
-                if device.has_rain_detection:  # and did in binary_sensors:
+                if device.has_rain_detection:
                     _LOGGER.info(
                         "Found Rain Detection Sensor for Device ID: %s", device.did
                     )
@@ -47,7 +46,7 @@ async def async_setup_entry(hass, config_entry: ConfigEntry, async_add_entities)
                             # "mdi:cloud-off-outline",
                         )
                     )
-                if device.has_sun_detection:  # and did in binary_sensors:
+                if device.has_sun_detection:
                     _LOGGER.info(
                         "Found Sun Detection Sensor for Device ID: %s", device.did
                     )
