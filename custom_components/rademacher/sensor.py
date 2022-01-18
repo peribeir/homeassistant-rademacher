@@ -26,7 +26,9 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     entry = hass.data[DOMAIN][config_entry.entry_id]
     hub: HomePilotHub = entry[0]
     coordinator: DataUpdateCoordinator = entry[1]
-    devices: bool = entry[2][CONF_DEVICES]
+    devices: dict = (
+        entry[2][CONF_DEVICES] if CONF_DEVICES in entry[2] else list(hub.devices)
+    )
     new_entities = []
     for did in hub.devices:
         if did in devices:

@@ -1,0 +1,39 @@
+{
+  "title": "Rademacher HomePilot",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Hostname/IP-Adresse der Bridge eingeben",
+        "description": "Bitte gib den Hostnamen oder die IP-Adresse der Rademacher Bridge ein (Start2Smart or Homepilot).",
+        "data": {
+          "host": "Hostname/IP-Adresse"
+        }
+      },
+      "user_password": {
+        "title": "Passwort der Bridge eingeben",
+        "description": "Bitte gib das Passwort der Rademacher Bridge ein (Start2Smart or Homepilot).",
+        "data": {
+          "password": "Passwort"
+        }
+      },
+      "config": {
+        "title": "Konfiguration",
+        "description": "",
+        "data": {
+          "binary_sensors": "Erstelle Sonnen-/Regenerkennungssensoren als binäre Sensoren",
+          "devices": "Geräte (Wähle Geräte ab, die du nicht hinzufügen möchtest):"
+        }
+      }
+    },
+    "error": {
+      "no_device_selected": "Du musst mindestens ein Gerät auswählen.",
+      "cannot_connect": "Fehler bei Verbindung zur Bridge. Bitte stelle sicher, dass die Bridge im Netzwerk verbunden und Hostname/IP korrekt ist.",
+      "auth_error": "Ungültiges Passwort. Bitte stelle sicher, dass das eingegebene Passwort korrekt ist.",
+      "unknown": "Unbekannter Fehler."
+    },
+    "abort": {
+      "no_devices_found": "Es wurden keine Geräte gefunden.",
+      "cannot_connect": "Fehler bei Verbindung zur Bridge. Bitte stelle sicher, dass die Bridge im Netzwerk verbunden und Hostname/IP korrekt ist."
+    }
+  }
+}
