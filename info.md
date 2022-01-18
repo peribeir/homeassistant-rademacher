@@ -12,6 +12,10 @@ Works exclusively when devices are connected through HomePilot or Start2Smart Br
 
 **See full device list support at the end.**
 
+# Honourable mentions
+
+[@thmnxo4](https://github.com/thmnxo4) for providing feedback on new platform integrations (Switch, Sensors) and for the Deutsch translation.
+
 # Installation
 
 ## 1. Using HACS
