@@ -1,7 +1,7 @@
 """Platform for Rademacher Bridge"""
 import logging
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
-from .homepilot.hub import HomePilotHub
+from .homepilot.manager import HomePilotManager
 from .homepilot.device import HomePilotDevice
 from .homepilot.sensor import HomePilotSensor
 from .entity import HomePilotEntity
@@ -24,15 +24,15 @@ _LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
     entry = hass.data[DOMAIN][config_entry.entry_id]
-    hub: HomePilotHub = entry[0]
+    manager: HomePilotManager = entry[0]
     coordinator: DataUpdateCoordinator = entry[1]
     devices: dict = (
-        entry[2][CONF_DEVICES] if CONF_DEVICES in entry[2] else list(hub.devices)
+        entry[2][CONF_DEVICES] if CONF_DEVICES in entry[2] else list(manager.devices)
     )
     new_entities = []
-    for did in hub.devices:
+    for did in manager.devices:
         if did in devices:
-            device: HomePilotDevice = hub.devices[did]
+            device: HomePilotDevice = manager.devices[did]
             if isinstance(device, HomePilotSensor):
                 if device.has_temperature:
                     _LOGGER.info(

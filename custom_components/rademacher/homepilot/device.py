@@ -123,3 +123,7 @@ class HomePilotDevice:
     @available.setter
     def available(self, available):
         self._available = available
+
+    @property
+    def extra_attributes(self):
+        return None

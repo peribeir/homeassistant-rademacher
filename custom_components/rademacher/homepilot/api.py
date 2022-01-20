@@ -84,6 +84,42 @@ class HomePilotApi:
                     return device
                 return None
 
+    async def get_fw_status(self):
+        await self.authenticate()
+        async with aiohttp.ClientSession(cookie_jar=self.cookie_jar) as session:
+            async with session.get(
+                f"http://{self.host}/service/system-update-image/status"
+            ) as response:
+                response = await response.json()
+                return response
+
+    async def get_fw_version(self):
+        await self.authenticate()
+        async with aiohttp.ClientSession(cookie_jar=self.cookie_jar) as session:
+            async with session.get(
+                f"http://{self.host}/service/system-update-image/version"
+            ) as response:
+                response = await response.json()
+                return response
+
+    async def get_nodename(self):
+        await self.authenticate()
+        async with aiohttp.ClientSession(cookie_jar=self.cookie_jar) as session:
+            async with session.get(
+                f"http://{self.host}/service/system/networkmgr/v1/nodename"
+            ) as response:
+                response = await response.json()
+                return response
+
+    async def get_led_status(self):
+        await self.authenticate()
+        async with aiohttp.ClientSession(cookie_jar=self.cookie_jar) as session:
+            async with session.get(
+                f"http://{self.host}/service/system/leds/status"
+            ) as response:
+                response = await response.json()
+                return response
+
     async def get_devices_state(self):
         await self.authenticate()
         async with aiohttp.ClientSession(cookie_jar=self.cookie_jar) as session:
@@ -167,6 +203,22 @@ class HomePilotApi:
         async with aiohttp.ClientSession(cookie_jar=self.cookie_jar) as session:
             async with session.put(
                 f"http://{self.host}/devices/{did}", json={"name": "TURN_OFF_CMD"}
+            ) as response:
+                await response.text()
+
+    async def turn_led_on(self):
+        await self.authenticate()
+        async with aiohttp.ClientSession(cookie_jar=self.cookie_jar) as session:
+            async with session.post(
+                f"http://{self.host}/service/system/leds/enable"
+            ) as response:
+                await response.text()
+
+    async def turn_led_off(self):
+        await self.authenticate()
+        async with aiohttp.ClientSession(cookie_jar=self.cookie_jar) as session:
+            async with session.post(
+                f"http://{self.host}/service/system/leds/disable"
             ) as response:
                 await response.text()
 
