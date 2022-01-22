@@ -77,7 +77,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     )
 
     # Backward compatibility
-    entry_options = entry.options
+    entry_options = entry.options.copy()
     if CONF_EXCLUDE not in entry.options:
         if CONF_DEVICES in entry.options:
             entry_options[CONF_EXCLUDE] = [

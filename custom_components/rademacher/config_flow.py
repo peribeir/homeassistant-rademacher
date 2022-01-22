@@ -221,7 +221,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
         """Manage the options."""
         if user_input is not None:
             data = {
-                CONF_DEVICES: user_input[CONF_DEVICES],
+                CONF_EXCLUDE: user_input[CONF_EXCLUDE],
             }
             return self.async_create_entry(title=f"Host: {self.host}", data=data)
         self.host = self.config_entry.data[CONF_HOST]
