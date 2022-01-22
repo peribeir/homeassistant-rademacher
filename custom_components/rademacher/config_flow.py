@@ -1,6 +1,7 @@
 """Config flow for Rademacher integration."""
 import logging
 import socket
+from homeassistant.core import callback
 import homeassistant.helpers.config_validation as cv
 
 import voluptuous as vol
@@ -10,6 +11,7 @@ from homeassistant import config_entries, exceptions, data_entry_flow
 from homeassistant.components.dhcp import IP_ADDRESS
 from homeassistant.const import (
     CONF_DEVICES,
+    CONF_EXCLUDE,
     CONF_HOST,
     CONF_PASSWORD,
 )
@@ -29,39 +31,38 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_POLL
     host: str = ""
     password: str = ""
-    devices: dict = {}
+    exclude_devices: list[str] = []
 
     async def async_step_config(self, user_input=None):
         errors = {}
-        if user_input is not None and CONF_DEVICES in user_input:
-            if user_input[CONF_DEVICES]:
-                try:
-                    self.devices = user_input[CONF_DEVICES]
-                    data = {
-                        CONF_HOST: self.host,
-                        CONF_PASSWORD: self.password,
-                        CONF_DEVICES: self.devices,
-                    }
-                    return self.async_create_entry(
-                        title=f"Host: {self.host}", data=data
-                    )
-                except Exception:  # pylint: disable=broad-except
-                    _LOGGER.exception("Unexpected exception", exc_info=True)
-                    errors["base"] = "unknown"
-            else:
-                errors["base"] = "no_device_selected"
+        if user_input is not None and CONF_EXCLUDE in user_input:
+            try:
+                self.exclude_devices = user_input[CONF_EXCLUDE]
+                data = {
+                    CONF_HOST: self.host,
+                    CONF_PASSWORD: self.password,
+                }
+                options = {
+                    CONF_EXCLUDE: self.exclude_devices,
+                }
+                return self.async_create_entry(
+                    title=f"Host: {self.host}", data=data, options=options
+                )
+            except Exception:  # pylint: disable=broad-except
+                _LOGGER.exception("Unexpected exception", exc_info=True)
+                errors["base"] = "unknown"
         manager = await HomePilotManager.build_manager(
             self.host,
             self.password,
         )
         if not manager.devices:
             return self.async_abort(reason="no_devices_found")
-        DATA_SCHEMA_CONFIG = self.build_data_schema(manager.devices)
+        data_schema_config = self.build_data_schema(manager.devices)
         # If there is no user input or there were errors, show the form again, including any errors that were found
         # with the input.
         return self.async_show_form(
             step_id="config",
-            data_schema=DATA_SCHEMA_CONFIG,
+            data_schema=data_schema_config,
             errors=errors,
         )
 
@@ -188,16 +189,77 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         _LOGGER.warning("Connection Test not Successful (IP %s)", self.host)
         return self.async_abort(reason="cannot_connect")
 
+    @staticmethod
+    @callback
+    def async_get_options_flow(config_entry):
+        return OptionsFlowHandler(config_entry)
+
     def build_data_schema(self, devices):
-        devices_to_include = {
+        devices_to_exclude = {
+            did: f"{devices[did].name} (id: {devices[did].did})" for did in devices
+        }
+        schema = vol.Schema({})
+        schema = schema.extend(
+            {
+                vol.Optional(CONF_EXCLUDE, default=[]): cv.multi_select(
+                    devices_to_exclude
+                ),
+            }
+        )
+        return schema
+
+
+class OptionsFlowHandler(config_entries.OptionsFlow):
+    host: str
+    password: str
+
+    def __init__(self, config_entry):
+        """Initialize options flow."""
+        self.config_entry = config_entry
+
+    async def async_step_init(self, user_input=None):
+        """Manage the options."""
+        if user_input is not None:
+            data = {
+                CONF_DEVICES: user_input[CONF_DEVICES],
+            }
+            return self.async_create_entry(title=f"Host: {self.host}", data=data)
+        self.host = self.config_entry.data[CONF_HOST]
+        self.password = self.config_entry.data[CONF_PASSWORD]
+        manager = await HomePilotManager.build_manager(
+            self.host,
+            self.password,
+        )
+        if not manager.devices:
+            return self.async_abort(reason="no_devices_found")
+
+        if CONF_EXCLUDE in self.config_entry.options:
+            previous_excluded_devices = self.config_entry.options[CONF_EXCLUDE]
+        elif CONF_DEVICES in self.config_entry.options:
+            previous_excluded_devices = [
+                did
+                for did in manager.devices
+                if did not in self.config_entry.options[CONF_DEVICES]
+            ]
+        else:
+            previous_excluded_devices = []
+
+        data_schema_config = self.build_data_schema(
+            manager.devices, previous_excluded_devices
+        )
+
+        return self.async_show_form(step_id="init", data_schema=data_schema_config)
+
+    def build_data_schema(self, devices, previous_excluded_devices):
+        devices_to_exclude = {
             did: f"{devices[did].name} (id: {devices[did].did})" for did in devices
         }
         schema = vol.Schema({})
         schema = schema.extend(
             {
                 vol.Optional(
-                    CONF_DEVICES, default=list(devices_to_include)
-                ): cv.multi_select(devices_to_include),
+                    CONF_EXCLUDE, default=list(previous_excluded_devices)
+                ): cv.multi_select(devices_to_exclude),
             }
         )
         return schema

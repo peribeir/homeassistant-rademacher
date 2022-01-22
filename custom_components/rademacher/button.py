@@ -1,6 +1,6 @@
 """Platform for Rademacher Bridge"""
 import logging
-from homeassistant.const import CONF_DEVICES
+from homeassistant.const import CONF_EXCLUDE
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from .homepilot.device import HomePilotDevice
 from .homepilot.manager import HomePilotManager
@@ -13,15 +13,14 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
+    """Setup of entities for button platform"""
     entry = hass.data[DOMAIN][config_entry.entry_id]
     manager: HomePilotManager = entry[0]
     coordinator: DataUpdateCoordinator = entry[1]
-    devices: dict = (
-        entry[2][CONF_DEVICES] if CONF_DEVICES in entry[2] else list(manager.devices)
-    )
+    exclude_devices: list[str] = entry[3][CONF_EXCLUDE]
     new_entities = []
     for did in manager.devices:
-        if did in devices:
+        if did not in exclude_devices:
             device: HomePilotDevice = manager.devices[did]
             if device.has_ping_cmd:
                 _LOGGER.info("Found Ping Command Button for Device ID: %s", device.did)
@@ -32,6 +31,8 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 
 
 class HomePilotPingButtonEntity(HomePilotEntity, ButtonEntity):
+    """This class represents a button which sends a ping command to a device"""
+
     def __init__(
         self, coordinator: DataUpdateCoordinator, device: HomePilotDevice
     ) -> None:

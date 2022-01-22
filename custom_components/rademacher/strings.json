@@ -20,8 +20,7 @@
         "title": "[%key:common::config_flow::title%]",
         "description": "[%key:common::config_flow::description%]",
         "data": {
-          "binary_sensors": "[%key:common::config_flow::data::binary_sensors%]",
-          "devices": "[%key:common::config_flow::data::devices%]"
+          "exclude": "[%key:common::config_flow::data::exclude%]"
         }
       }
     },
