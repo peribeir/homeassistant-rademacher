@@ -11,7 +11,7 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.const import (
-    CONF_DEVICES,
+    CONF_EXCLUDE,
     DEGREE,
     LIGHT_LUX,
     SPEED_METERS_PER_SECOND,
@@ -23,15 +23,14 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
+    """Setup of entities for sensor platform"""
     entry = hass.data[DOMAIN][config_entry.entry_id]
     manager: HomePilotManager = entry[0]
     coordinator: DataUpdateCoordinator = entry[1]
-    devices: dict = (
-        entry[2][CONF_DEVICES] if CONF_DEVICES in entry[2] else list(manager.devices)
-    )
+    exclude_devices: list[str] = entry[3][CONF_EXCLUDE]
     new_entities = []
     for did in manager.devices:
-        if did in devices:
+        if did not in exclude_devices:
             device: HomePilotDevice = manager.devices[did]
             if isinstance(device, HomePilotSensor):
                 if device.has_temperature:
@@ -120,6 +119,8 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 
 
 class HomePilotSensorEntity(HomePilotEntity, SensorEntity):
+    """This class represents all Sensors supported"""
+
     def __init__(
         self,
         coordinator,
@@ -144,6 +145,8 @@ class HomePilotSensorEntity(HomePilotEntity, SensorEntity):
 
     @property
     def value_attr(self):
+        """This property stores which attribute contains the is_on value on
+        the HomePilotDevice supporting class"""
         return self._value_attr
 
     @property

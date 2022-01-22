@@ -20,19 +20,18 @@
         "title": "Konfiguration",
         "description": "",
         "data": {
-          "binary_sensors": "Erstelle Sonnen-/Regenerkennungssensoren als binäre Sensoren",
-          "devices": "Geräte (Wähle Geräte ab, die du nicht hinzufügen möchtest):"
+          "exclude": "Ger\u00e4te l\u00f6schen (W\u00e4hle Ger\u00e4te, die du NICHT hinzuf\u00fcgen m\u00f6chtest):"
         }
       }
     },
     "error": {
-      "no_device_selected": "Du musst mindestens ein Gerät auswählen.",
+      "no_device_selected": "Du musst mindestens ein Ger\u00e4t ausw\u00e4hlen.",
       "cannot_connect": "Fehler bei Verbindung zur Bridge. Bitte stelle sicher, dass die Bridge im Netzwerk verbunden und Hostname/IP korrekt ist.",
-      "auth_error": "Ungültiges Passwort. Bitte stelle sicher, dass das eingegebene Passwort korrekt ist.",
+      "auth_error": "Ung\u00fcltiges Passwort. Bitte stelle sicher, dass das eingegebene Passwort korrekt ist.",
       "unknown": "Unbekannter Fehler."
     },
     "abort": {
-      "no_devices_found": "Es wurden keine Geräte gefunden.",
+      "no_devices_found": "Es wurden keine Ger\u00e4te gefunden.",
       "cannot_connect": "Fehler bei Verbindung zur Bridge. Bitte stelle sicher, dass die Bridge im Netzwerk verbunden und Hostname/IP korrekt ist."
     }
   }

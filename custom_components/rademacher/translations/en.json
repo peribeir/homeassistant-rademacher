@@ -20,8 +20,7 @@
         "title": "Configuration",
         "description": "",
         "data": {
-          "binary_sensors": "Create Sun/Rain Detection Sensors as Binary Sensors",
-          "devices": "Devices (unselect devices that you don't want to add):"
+          "exclude": "EXCLUDE Devices (select devices that you DON'T want to add):"
         }
       }
     },

@@ -5,7 +5,12 @@ import logging
 import async_timeout
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_BINARY_SENSORS, CONF_HOST, CONF_PASSWORD
+from homeassistant.const import (
+    CONF_DEVICES,
+    CONF_EXCLUDE,
+    CONF_HOST,
+    CONF_PASSWORD,
+)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import (
     DataUpdateCoordinator,
@@ -71,13 +76,26 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         update_interval=timedelta(seconds=30),
     )
 
+    # Backward compatibility
+    entry_options = entry.options
+    if CONF_EXCLUDE not in entry.options:
+        if CONF_DEVICES in entry.options:
+            entry_options[CONF_EXCLUDE] = [
+                did for did in manager.devices if did not in entry.options[CONF_DEVICES]
+            ]
+        else:
+            entry_options[CONF_EXCLUDE] = []
+
     hass.data[DOMAIN][entry.entry_id] = (
         manager,
         coordinator,
         entry.data,
+        entry_options,
     )
 
     await coordinator.async_config_entry_first_refresh()
+
+    entry.async_on_unload(entry.add_update_listener(update_listener))
 
     _LOGGER.info("Starting entry setup for each platform")
     # This creates each HA object for each platform your device requires.
@@ -88,6 +106,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         )
 
     return True
+
+
+async def update_listener(hass: HomeAssistant, entry: ConfigEntry):
+    """Handle options update."""
+    await hass.config_entries.async_reload(entry.entry_id)
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):

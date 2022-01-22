@@ -4,7 +4,7 @@ import logging
 from homeassistant.helpers.entity import EntityCategory
 from .homepilot.hub import HomePilotHub
 
-from homeassistant.const import CONF_DEVICES
+from homeassistant.const import CONF_EXCLUDE
 from .homepilot.manager import HomePilotManager
 
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
@@ -18,15 +18,14 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
+    """Setup of entities for switch platform"""
     entry = hass.data[DOMAIN][config_entry.entry_id]
     manager: HomePilotManager = entry[0]
     coordinator: DataUpdateCoordinator = entry[1]
-    devices: dict = (
-        entry[2][CONF_DEVICES] if CONF_DEVICES in entry[2] else list(manager.devices)
-    )
+    exclude_devices: list[str] = entry[3][CONF_EXCLUDE]
     new_entities = []
     for did in manager.devices:
-        if did in devices:
+        if did not in exclude_devices:
             device: HomePilotDevice = manager.devices[did]
             if isinstance(device, HomePilotHub):
                 _LOGGER.info("Found Led Switch for Device ID: %s", device.did)
@@ -40,6 +39,8 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 
 
 class HomePilotSwitchEntity(HomePilotEntity, SwitchEntity):
+    """This class represents all Switches supported"""
+
     def __init__(
         self, coordinator: DataUpdateCoordinator, device: HomePilotDevice
     ) -> None:
@@ -77,6 +78,8 @@ class HomePilotSwitchEntity(HomePilotEntity, SwitchEntity):
 
 
 class HomePilotLedSwitchEntity(HomePilotEntity, SwitchEntity):
+    """This class represents the Led Switch which controls the LEDs on the hub"""
+
     def __init__(
         self, coordinator: DataUpdateCoordinator, device: HomePilotDevice
     ) -> None:
