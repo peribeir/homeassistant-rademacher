@@ -4,7 +4,7 @@ import socket
 import homeassistant.helpers.config_validation as cv
 
 import voluptuous as vol
-from .homepilot.hub import HomePilotHub
+from .homepilot.manager import HomePilotManager
 
 from homeassistant import config_entries, exceptions, data_entry_flow
 from homeassistant.components.dhcp import IP_ADDRESS
@@ -50,13 +50,13 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     errors["base"] = "unknown"
             else:
                 errors["base"] = "no_device_selected"
-        hub = await HomePilotHub.build_hub(
+        manager = await HomePilotManager.build_manager(
             self.host,
             self.password,
         )
-        if not hub.devices:
+        if not manager.devices:
             return self.async_abort(reason="no_devices_found")
-        DATA_SCHEMA_CONFIG = self.build_data_schema(hub.devices)
+        DATA_SCHEMA_CONFIG = self.build_data_schema(manager.devices)
         # If there is no user input or there were errors, show the form again, including any errors that were found
         # with the input.
         return self.async_show_form(

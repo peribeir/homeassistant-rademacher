@@ -9,7 +9,7 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from .homepilot.cover import HomePilotCover
 
-from .homepilot.hub import HomePilotHub
+from .homepilot.manager import HomePilotManager
 from .entity import HomePilotEntity
 
 from homeassistant.components.cover import (
@@ -30,15 +30,15 @@ _LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
     entry = hass.data[DOMAIN][config_entry.entry_id]
-    hub: HomePilotHub = entry[0]
+    manager: HomePilotManager = entry[0]
     coordinator: DataUpdateCoordinator = entry[1]
     devices: dict = (
-        entry[2][CONF_DEVICES] if CONF_DEVICES in entry[2] else list(hub.devices)
+        entry[2][CONF_DEVICES] if CONF_DEVICES in entry[2] else list(manager.devices)
     )
     new_entities = []
-    for did in hub.devices:
+    for did in manager.devices:
         if did in devices:
-            device: HomePilotDevice = hub.devices[did]
+            device: HomePilotDevice = manager.devices[did]
             if isinstance(device, HomePilotCover):
                 _LOGGER.info("Found Cover for Device ID: %s", device.did)
                 new_entities.append(HomePilotCoverEntity(coordinator, device))

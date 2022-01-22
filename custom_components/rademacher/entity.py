@@ -1,3 +1,4 @@
+from typing import Any, Mapping
 from .homepilot.device import HomePilotDevice
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from .const import DOMAIN
@@ -11,6 +12,7 @@ class HomePilotEntity(CoordinatorEntity):
         unique_id,
         name,
         device_class=None,
+        entity_category=None,
         icon=None,
     ):
         super().__init__(coordinator)
@@ -18,6 +20,7 @@ class HomePilotEntity(CoordinatorEntity):
         self._name = name
         self._device_name = device.name
         self._device_class = device_class
+        self._entity_category = entity_category
         self._icon = icon
         self._did = device.did
         self._model = device.model
@@ -42,6 +45,10 @@ class HomePilotEntity(CoordinatorEntity):
     @property
     def device_class(self):
         return self._device_class
+
+    @property
+    def entity_category(self):
+        return self._entity_category
 
     @property
     def model(self):
@@ -71,3 +78,8 @@ class HomePilotEntity(CoordinatorEntity):
     def available(self):
         device: HomePilotDevice = self.coordinator.data[self.did]
         return device.available
+
+    @property
+    def extra_state_attributes(self) -> Mapping[str, Any]:
+        device: HomePilotDevice = self.coordinator.data[self.did]
+        return getattr(device, "extra_attributes")

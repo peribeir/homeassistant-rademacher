@@ -12,7 +12,7 @@ from homeassistant.helpers.update_coordinator import (
 )
 from homeassistant.exceptions import ConfigEntryAuthFailed
 
-from .homepilot.hub import HomePilotHub
+from .homepilot.manager import HomePilotManager
 from .homepilot.api import AuthError
 
 from .const import DOMAIN
@@ -38,12 +38,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Rademacher from a config entry."""
     # Store an instance of the "connecting" class that does the work of speaking
     # with your actual devices.
-    hub = await HomePilotHub.build_hub(
+    manager = await HomePilotManager.build_manager(
         entry.data[CONF_HOST],
         entry.data[CONF_PASSWORD] if CONF_PASSWORD in entry.data else "",
     )
-    _LOGGER.info("Hub instance created, found %s devices", len(hub.devices))
-    _LOGGER.debug("Device IDs: %s", list(hub.devices))
+    _LOGGER.info("Manager instance created, found %s devices", len(manager.devices))
+    _LOGGER.debug("Device IDs: %s", list(manager.devices))
 
     async def async_update_data():
         """Fetch data from API endpoint.
@@ -55,7 +55,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             # Note: asyncio.TimeoutError and aiohttp.ClientError are already
             # handled by the data update coordinator.
             async with async_timeout.timeout(10):
-                return await hub.update_states()
+                return await manager.update_states()
         except AuthError as err:
             # Raising ConfigEntryAuthFailed will cancel future updates
             # and start a config flow with SOURCE_REAUTH (async_step_reauth)
@@ -72,7 +72,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     )
 
     hass.data[DOMAIN][entry.entry_id] = (
-        hub,
+        manager,
         coordinator,
         entry.data,
     )
