@@ -1,5 +1,16 @@
 {
   "title": "Rademacher HomePilot",
+  "options": {
+    "step": {
+      "init": {
+        "title": "Configuration",
+        "description": "",
+        "data": {
+          "exclude": "EXCLUDE Devices (select devices that you DON'T want to add):"
+        }
+      }
+    }
+  },
   "config": {
     "step": {
       "user": {

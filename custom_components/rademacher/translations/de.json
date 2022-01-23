@@ -1,5 +1,16 @@
 {
   "title": "Rademacher HomePilot",
+  "options": {
+    "step": {
+      "init": {
+        "title": "Konfiguration",
+        "description": "",
+        "data": {
+          "exclude": "Ger\u00e4te l\u00f6schen (W\u00e4hle Ger\u00e4te, die du NICHT hinzuf\u00fcgen m\u00f6chtest):"
+        }
+      }
+    }
+  },
   "config": {
     "step": {
       "user": {

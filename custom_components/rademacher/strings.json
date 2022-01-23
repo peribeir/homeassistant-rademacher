@@ -1,5 +1,16 @@
 {
   "title": "Rademacher Bridge",
+  "options": {
+    "step": {
+      "init": {
+        "title": "[%key:common::options_flow::title%]",
+        "description": "[%key:common::config_flow::description%]",
+        "data": {
+          "exclude": "[%key:common::config_flow::data::exclude%]"
+        }
+      }
+    }
+  },
   "config": {
     "step": {
       "user": {
