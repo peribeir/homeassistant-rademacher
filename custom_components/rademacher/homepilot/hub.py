@@ -66,7 +66,9 @@ class HomePilotHub(HomePilotDevice):
             uid=api.host,
             name=nodename.capitalize(),
             device_number=capabilities_map[APICAP_PROD_CODE_DEVICE_LOC]["value"],
-            model="Start2Smart" if fw_version["hw_platform"] else "ampere",
+            model="Start2Smart"
+            if fw_version["sw_platform"] == "bridge"
+            else "HomePilot",
             device_group=capabilities_map[APICAP_DEVICE_TYPE_LOC]["value"],
             fw_version=fw_version["version"],
             duofern_stick_version=fw_version["df_stick_version"],

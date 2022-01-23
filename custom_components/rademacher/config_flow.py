@@ -225,7 +225,11 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
             }
             return self.async_create_entry(title=f"Host: {self.host}", data=data)
         self.host = self.config_entry.data[CONF_HOST]
-        self.password = self.config_entry.data[CONF_PASSWORD]
+        self.password = (
+            self.config_entry.data[CONF_PASSWORD]
+            if CONF_PASSWORD in self.config_entry.data
+            else ""
+        )
         manager = await HomePilotManager.build_manager(
             self.host,
             self.password,
