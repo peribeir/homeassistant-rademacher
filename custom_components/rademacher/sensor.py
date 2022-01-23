@@ -1,5 +1,6 @@
 """Platform for Rademacher Bridge"""
 import logging
+from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from .homepilot.manager import HomePilotManager
 from .homepilot.device import HomePilotDevice
@@ -14,6 +15,7 @@ from homeassistant.const import (
     CONF_EXCLUDE,
     DEGREE,
     LIGHT_LUX,
+    PERCENTAGE,
     SPEED_METERS_PER_SECOND,
     TEMP_CELSIUS,
 )
@@ -113,6 +115,23 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                             "mdi:sun-compass",
                         )
                     )
+                if device.has_battery_level:
+                    _LOGGER.info(
+                        "Found Battery Level Sensor for Device ID: %s", device.did
+                    )
+                    new_entities.append(
+                        HomePilotSensorEntity(
+                            coordinator=coordinator,
+                            device=device,
+                            id_suffix="battery_level",
+                            name_suffix="Battery Level",
+                            value_attr="battery_level_value",
+                            device_class=SensorDeviceClass.BATTERY,
+                            native_unit_of_measurement=PERCENTAGE,
+                            icon=None,
+                            entity_category=EntityCategory.DIAGNOSTIC,
+                        )
+                    )
     # If we have any new devices, add them
     if new_entities:
         async_add_entities(new_entities)
@@ -131,6 +150,7 @@ class HomePilotSensorEntity(HomePilotEntity, SensorEntity):
         device_class,
         native_unit_of_measurement,
         icon,
+        entity_category=None,
     ) -> None:
         super().__init__(
             coordinator,
@@ -139,6 +159,7 @@ class HomePilotSensorEntity(HomePilotEntity, SensorEntity):
             name=f"{device.name} {name_suffix}",
             device_class=device_class,
             icon=icon,
+            entity_category=entity_category,
         )
         self._value_attr = value_attr
         self._native_unit_of_measurement = native_unit_of_measurement
