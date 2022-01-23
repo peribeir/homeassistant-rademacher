@@ -4,6 +4,8 @@ from datetime import timedelta
 import logging
 import async_timeout
 
+from homeassistant.helpers import device_registry as dr
+from homeassistant.helpers import entity_registry as er
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     CONF_DEVICES,
@@ -12,6 +14,7 @@ from homeassistant.const import (
     CONF_PASSWORD,
 )
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.device_registry import DeviceEntry, DeviceRegistry
 from homeassistant.helpers.update_coordinator import (
     DataUpdateCoordinator,
 )
@@ -96,6 +99,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await coordinator.async_config_entry_first_refresh()
 
     entry.async_on_unload(entry.add_update_listener(update_listener))
+
+    # Deleting excluded devices
+    device_registry: DeviceRegistry = dr.async_get(hass)
+    for did in entry.options[CONF_EXCLUDE]:
+        device_entry: DeviceEntry = device_registry.async_get_device({(DOMAIN, did)})
+        if device_entry is not None:
+            _LOGGER.info("Deleting device %s", did)
+            device_registry.async_remove_device(device_entry.id)
 
     _LOGGER.info("Starting entry setup for each platform")
     # This creates each HA object for each platform your device requires.
