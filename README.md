@@ -1,7 +1,7 @@
 [![release](https://img.shields.io/github/v/release/peribeir/homeassistant-rademacher)](https://github.com/peribeir/homeassistant-rademacher/releases/latest)
 [![downloads](https://img.shields.io/github/downloads/peribeir/homeassistant-rademacher/total)](https://github.com/peribeir/homeassistant-rademacher/releases/latest)
 [![issues](https://img.shields.io/github/issues/peribeir/homeassistant-rademacher)](https://github.com/peribeir/homeassistant-rademacher/issues)
-[![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
+[![hacs_badge](https://img.shields.io/badge/HACS-Default-41BDF5.svg)](https://github.com/hacs/integration)
 
 ![logo](https://github.com/peribeir/homeassistant-rademacher/raw/master/img/logo.png)
 A Home Assistant custom Integration for local handling of Devices connec to Rademacher bridge.
@@ -18,17 +18,17 @@ Works exclusively when devices are connected through HomePilot or Start2Smart Br
 
 # Installation
 
-## 1. Using HACS
+## 1. Using HACS (now on default repositories)
 
 > HACS is a community store for integrations, Frontend extensions, etc. It makes installation and maintenance of this component much easier. You can find instructions on how to install HACS [here](https://hacs.xyz/).
 
 Navigate to HACS in you Home Assistants Interface.
 
-Select "Integrations", then click the options menu on the upper right corner ans select "Custom Repositories".
+Click "Explore & Download Repositories"
 
-Paste the repo URL: `https://github.com/peribeir/homeassistant-rademacher` and click "Add".
+Search for "Rademacher Homepilot Bridge"
 
-In the new card that shows up, click "Download".
+Click "Download this Repository with HACS".
 
 Select the version you wish do download and finally click "Download".
 
