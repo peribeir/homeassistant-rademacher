@@ -1,4 +1,5 @@
 """Platform for Rademacher Bridge"""
+import asyncio
 import logging
 from homeassistant.const import CONF_EXCLUDE
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
@@ -54,4 +55,5 @@ class HomePilotPingButtonEntity(HomePilotEntity, ButtonEntity):
     async def async_press(self) -> None:
         device: HomePilotDevice = self.coordinator.data[self.did]
         await device.async_ping()
+        await asyncio.sleep(5)
         await self.coordinator.async_request_refresh()
