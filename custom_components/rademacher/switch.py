@@ -61,14 +61,14 @@ class HomePilotSwitchEntity(HomePilotEntity, SwitchEntity):
         """Turn the entity on."""
         device: HomePilotSwitch = self.coordinator.data[self.did]
         await device.async_turn_on()
-        await asyncio.sleep(2)
+        await asyncio.sleep(5)
         await self.coordinator.async_request_refresh()
 
     async def async_turn_off(self, **kwargs):
         """Turn the entity off."""
         device: HomePilotSwitch = self.coordinator.data[self.did]
         await device.async_turn_off()
-        await asyncio.sleep(2)
+        await asyncio.sleep(5)
         await self.coordinator.async_request_refresh()
 
     async def async_toggle(self, **kwargs):
@@ -103,14 +103,14 @@ class HomePilotLedSwitchEntity(HomePilotEntity, SwitchEntity):
         """Turn the entity on."""
         device: HomePilotHub = self.coordinator.data[self.did]
         await device.async_turn_led_on()
-        await asyncio.sleep(2)
+        await asyncio.sleep(5)
         await self.coordinator.async_request_refresh()
 
     async def async_turn_off(self, **kwargs):
         """Turn the entity off."""
         device: HomePilotHub = self.coordinator.data[self.did]
         await device.async_turn_led_off()
-        await asyncio.sleep(2)
+        await asyncio.sleep(5)
         await self.coordinator.async_request_refresh()
 
     async def async_toggle(self, **kwargs):
