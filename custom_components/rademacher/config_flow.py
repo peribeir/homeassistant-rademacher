@@ -1,12 +1,10 @@
 """Config flow for Rademacher integration."""
 import logging
 import socket
+import voluptuous as vol
+
 from homeassistant.core import callback
 import homeassistant.helpers.config_validation as cv
-
-import voluptuous as vol
-from .homepilot.manager import HomePilotManager
-
 from homeassistant import config_entries, exceptions, data_entry_flow
 from homeassistant.components.dhcp import IP_ADDRESS
 from homeassistant.const import (
@@ -16,7 +14,9 @@ from homeassistant.const import (
     CONF_PASSWORD,
 )
 
-from .homepilot.api import CannotConnect, AuthError, HomePilotApi
+from homepilot.manager import HomePilotManager
+from homepilot.api import CannotConnect, AuthError, HomePilotApi
+
 from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
@@ -51,7 +51,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             except Exception:  # pylint: disable=broad-except
                 _LOGGER.exception("Unexpected exception", exc_info=True)
                 errors["base"] = "unknown"
-        manager = await HomePilotManager.build_manager(
+        manager = await HomePilotManager.async_build_manager(
             self.host,
             self.password,
         )
@@ -230,7 +230,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
             if CONF_PASSWORD in self.config_entry.data
             else ""
         )
-        manager = await HomePilotManager.build_manager(
+        manager = await HomePilotManager.async_build_manager(
             self.host,
             self.password,
         )

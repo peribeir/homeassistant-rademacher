@@ -1,12 +1,15 @@
 """Platform for Rademacher Bridge"""
 import logging
+
 from homeassistant.const import CONF_EXCLUDE
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
-from .homepilot.device import HomePilotDevice
-from .homepilot.manager import HomePilotManager
-from .entity import HomePilotEntity
 from homeassistant.components.button import ButtonEntity
 from homeassistant.helpers.entity import EntityCategory
+
+from homepilot.device import HomePilotDevice
+from homepilot.manager import HomePilotManager
+
+from .entity import HomePilotEntity
 from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)

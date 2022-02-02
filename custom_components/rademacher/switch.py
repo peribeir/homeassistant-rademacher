@@ -2,17 +2,18 @@
 import logging
 
 from homeassistant.helpers.entity import EntityCategory
-from .homepilot.hub import HomePilotHub
 
 from homeassistant.const import CONF_EXCLUDE
-from .homepilot.manager import HomePilotManager
-
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
-from .homepilot.device import HomePilotDevice
-from .entity import HomePilotEntity
-from .homepilot.switch import HomePilotSwitch
 from homeassistant.components.switch import SwitchDeviceClass, SwitchEntity
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
+
+from homepilot.manager import HomePilotManager
+from homepilot.device import HomePilotDevice
+from homepilot.hub import HomePilotHub
+from homepilot.switch import HomePilotSwitch
+
 from .const import DOMAIN
+from .entity import HomePilotEntity
 
 _LOGGER = logging.getLogger(__name__)
 

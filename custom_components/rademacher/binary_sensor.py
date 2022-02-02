@@ -2,21 +2,23 @@
 import logging
 
 from homeassistant.helpers.entity import EntityCategory
-from .homepilot.hub import HomePilotHub
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_EXCLUDE
-from .homepilot.device import HomePilotDevice
 from homeassistant.helpers.update_coordinator import (
     DataUpdateCoordinator,
 )
-from .homepilot.sensor import HomePilotSensor
-from .homepilot.manager import HomePilotManager
-from .entity import HomePilotEntity
 from homeassistant.components.binary_sensor import (
     BinarySensorDeviceClass,
     BinarySensorEntity,
 )
+
+from homepilot.device import HomePilotDevice
+from homepilot.hub import HomePilotHub
+from homepilot.sensor import HomePilotSensor
+from homepilot.manager import HomePilotManager
+
+from .entity import HomePilotEntity
 
 from .const import DOMAIN
 
