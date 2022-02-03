@@ -1,5 +1,5 @@
 from typing import Any, Mapping
-from .homepilot.device import HomePilotDevice
+from homepilot.device import HomePilotDevice
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from .const import DOMAIN
 

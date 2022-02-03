@@ -1,11 +1,8 @@
 """Platform for Rademacher Bridge"""
 import logging
+
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
-from .homepilot.manager import HomePilotManager
-from .homepilot.device import HomePilotDevice
-from .homepilot.sensor import HomePilotSensor
-from .entity import HomePilotEntity
 from homeassistant.components.sensor import (
     SensorEntity,
     SensorDeviceClass,
@@ -19,6 +16,12 @@ from homeassistant.const import (
     SPEED_METERS_PER_SECOND,
     TEMP_CELSIUS,
 )
+
+from homepilot.manager import HomePilotManager
+from homepilot.device import HomePilotDevice
+from homepilot.sensor import HomePilotSensor
+
+from .entity import HomePilotEntity
 from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)

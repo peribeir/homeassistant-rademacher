@@ -20,8 +20,8 @@ from homeassistant.helpers.update_coordinator import (
 )
 from homeassistant.exceptions import ConfigEntryAuthFailed
 
-from .homepilot.manager import HomePilotManager
-from .homepilot.api import AuthError
+from homepilot.manager import HomePilotManager
+from homepilot.api import AuthError
 
 from .const import DOMAIN
 
@@ -46,7 +46,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Rademacher from a config entry."""
     # Store an instance of the "connecting" class that does the work of speaking
     # with your actual devices.
-    manager = await HomePilotManager.build_manager(
+    manager = await HomePilotManager.async_build_manager(
         entry.data[CONF_HOST],
         entry.data[CONF_PASSWORD] if CONF_PASSWORD in entry.data else "",
     )

@@ -4,26 +4,23 @@ import logging
 from typing import Any
 
 from homeassistant.const import CONF_EXCLUDE
-from .homepilot.device import HomePilotDevice
-
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
-
-from .homepilot.cover import HomePilotCover
-
-from .homepilot.manager import HomePilotManager
-from .entity import HomePilotEntity
-
 from homeassistant.components.cover import (
     CoverEntity,
     CoverDeviceClass,
-)
-from homeassistant.components.cover import (
     ATTR_POSITION,
     SUPPORT_OPEN,
     SUPPORT_CLOSE,
     SUPPORT_STOP,
     SUPPORT_SET_POSITION,
 )
+
+from homepilot.cover import HomePilotCover
+from homepilot.device import HomePilotDevice
+from homepilot.manager import HomePilotManager
+
+from .entity import HomePilotEntity
+
 from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
