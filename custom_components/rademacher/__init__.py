@@ -5,7 +5,6 @@ import logging
 import async_timeout
 
 from homeassistant.helpers import device_registry as dr
-from homeassistant.helpers import entity_registry as er
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     CONF_DEVICES,
@@ -21,7 +20,7 @@ from homeassistant.helpers.update_coordinator import (
 from homeassistant.exceptions import ConfigEntryAuthFailed
 
 from homepilot.manager import HomePilotManager
-from homepilot.api import AuthError
+from homepilot.api import HomePilotApi, AuthError
 
 from .const import DOMAIN
 
@@ -46,10 +45,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Rademacher from a config entry."""
     # Store an instance of the "connecting" class that does the work of speaking
     # with your actual devices.
-    manager = await HomePilotManager.async_build_manager(
+    api = HomePilotApi(
         entry.data[CONF_HOST],
         entry.data[CONF_PASSWORD] if CONF_PASSWORD in entry.data else "",
     )
+    manager = await HomePilotManager.async_build_manager(api)
     _LOGGER.info("Manager instance created, found %s devices", len(manager.devices))
     _LOGGER.debug("Device IDs: %s", list(manager.devices))
 
@@ -76,7 +76,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         name="rademacher",
         update_method=async_update_data,
         # Polling interval. Will only be polled if there are subscribers.
-        update_interval=timedelta(seconds=30),
+        update_interval=timedelta(seconds=10),
     )
 
     # Backward compatibility
