@@ -4,13 +4,13 @@
 [![hacs_badge](https://img.shields.io/badge/HACS-Default-41BDF5.svg)](https://github.com/hacs/integration)
 
 ![logo](https://github.com/peribeir/homeassistant-rademacher/raw/master/img/logo.png)
-A Home Assistant custom Integration for local handling of Devices connec to Rademacher bridge.
+A Home Assistant custom Integration for local handling of Devices connected to Rademacher bridge.
 
 Works exclusively when devices are connected through HomePilot or Start2Smart Bridge.
 
-### ***\*New\** Covers, Switches and Sensors now supported.**
+### **Supports Covers, Switches and Sensors.**
 
-**See full device list support at the end.**
+*See full device list support at the end.*
 
 # Honourable mentions
 
