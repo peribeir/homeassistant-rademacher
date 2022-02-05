@@ -54,7 +54,9 @@ if auto-discovery works, you'll see a notification on HA GUI stating it found ne
 
 Just click "Check it Out" and you'll be presented with the Integrations page where you should see the new Rademacher Bridge entry.
 
-Click "Configure". If you have set a password for the Hub, enter it and press "Submit", or just "Submit" if you have no password.
+Click "Configure". If you have set a password for the Hub, enter it and press "Submit".
+
+On the next dialog, Choose any device that you may want to exclude from managing in HA. If you want to manage all, just press "Submit".
 
 You should now be presented with Device/Entities detected, you should select the HA Area where you want to add them.
 
@@ -71,6 +73,8 @@ In the Dialog that appears, insert the HostName/IP Address of the Rademacher Bri
 Press "Submit".
 
 If you have configured a password for the hub, you'll be asked for it. Just insert it and press "Submit".
+
+On the next dialog, Choose any device that you may want to exclude from managing in HA. If you want to manage all, just press "Submit".
 
 You should now be presented with Device/Entities detected, you should select the HA Area where you want to add them.
 
