@@ -1,10 +1,10 @@
 {
   "domain": "rademacher",
   "name": "Rademacher Homepilot",
-  "version": "1.4.0",
+  "version": "1.5.0-beta.1",
   "documentation": "https://github.com/peribeir/homeassistant-rademacher",
   "issue_tracker": "https://github.com/peribeir/homeassistant-rademacher/issues",
-  "requirements": ["pyrademacher==0.1.1"],
+  "requirements": ["pyrademacher==0.2.1"],
   "dhcp": [
     {
       "macaddress": "B01F81B*"
