@@ -76,8 +76,8 @@ You should now be presented with Device/Entities detected, you should select the
 
 # Direct and Indirect Contributors
 
-<!-- readme: contributors,@thmnxo4,@MrWeidenMr -start -->
-<!-- readme: contributors,@thmnxo4,@MrWeidenMr -end -->
+<!-- readme: contributors -start -->
+<!-- readme: contributors -end -->
 
 # Supported Devices
 
