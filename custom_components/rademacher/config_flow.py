@@ -51,7 +51,9 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             except Exception:  # pylint: disable=broad-except
                 _LOGGER.exception("Unexpected exception", exc_info=True)
                 errors["base"] = "unknown"
-        api = HomePilotApi(self.host, self.password) # password can be empty if not defined ("")
+        api = HomePilotApi(
+            self.host, self.password
+        )  # password can be empty if not defined ("")
         manager = await HomePilotManager.async_build_manager(api)
         if not manager.devices:
             return self.async_abort(reason="no_devices_found")
@@ -228,7 +230,9 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
             if CONF_PASSWORD in self.config_entry.data
             else ""
         )
-        api = HomePilotApi(self.host, self.password) # password can be empty if not defined ("")
+        api = HomePilotApi(
+            self.host, self.password
+        )  # password can be empty if not defined ("")
         manager = await HomePilotManager.async_build_manager(api)
         if not manager.devices:
             return self.async_abort(reason="no_devices_found")

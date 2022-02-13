@@ -26,7 +26,7 @@ from .const import DOMAIN
 
 # List of platforms to support. There should be a matching .py file for each,
 # eg <cover.py> and <sensor.py>
-PLATFORMS = ["cover", "button", "switch", "sensor", "binary_sensor"]
+PLATFORMS = ["cover", "button", "switch", "sensor", "binary_sensor", "climate"]
 
 _LOGGER = logging.getLogger(__name__)
 

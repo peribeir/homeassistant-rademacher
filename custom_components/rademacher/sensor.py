@@ -54,6 +54,22 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                             None,
                         )
                     )
+                if device.has_target_temperature:
+                    _LOGGER.info(
+                        "Found Target Temperature Sensor for Device ID: %s", device.did
+                    )
+                    new_entities.append(
+                        HomePilotSensorEntity(
+                            coordinator,
+                            device,
+                            "target_temp",
+                            "Target Temperature",
+                            "target_temperature_value",
+                            SensorDeviceClass.TEMPERATURE.value,
+                            TEMP_CELSIUS,
+                            None,
+                        )
+                    )
                 if device.has_wind_speed:
                     _LOGGER.info(
                         "Found Wind Speed Sensor for Device ID: %s", device.did

@@ -8,13 +8,9 @@ A Home Assistant custom Integration for local handling of Devices connected to R
 
 Works exclusively when devices are connected through HomePilot or Start2Smart Bridge.
 
-### **Supports Covers, Switches and Sensors.**
+### **Supports Covers, Switches, Sensors and Thermostats.**
 
 *See full device list support at the end.*
-
-# Honourable mentions
-
-[@thmnxo4](https://github.com/thmnxo4) for providing feedback on new platform integrations (Switch, Sensors) and for the Deutsch translation.
 
 # Installation
 
@@ -78,9 +74,14 @@ On the next dialog, Choose any device that you may want to exclude from managing
 
 You should now be presented with Device/Entities detected, you should select the HA Area where you want to add them.
 
+# Direct and Indirect Contributors
+
+<!-- readme: contributors,@thmnxo4,@MrWeidenMr -start -->
+<!-- readme: contributors,@thmnxo4,@MrWeidenMr -end -->
+
 # Supported Devices
 
-The integration should work with the following devices (tested devices are marked with in **bold** )
+The integration should work with the following devices (tested devices are marked in **bold** )
 
 ## Covers
 - **DuoFern tubular motor actuator (DN:35000662)**
@@ -105,9 +106,14 @@ The integration should work with the following devices (tested devices are marke
   - Tested on DuoFern Environmental Sensor Weather Station 9475
 - Z-Wave window/door contact (DN: 32002119)
 - DuoFern Window/Door Contact (DN: 32003164)
-
+- **DuoFern Room Thermostat (DN:32501812_S)**
+  - Tested on DuoFern 9485 wireless radiator thermostat
 
 ## Switches
 - DuoFern Switch actuator (DN:35001164)
 - **DuoFern Universal actuator 2-channel (DN:35000262)**
   - Tested on 9470 Universal Actuator
+
+## Thermostat
+- **DuoFern Room Thermostat (DN:32501812_A)**
+  - Tested on DuoFern 9485 wireless radiator thermostat
