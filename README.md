@@ -92,6 +92,20 @@ You should now be presented with Device/Entities detected, you should select the
             <br />
             <sub><b>Michel Munzert</b></sub>
         </a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/thmnxo4">
+            <img src="https://avatars.githubusercontent.com/u/76701693?v=4" width="100;" alt="thmnxo4"/>
+            <br />
+            <sub><b>thmnxo4</b></sub>
+        </a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/mrweidenmr">
+            <img src="https://avatars.githubusercontent.com/u/99197872?v=4" width="100;" alt="mrweidenmr"/>
+            <br />
+            <sub><b>mrweidenmr</b></sub>
+        </a>
     </td></tr>
 </table>
 <!-- readme: contributors,thmnxo4,MrWeidenMr -end -->
