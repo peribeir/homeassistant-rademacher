@@ -3,14 +3,15 @@ import asyncio
 import logging
 
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
-from homeassistant.components.climate import (
-    ClimateEntity,
-    SUPPORT_TARGET_TEMPERATURE,
-    HVAC_MODE_HEAT_COOL,
-)
+from homeassistant.components.climate import ClimateEntity
 from homeassistant.const import (
     CONF_EXCLUDE,
     TEMP_CELSIUS,
+)
+from homeassistant.components.climate.const import (
+    HVAC_MODE_AUTO,
+    HVAC_MODE_HEAT_COOL,
+    SUPPORT_TARGET_TEMPERATURE,
 )
 
 from homepilot.manager import HomePilotManager
@@ -67,29 +68,52 @@ class HomePilotClimateEntity(HomePilotEntity, ClimateEntity):
         self._attr_max_temp = device.max_target_temperature
         self._attr_min_temp = device.min_target_temperature
         self._attr_target_temperature_step = device.step_target_temperature
-        self._attr_supported_features = SUPPORT_TARGET_TEMPERATURE
-        self._attr_hvac_modes = [HVAC_MODE_HEAT_COOL]
+        self._attr_hvac_modes = (
+            [HVAC_MODE_AUTO, HVAC_MODE_HEAT_COOL]
+            if device.has_auto_mode
+            else [HVAC_MODE_HEAT_COOL]
+        )
 
     async def async_set_hvac_mode(self, hvac_mode: str) -> None:
-        _LOGGER.debug("async_set_hvac_mode: %s", hvac_mode)
-        return
+        device: HomePilotThermostat = self.coordinator.data[self.did]
+        if device.has_auto_mode:
+            await device.async_set_auto_mode(hvac_mode == HVAC_MODE_AUTO)
+            await asyncio.sleep(5)
+            await self.coordinator.async_request_refresh()
 
     async def async_set_temperature(self, **kwargs) -> None:
         device: HomePilotThermostat = self.coordinator.data[self.did]
-        await device.async_set_target_temperature(kwargs["temperature"])
-        await asyncio.sleep(5)
-        await self.coordinator.async_request_refresh()
+        if device.can_set_target_temperature:
+            await device.async_set_target_temperature(kwargs["temperature"])
+            await asyncio.sleep(5)
+            await self.coordinator.async_request_refresh()
 
     @property
     def current_temperature(self) -> float:
         device: HomePilotThermostat = self.coordinator.data[self.did]
-        return device.temperature_value
+        return device.temperature_value if device.has_temperature else None
 
     @property
     def target_temperature(self) -> float:
         device: HomePilotThermostat = self.coordinator.data[self.did]
-        return device.target_temperature_value
+        return (
+            device.target_temperature_value if device.has_target_temperature else None
+        )
 
     @property
     def hvac_mode(self) -> str:
-        return HVAC_MODE_HEAT_COOL
+        device: HomePilotThermostat = self.coordinator.data[self.did]
+        return (
+            HVAC_MODE_AUTO
+            if device.has_auto_mode and device.auto_mode_value
+            else HVAC_MODE_HEAT_COOL
+        )
+
+    @property
+    def supported_features(self) -> int:
+        device: HomePilotThermostat = self.coordinator.data[self.did]
+        return (
+            SUPPORT_TARGET_TEMPERATURE
+            if device.can_set_target_temperature and not device.auto_mode_value
+            else 0
+        )

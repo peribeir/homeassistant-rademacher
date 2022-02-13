@@ -1,7 +1,7 @@
 {
   "domain": "rademacher",
   "name": "Rademacher Homepilot",
-  "version": "1.5.0-beta.2",
+  "version": "1.5.0-beta.3",
   "documentation": "https://github.com/peribeir/homeassistant-rademacher",
   "issue_tracker": "https://github.com/peribeir/homeassistant-rademacher/issues",
   "requirements": ["pyrademacher==0.2.2"],

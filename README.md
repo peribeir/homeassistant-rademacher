@@ -81,7 +81,7 @@ You should now be presented with Device/Entities detected, you should select the
 
 # Supported Devices
 
-The integration should work with the following devices (tested devices are marked with in **bold** )
+The integration should work with the following devices (tested devices are marked in **bold** )
 
 ## Covers
 - **DuoFern tubular motor actuator (DN:35000662)**
