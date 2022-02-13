@@ -12,10 +12,6 @@ Works exclusively when devices are connected through HomePilot or Start2Smart Br
 
 *See full device list support at the end.*
 
-# Honourable mentions
-
-[@thmnxo4](https://github.com/thmnxo4) for providing feedback on new platform integrations (Switch, Sensors) and for the Deutsch translation.
-
 # Installation
 
 ## 1. Using HACS (now on default repositories)
@@ -77,6 +73,11 @@ If you have configured a password for the hub, you'll be asked for it. Just inse
 On the next dialog, Choose any device that you may want to exclude from managing in HA. If you want to manage all, just press "Submit".
 
 You should now be presented with Device/Entities detected, you should select the HA Area where you want to add them.
+
+# Direct and Indirect Contributors
+
+<!-- readme: contributors,@thmnxo4,@MrWeidenMr -start -->
+<!-- readme: contributors,@thmnxo4,@MrWeidenMr -end -->
 
 # Supported Devices
 
