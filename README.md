@@ -76,7 +76,7 @@ You should now be presented with Device/Entities detected, you should select the
 
 # Direct and Indirect Contributors
 
-<!-- readme: contributors -start -->
+<!-- readme: contributors,thmnxo4,MrWeidenMr -start -->
 <table>
 <tr>
     <td align="center">
@@ -94,7 +94,7 @@ You should now be presented with Device/Entities detected, you should select the
         </a>
     </td></tr>
 </table>
-<!-- readme: contributors -end -->
+<!-- readme: contributors,thmnxo4,MrWeidenMr -end -->
 
 # Supported Devices
 
