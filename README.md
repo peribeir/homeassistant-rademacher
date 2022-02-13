@@ -77,6 +77,23 @@ You should now be presented with Device/Entities detected, you should select the
 # Direct and Indirect Contributors
 
 <!-- readme: contributors -start -->
+<table>
+<tr>
+    <td align="center">
+        <a href="https://github.com/peribeir">
+            <img src="https://avatars.githubusercontent.com/u/7266291?v=4" width="100;" alt="peribeir"/>
+            <br />
+            <sub><b>Pedro Ribeiro</b></sub>
+        </a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/michelde">
+            <img src="https://avatars.githubusercontent.com/u/10096708?v=4" width="100;" alt="michelde"/>
+            <br />
+            <sub><b>Michel Munzert</b></sub>
+        </a>
+    </td></tr>
+</table>
 <!-- readme: contributors -end -->
 
 # Supported Devices
