@@ -114,6 +114,6 @@ class HomePilotClimateEntity(HomePilotEntity, ClimateEntity):
         device: HomePilotThermostat = self.coordinator.data[self.did]
         return (
             SUPPORT_TARGET_TEMPERATURE
-            if device.can_set_target_temperature and not device.auto_mode_value
+            if device.can_set_target_temperature
             else 0
         )
