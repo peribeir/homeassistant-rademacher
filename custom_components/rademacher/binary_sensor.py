@@ -43,7 +43,7 @@ async def async_setup_entry(hass, config_entry: ConfigEntry, async_add_entities)
                         coordinator=coordinator,
                         device=device,
                         id_suffix="fw_update",
-                        name_suffix="FW Update",
+                        name_suffix="FW Update Status",
                         value_attr="fw_update_available",
                         device_class=BinarySensorDeviceClass.UPDATE,
                         entity_category=EntityCategory.DIAGNOSTIC,
