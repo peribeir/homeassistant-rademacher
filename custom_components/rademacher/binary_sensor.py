@@ -90,6 +90,18 @@ async def async_setup_entry(hass, config_entry: ConfigEntry, async_add_entities)
                             device_class=BinarySensorDeviceClass.OPENING,
                         )
                     )
+                if device.has_smoke_detection:
+                    _LOGGER.info("Found Smoke Sensor for Device ID: %s", device.did)
+                    new_entities.append(
+                        HomePilotBinarySensorEntity(
+                            coordinator=coordinator,
+                            device=device,
+                            id_suffix="smoke_detect",
+                            name_suffix="Smoke Detection",
+                            value_attr="smoke_detection_value",
+                            device_class=BinarySensorDeviceClass.SMOKE,
+                        )
+                    )
     # If we have any new devices, add them
     if new_entities:
         async_add_entities(new_entities)
