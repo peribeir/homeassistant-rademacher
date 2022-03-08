@@ -6,7 +6,8 @@
         "title": "[%key:common::options_flow::title%]",
         "description": "[%key:common::config_flow::description%]",
         "data": {
-          "exclude": "[%key:common::config_flow::data::exclude%]"
+          "exclude": "[%key:common::config_flow::data::exclude%]",
+          "sensor_type": "[%key:common::config_flow::data::sensor_type%]"
         }
       }
     }
@@ -31,7 +32,8 @@
         "title": "[%key:common::config_flow::title%]",
         "description": "[%key:common::config_flow::description%]",
         "data": {
-          "exclude": "[%key:common::config_flow::data::exclude%]"
+          "exclude": "[%key:common::config_flow::data::exclude%]",
+          "sensor_type": "[%key:common::config_flow::data::sensor_type%]"
         }
       }
     },

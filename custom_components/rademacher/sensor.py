@@ -12,6 +12,7 @@ from homeassistant.components.sensor import (
 )
 from homeassistant.const import (
     CONF_EXCLUDE,
+    CONF_SENSOR_TYPE,
     DEGREE,
     LIGHT_LUX,
     PERCENTAGE,
@@ -35,6 +36,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     manager: HomePilotManager = entry[0]
     coordinator: DataUpdateCoordinator = entry[1]
     exclude_devices: list[str] = entry[3][CONF_EXCLUDE]
+    ternary_contact_sensors: list[str] = entry[3][CONF_SENSOR_TYPE]
     new_entities = []
     for did in manager.devices:
         if did not in exclude_devices:
@@ -130,7 +132,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                             icon="mdi:sun-compass",
                         )
                     )
-                if device.has_contact_state:
+                if device.has_contact_state and device.did in ternary_contact_sensors:
                     _LOGGER.info("Found Contact Sensor for Device ID: %s", device.did)
                     new_entities.append(
                         HomePilotSensorEntity(

@@ -6,7 +6,8 @@
         "title": "Configuration",
         "description": "",
         "data": {
-          "exclude": "EXCLUDE Devices (select devices that you DON'T want to add):"
+          "exclude": "EXCLUDE Devices (select devices that you DON'T want to add):",
+          "sensor_type": "Select Contact Sensors with Tilted Position:"
         }
       }
     }
@@ -31,7 +32,8 @@
         "title": "Configuration",
         "description": "",
         "data": {
-          "exclude": "EXCLUDE Devices (select devices that you DON'T want to add):"
+          "exclude": "EXCLUDE Devices (select devices that you DON'T want to add):",
+          "sensor_type": "Select Contact Sensors with Tilted Position:"
         }
       }
     },
