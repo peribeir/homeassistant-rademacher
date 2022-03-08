@@ -12,10 +12,12 @@ from homeassistant.const import (
     CONF_EXCLUDE,
     CONF_HOST,
     CONF_PASSWORD,
+    CONF_SENSOR_TYPE,
 )
 
 from homepilot.manager import HomePilotManager
 from homepilot.api import CannotConnect, AuthError, HomePilotApi
+from homepilot.sensor import HomePilotSensor
 
 from .const import DOMAIN
 
@@ -32,18 +34,25 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     host: str = ""
     password: str = ""
     exclude_devices: list[str] = []
+    ternary_contact_sensors: list[str] = []
 
     async def async_step_config(self, user_input=None):
         errors = {}
         if user_input is not None and CONF_EXCLUDE in user_input:
             try:
                 self.exclude_devices = user_input[CONF_EXCLUDE]
+                self.ternary_contact_sensors = (
+                    user_input[CONF_SENSOR_TYPE]
+                    if CONF_SENSOR_TYPE in user_input
+                    else []
+                )
                 data = {
                     CONF_HOST: self.host,
                     CONF_PASSWORD: self.password,
                 }
                 options = {
                     CONF_EXCLUDE: self.exclude_devices,
+                    CONF_SENSOR_TYPE: self.ternary_contact_sensors,
                 }
                 return self.async_create_entry(
                     title=f"Host: {self.host}", data=data, options=options
@@ -198,6 +207,12 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         devices_to_exclude = {
             did: f"{devices[did].name} (id: {devices[did].did})" for did in devices
         }
+        contact_sensors = {
+            did: f"{devices[did].name} (id: {devices[did].did})"
+            for did in devices
+            if isinstance(devices[did], HomePilotSensor)
+            and devices[did].has_contact_state
+        }
         schema = vol.Schema({})
         schema = schema.extend(
             {
@@ -206,6 +221,14 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 ),
             }
         )
+        if contact_sensors:
+            schema = schema.extend(
+                {
+                    vol.Optional(CONF_SENSOR_TYPE, default=[]): cv.multi_select(
+                        contact_sensors
+                    )
+                }
+            )
         return schema
 
 
@@ -222,6 +245,9 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
         if user_input is not None:
             data = {
                 CONF_EXCLUDE: user_input[CONF_EXCLUDE],
+                CONF_SENSOR_TYPE: user_input[CONF_SENSOR_TYPE]
+                if CONF_SENSOR_TYPE in user_input
+                else [],
             }
             return self.async_create_entry(title=f"Host: {self.host}", data=data)
         self.host = self.config_entry.data[CONF_HOST]
@@ -247,16 +273,30 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
             ]
         else:
             previous_excluded_devices = []
+        if CONF_SENSOR_TYPE in self.config_entry.options:
+            previous_ternary_contact_sensors = self.config_entry.options[
+                CONF_SENSOR_TYPE
+            ]
+        else:
+            previous_ternary_contact_sensors = []
 
         data_schema_config = self.build_data_schema(
-            manager.devices, previous_excluded_devices
+            manager.devices, previous_excluded_devices, previous_ternary_contact_sensors
         )
 
         return self.async_show_form(step_id="init", data_schema=data_schema_config)
 
-    def build_data_schema(self, devices, previous_excluded_devices):
+    def build_data_schema(
+        self, devices, previous_excluded_devices, previous_ternary_contact_sensors
+    ):
         devices_to_exclude = {
             did: f"{devices[did].name} (id: {devices[did].did})" for did in devices
+        }
+        contact_sensors = {
+            did: f"{devices[did].name} (id: {devices[did].did})"
+            for did in devices
+            if isinstance(devices[did], HomePilotSensor)
+            and devices[did].has_contact_state
         }
         schema = vol.Schema({})
         schema = schema.extend(
@@ -266,6 +306,14 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                 ): cv.multi_select(devices_to_exclude),
             }
         )
+        if contact_sensors:
+            schema = schema.extend(
+                {
+                    vol.Optional(
+                        CONF_SENSOR_TYPE, default=list(previous_ternary_contact_sensors)
+                    ): cv.multi_select(contact_sensors)
+                }
+            )
         return schema
 
 

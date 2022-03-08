@@ -4,7 +4,7 @@ import logging
 from homeassistant.helpers.entity import EntityCategory
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_EXCLUDE
+from homeassistant.const import CONF_EXCLUDE, CONF_SENSOR_TYPE
 from homeassistant.helpers.update_coordinator import (
     DataUpdateCoordinator,
 )
@@ -31,6 +31,7 @@ async def async_setup_entry(hass, config_entry: ConfigEntry, async_add_entities)
     manager: HomePilotManager = entry[0]
     coordinator: DataUpdateCoordinator = entry[1]
     exclude_devices: list[str] = entry[3][CONF_EXCLUDE]
+    ternary_contact_sensors: list[str] = entry[3][CONF_SENSOR_TYPE]
     new_entities = []
 
     for did in manager.devices:
@@ -78,7 +79,7 @@ async def async_setup_entry(hass, config_entry: ConfigEntry, async_add_entities)
                             device_class=BinarySensorDeviceClass.LIGHT,
                         )
                     )
-                if device.has_contact_state:
+                if device.has_contact_state and device.did not in ternary_contact_sensors:
                     _LOGGER.info("Found Contact Sensor for Device ID: %s", device.did)
                     new_entities.append(
                         HomePilotBinarySensorEntity(
@@ -88,6 +89,18 @@ async def async_setup_entry(hass, config_entry: ConfigEntry, async_add_entities)
                             name_suffix="Contact State",
                             value_attr="contact_state_value",
                             device_class=BinarySensorDeviceClass.OPENING,
+                        )
+                    )
+                if device.has_motion_detection:
+                    _LOGGER.info("Found Motion Sensor for Device ID: %s", device.did)
+                    new_entities.append(
+                        HomePilotBinarySensorEntity(
+                            coordinator=coordinator,
+                            device=device,
+                            id_suffix="motion_sensor",
+                            name_suffix="Motion Sensor",
+                            value_attr="motion_detection_value",
+                            device_class=BinarySensorDeviceClass.MOTION,
                         )
                     )
                 if device.has_smoke_detection:

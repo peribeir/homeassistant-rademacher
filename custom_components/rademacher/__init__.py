@@ -11,6 +11,7 @@ from homeassistant.const import (
     CONF_EXCLUDE,
     CONF_HOST,
     CONF_PASSWORD,
+    CONF_SENSOR_TYPE,
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceEntry, DeviceRegistry
@@ -88,6 +89,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             ]
         else:
             entry_options[CONF_EXCLUDE] = []
+    if CONF_SENSOR_TYPE not in entry.options:
+        entry_options[CONF_SENSOR_TYPE] = []
 
     hass.data[DOMAIN][entry.entry_id] = (
         manager,
