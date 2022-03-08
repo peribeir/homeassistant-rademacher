@@ -78,16 +78,16 @@ async def async_setup_entry(hass, config_entry: ConfigEntry, async_add_entities)
                             device_class=BinarySensorDeviceClass.LIGHT,
                         )
                     )
-                if device.has_contact_state:
-                    _LOGGER.info("Found Contact Sensor for Device ID: %s", device.did)
+                if device.has_motion_detection:
+                    _LOGGER.info("Found Motion Sensor for Device ID: %s", device.did)
                     new_entities.append(
                         HomePilotBinarySensorEntity(
                             coordinator=coordinator,
                             device=device,
-                            id_suffix="contact_state",
-                            name_suffix="Contact State",
-                            value_attr="contact_state_value",
-                            device_class=BinarySensorDeviceClass.OPENING,
+                            id_suffix="motion_sensor",
+                            name_suffix="Motion Sensor",
+                            value_attr="motion_detection_value",
+                            device_class=BinarySensorDeviceClass.MOTION,
                         )
                     )
                 if device.has_smoke_detection:
