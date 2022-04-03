@@ -128,6 +128,9 @@ The integration should work with the following devices (tested devices are marke
 - RolloTube S-line DuoFern (DN:23602075)
 - RolloTube S-line Zip DuoFern (DN:25782075)
 
+## Garage Covers
+- RolloPort SX5 DuoFern garage door operator (DN:45059071)
+
 ## Sensors
 - Sun sensor Troll Comfort DuoFern (DN:36500572_S)
 - Temperature sensor DuoFern Radiator Actuator (DN:35003064_S)
