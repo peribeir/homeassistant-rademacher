@@ -23,6 +23,7 @@ from homeassistant.const import (
 from homepilot.manager import HomePilotManager
 from homepilot.device import HomePilotDevice
 from homepilot.sensor import HomePilotSensor, ContactState
+from homepilot.thermostat import HomePilotThermostat
 
 from .entity import HomePilotEntity
 from .const import DOMAIN
@@ -150,6 +151,9 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                             ),
                         )
                     )
+            if isinstance(device, HomePilotSensor) or isinstance(
+                device, HomePilotThermostat
+            ):
                 if device.has_battery_level:
                     _LOGGER.info(
                         "Found Battery Level Sensor for Device ID: %s", device.did
