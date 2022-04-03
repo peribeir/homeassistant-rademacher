@@ -15,7 +15,7 @@ from homeassistant.components.cover import (
     SUPPORT_SET_POSITION,
 )
 
-from homepilot.cover import HomePilotCover
+from homepilot.cover import HomePilotCover, CoverType
 from homepilot.device import HomePilotDevice
 from homepilot.manager import HomePilotManager
 
@@ -55,7 +55,9 @@ class HomePilotCoverEntity(HomePilotEntity, CoverEntity):
             cover,
             unique_id=cover.uid,
             name=cover.name,
-            device_class=CoverDeviceClass.SHUTTER.value,
+            device_class=CoverDeviceClass.SHUTTER.value
+            if cover.cover_type == CoverType.SHUTTER.value
+            else CoverDeviceClass.GARAGE.value,
         )
         self._supported_features = SUPPORT_STOP | SUPPORT_CLOSE | SUPPORT_OPEN
         if cover.can_set_position:
