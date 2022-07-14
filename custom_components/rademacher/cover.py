@@ -8,11 +8,9 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.components.cover import (
     CoverEntity,
     CoverDeviceClass,
+    CoverEntityFeature,
     ATTR_POSITION,
-    SUPPORT_OPEN,
-    SUPPORT_CLOSE,
-    SUPPORT_STOP,
-    SUPPORT_SET_POSITION,
+    ATTR_TILT_POSITION,
 )
 
 from homepilot.cover import HomePilotCover, CoverType
@@ -59,9 +57,19 @@ class HomePilotCoverEntity(HomePilotEntity, CoverEntity):
             if cover.cover_type == CoverType.SHUTTER.value
             else CoverDeviceClass.GARAGE.value,
         )
-        self._supported_features = SUPPORT_STOP | SUPPORT_CLOSE | SUPPORT_OPEN
+        self._supported_features = (
+            CoverEntityFeature.STOP | CoverEntityFeature.CLOSE | CoverEntityFeature.OPEN
+        )
         if cover.can_set_position:
-            self._supported_features |= SUPPORT_SET_POSITION
+            self._supported_features |= CoverEntityFeature.SET_POSITION
+        if cover.has_tilt:
+            self._supported_features |= (
+                CoverEntityFeature.OPEN_TILT
+                | CoverEntityFeature.CLOSE_TILT
+                | CoverEntityFeature.STOP_TILT
+            )
+        if cover.can_set_tilt_position:
+            self._supported_features |= CoverEntityFeature.SET_TILT_POSITION
 
     @property
     def supported_features(self):
@@ -71,6 +79,11 @@ class HomePilotCoverEntity(HomePilotEntity, CoverEntity):
     def current_cover_position(self):
         device: HomePilotCover = self.coordinator.data[self.did]
         return device.cover_position
+
+    @property
+    def current_cover_tilt_position(self):
+        device: HomePilotCover = self.coordinator.data[self.did]
+        return device.cover_tilt_position
 
     @property
     def is_closing(self):
@@ -108,5 +121,29 @@ class HomePilotCoverEntity(HomePilotEntity, CoverEntity):
     async def async_stop_cover(self, **kwargs: Any) -> None:
         device: HomePilotCover = self.coordinator.data[self.did]
         await device.async_stop_cover()
+        await asyncio.sleep(5)
+        await self.coordinator.async_request_refresh()
+
+    async def async_open_cover_tilt(self, **kwargs: Any) -> None:
+        device: HomePilotCover = self.coordinator.data[self.did]
+        await device.async_open_cover_tilt()
+        await asyncio.sleep(5)
+        await self.coordinator.async_request_refresh()
+
+    async def async_close_cover_tilt(self, **kwargs: Any) -> None:
+        device: HomePilotCover = self.coordinator.data[self.did]
+        await device.async_close_cover_tilt()
+        await asyncio.sleep(5)
+        await self.coordinator.async_request_refresh()
+
+    async def async_set_cover_tilt_position(self, **kwargs: Any) -> None:
+        device: HomePilotCover = self.coordinator.data[self.did]
+        await device.async_set_cover_tilt_position(kwargs[ATTR_TILT_POSITION])
+        await asyncio.sleep(5)
+        await self.coordinator.async_request_refresh()
+
+    async def async_stop_cover_tilt(self, **kwargs: Any) -> None:
+        device: HomePilotCover = self.coordinator.data[self.did]
+        await device.async_stop_cover_tilt()
         await asyncio.sleep(5)
         await self.coordinator.async_request_refresh()
