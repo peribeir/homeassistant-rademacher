@@ -1,6 +1,5 @@
 {
     "name": "Rademacher HomePilot Bridge",
-    "domains": ["cover", "button", "switch", "sensor", "binary_sensor"],
     "zip_release": true,
     "filename": "rademacher.zip",
     "content_in_root": false,
