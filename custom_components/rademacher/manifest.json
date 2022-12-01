@@ -4,7 +4,7 @@
   "version": "1.9.3",
   "documentation": "https://github.com/peribeir/homeassistant-rademacher",
   "issue_tracker": "https://github.com/peribeir/homeassistant-rademacher/issues",
-  "requirements": ["pyrademacher==0.6.6"],
+  "requirements": ["pyrademacher==0.6.7"],
   "dhcp": [
     {
       "macaddress": "B01F81B*"
