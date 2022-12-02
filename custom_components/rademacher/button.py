@@ -61,6 +61,10 @@ class HomePilotPingButtonEntity(HomePilotEntity, ButtonEntity):
     def entity_registry_enabled_default(self):
         return False
 
+    @property
+    def available(self):
+        return True
+
     async def async_press(self) -> None:
         device: HomePilotDevice = self.coordinator.data[self.did]
         await device.async_ping()
