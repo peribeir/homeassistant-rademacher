@@ -122,6 +122,8 @@ The integration should work with the following devices (tested devices are marke
 - RolloTron radio beltwinder 60 kg (DN:14236011)
 - **RolloTron radio beltwinder (DN:14234511)**
   - Tested on RolloTron Basis DuoFern 1200-UW Beltwinder
+- **RolloTron radio swivel beltwindew (DN: 14233011)**
+  - Tested on RolloTron swivel winder Standard DuoFern 2510-UW
 - **DuoFern tubular motor actuator environmental sensor (DN:32000064_A)**
   - Tested on DuoFern Environmental Sensor Weather Station 9475
 - DuoFern tubular motor actuator (DN:35140662)
