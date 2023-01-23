@@ -94,6 +94,13 @@ You should now be presented with Device/Entities detected, you should select the
         </a>
     </td>
     <td align="center">
+        <a href="https://github.com/misa1515">
+            <img src="https://avatars.githubusercontent.com/u/61636045?v=4" width="100;" alt="misa1515"/>
+            <br />
+            <sub><b>misa1515</b></sub>
+        </a>
+    </td>
+    <td align="center">
         <a href="https://github.com/thmnxo4">
             <img src="https://avatars.githubusercontent.com/u/76701693?v=4" width="100;" alt="thmnxo4"/>
             <br />
