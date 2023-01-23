@@ -1,0 +1,51 @@
+{
+  "title": "Rademacher HomePilot",
+  "options": {
+    "step": {
+      "init": {
+        "title": "Konfigurácia",
+        "description": "",
+        "data": {
+          "exclude": "VYLÚČIŤ zariadenia (vyberte zariadenia, ktoré NECHCETE pridať):",
+          "sensor_type": "Vyberte kontaktné senzory s naklonenou polohou:"
+        }
+      }
+    }
+  },
+  "config": {
+    "step": {
+      "user": {
+        "title": "Zadajte názov hostiteľa/IP adresu Bridge",
+        "description": "Zadajte názov hostiteľa alebo IP adresu a heslo vášho Rademacher Bridge (Start2Smart alebo Homepilot).",
+        "data": {
+          "host": "Názov hostiteľa/IP adresa"
+        }
+      },
+      "user_password": {
+        "title": "Zadajte heslo Bridge",
+        "description": "Zadajte heslo svojho Rademacher Bridge (Start2Smart alebo Homepilot).",
+        "data": {
+         "password": "Heslo"
+        }
+      },
+      "config": {
+        "title": "Konfigurácia",
+        "description": "",
+        "data": {
+          "exclude": "VYLÚČIŤ zariadenia (vyberte zariadenia, ktoré NECHCETE pridať):",
+          "sensor_type": "Vyberte kontaktné senzory s naklonenou polohou:"
+        }
+      }
+    },
+    "error": {
+      "no_device_selected": "Musíte vybrať aspoň jedno zariadenie.",
+      "cannot_connect": "Chyba pri pripájaní k bridge. Skontrolujte, či je bridge pripojený k sieti a či je názov hostiteľa/IP správna.",
+      "auth_error": "Nesprávne heslo. Skontrolujte, či je zadané heslo správne.",
+      "unknown": "Neznáma výnimka."
+    },
+    "abort": {
+      "no_devices_found": "Nenašli sa žiadne zariadenia.",
+      "cannot_connect": "Chyba pri pripájaní k bridge. Skontrolujte, či je bridge pripojený k sieti a či je názov hostiteľa/IP správna."
+    }
+  }
+}
