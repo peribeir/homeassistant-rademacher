@@ -8,7 +8,7 @@ A Home Assistant custom Integration for local handling of Devices connected to R
 
 Works exclusively when devices are connected through HomePilot or Start2Smart Bridge.
 
-### **Supports Covers, Switches, Sensors and Thermostats.**
+### **Supports Covers, Switches, Sensors, Dimmers and Thermostats.**
 
 *See full device list support at the end.*
 
@@ -76,7 +76,7 @@ You should now be presented with Device/Entities detected, you should select the
 
 # Direct and Indirect Contributors
 
-<!-- readme: contributors,thmnxo4,MrWeidenMr -start -->
+<!-- readme: contributors,thmnxo4,MrWeidenMr,fritte87 -start -->
 <table>
 <tr>
     <td align="center">
@@ -158,6 +158,10 @@ The integration should work with the following devices (tested devices are marke
 - DuoFern Switch actuator (DN:35001164)
 - **DuoFern Universal actuator 2-channel (DN:35000262)**
   - Tested on 9470 Universal Actuator
+
+## Dimmers
+- DuoFern Universal dimmer (DN:35140462)
+- DuoFern Universal dimming actuator(DN:35000462)
 
 ## Thermostat
 - **DuoFern Room Thermostat (DN:32501812_A)**
