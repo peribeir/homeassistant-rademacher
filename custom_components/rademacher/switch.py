@@ -12,6 +12,7 @@ from homepilot.manager import HomePilotManager
 from homepilot.device import HomePilotDevice
 from homepilot.hub import HomePilotHub
 from homepilot.switch import HomePilotSwitch
+from homepilot.cover import HomePilotCover
 
 from .const import DOMAIN
 from .entity import HomePilotEntity
@@ -35,6 +36,11 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
             if isinstance(device, HomePilotSwitch):
                 _LOGGER.info("Found Switch for Device ID: %s", device.did)
                 new_entities.append(HomePilotSwitchEntity(coordinator, device))
+            if isinstance(device, HomePilotCover):
+                cover: HomePilotCover = device
+                if cover.has_ventilation_position_config:
+                    _LOGGER.info("Found Ventilation Position Config Switch for Device ID: %s", device.did)
+                    new_entities.append(HomePilotVentilationSwitchEntity(coordinator, device))
     # If we have any new devices, add them
     if new_entities:
         async_add_entities(new_entities)
@@ -111,6 +117,47 @@ class HomePilotLedSwitchEntity(HomePilotEntity, SwitchEntity):
         """Turn the entity off."""
         device: HomePilotHub = self.coordinator.data[self.did]
         await device.async_turn_led_off()
+        await asyncio.sleep(5)
+        await self.coordinator.async_request_refresh()
+
+    async def async_toggle(self, **kwargs):
+        """Toggle the entity."""
+        if self.is_on:
+            await self.async_turn_off()
+        else:
+            await self.async_turn_on()
+
+class HomePilotVentilationSwitchEntity(HomePilotEntity, SwitchEntity):
+    """This class represents the Switch which controls Ventilation Position Mode"""
+
+    def __init__(
+        self, coordinator: DataUpdateCoordinator, device: HomePilotDevice
+    ) -> None:
+        super().__init__(
+            coordinator,
+            device,
+            unique_id=f"{device.uid}_ventilation_position_mode",
+            name=f"{device.name} Ventilation Position Mode",
+            device_class=SwitchDeviceClass.SWITCH.value,
+            entity_category=EntityCategory.CONFIG,
+        )
+
+    @property
+    def is_on(self):
+        device: HomePilotCover = self.coordinator.data[self.did]
+        return device.ventilation_position_mode
+
+    async def async_turn_on(self, **kwargs):
+        """Turn the entity on."""
+        device: HomePilotCover = self.coordinator.data[self.did]
+        await device.async_set_ventilation_position_mode(True)
+        await asyncio.sleep(5)
+        await self.coordinator.async_request_refresh()
+
+    async def async_turn_off(self, **kwargs):
+        """Turn the entity off."""
+        device: HomePilotCover = self.coordinator.data[self.did]
+        await device.async_set_ventilation_position_mode(False)
         await asyncio.sleep(5)
         await self.coordinator.async_request_refresh()
 
