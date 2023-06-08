@@ -3,6 +3,7 @@ import logging
 import socket
 import voluptuous as vol
 
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import callback
 import homeassistant.helpers.config_validation as cv
 from homeassistant import config_entries, exceptions, data_entry_flow
@@ -33,6 +34,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_POLL
     host: str = ""
     password: str = ""
+    reauth_entry: ConfigEntry | None = None
     exclude_devices: list[str] = []
     ternary_contact_sensors: list[str] = []
 
@@ -75,6 +77,44 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors=errors,
         )
 
+    async def async_step_reauth(self, user_input=None):
+        self.reauth_entry = self.hass.config_entries.async_get_entry(
+            self.context["entry_id"]
+        )
+        self.host=self.reauth_entry.data[CONF_HOST]
+        self.password=self.reauth_entry.data[CONF_PASSWORD]
+        errors={}
+
+        try:
+            conn_test = await HomePilotApi.test_connection(user_input[CONF_HOST])
+            if conn_test == "ok":
+                data = {
+                    CONF_HOST: self.host,
+                    CONF_PASSWORD: "",
+                }
+                self.hass.config_entries.async_update_entry(self.reauth_entry, data=data)
+                await self.hass.config_entries.async_reload(self.reauth_entry.entry_id)
+                return self.async_abort(reason="reauth_successful")
+
+            await HomePilotApi.test_auth(self.host, self.password)
+            return self.async_abort(reason="reauth_successful")
+        except CannotConnect:
+            _LOGGER.warning("Connect error (IP %s)", self.host)
+            errors["base"] = "cannot_connect"
+        except InvalidHost:
+            _LOGGER.warning("Invalid Host (IP %s)", self.host)
+            errors["base"] = "cannot_connect"
+        except AuthError:
+            _LOGGER.warning("Wrong Password (IP %s)", self.host)
+            errors["base"] = "auth_error"
+        except Exception:  # pylint: disable=broad-except
+            _LOGGER.exception("Unexpected exception", exc_info=True)
+            errors["base"] = "unknown"
+
+        return self.async_show_form(
+            step_id="user_password", data_schema=DATA_SCHEMA_PASSWORD, errors=errors
+        )
+
     async def async_step_user_password(self, user_input=None):
         errors = {}
         if user_input is not None and CONF_PASSWORD in user_input:
@@ -85,6 +125,14 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     "Password correct (IP %s), creating entries",
                     self.host,
                 )
+                if self.reauth_entry:
+                    data = {
+                        CONF_HOST: self.host,
+                        CONF_PASSWORD: self.password,
+                    }
+                    self.hass.config_entries.async_update_entry(self.reauth_entry, data=data)
+                    await self.hass.config_entries.async_reload(self.reauth_entry.entry_id)
+                    return self.async_abort(reason="reauth_successful")
                 return await self.async_step_config(user_input=user_input)
             except CannotConnect:
                 _LOGGER.warning("Connect error (IP %s)", self.host)

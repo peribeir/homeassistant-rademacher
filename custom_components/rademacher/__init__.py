@@ -50,7 +50,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         entry.data[CONF_HOST],
         entry.data[CONF_PASSWORD] if CONF_PASSWORD in entry.data else "",
     )
-    manager = await HomePilotManager.async_build_manager(api)
+    try:
+        manager = await HomePilotManager.async_build_manager(api)
+    except AuthError as err:
+        # Raising ConfigEntryAuthFailed will cancel future updates
+        # and start a config flow with SOURCE_REAUTH (async_step_reauth)
+        raise ConfigEntryAuthFailed from err 
+
     _LOGGER.info("Manager instance created, found %s devices", len(manager.devices))
     _LOGGER.debug("Device IDs: %s", list(manager.devices))
 

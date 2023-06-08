@@ -45,7 +45,8 @@
     },
     "abort": {
       "no_devices_found": "Nenhum dispositivo encontrado.",
-      "cannot_connect": "Erro ao contactar a bridge. Por favor verifique que a bridge est\u00e1 ligada \u00e0 rede, e que o Nome de Servidor / IP provideciado est\u00e1 correto."
+      "cannot_connect": "Erro ao contactar a bridge. Por favor verifique que a bridge est\u00e1 ligada \u00e0 rede, e que o Nome de Servidor / IP provideciado est\u00e1 correto.",
+      "reauth_successful": "Re-autentica\u00e7\u00e3o foi bem sucedida."
     }
   }
 }
