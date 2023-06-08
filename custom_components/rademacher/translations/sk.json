@@ -45,7 +45,8 @@
     },
     "abort": {
       "no_devices_found": "Nenašli sa žiadne zariadenia.",
-      "cannot_connect": "Chyba pri pripájaní k bridge. Skontrolujte, či je bridge pripojený k sieti a či je názov hostiteľa/IP správna."
+      "cannot_connect": "Chyba pri pripájaní k bridge. Skontrolujte, či je bridge pripojený k sieti a či je názov hostiteľa/IP správna.",
+      "reauth_successful": "Opätovná autentifikácia bola úspešná."
     }
   }
 }

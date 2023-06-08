@@ -45,7 +45,8 @@
     },
     "abort": {
       "no_devices_found": "Es wurden keine Ger\u00e4te gefunden.",
-      "cannot_connect": "Fehler bei Verbindung zur Bridge. Bitte stelle sicher, dass die Bridge im Netzwerk verbunden und Hostname/IP korrekt ist."
+      "cannot_connect": "Fehler bei Verbindung zur Bridge. Bitte stelle sicher, dass die Bridge im Netzwerk verbunden und Hostname/IP korrekt ist.",
+      "reauth_successful": "Die erneute Authentifizierung war erfolgreich."
     }
   }
 }
