@@ -14,7 +14,6 @@ from homeassistant.components.binary_sensor import (
 )
 
 from homepilot.device import HomePilotDevice
-from homepilot.hub import HomePilotHub
 from homepilot.sensor import HomePilotSensor
 from homepilot.manager import HomePilotManager
 
@@ -37,19 +36,6 @@ async def async_setup_entry(hass, config_entry: ConfigEntry, async_add_entities)
     for did in manager.devices:
         if did not in exclude_devices:
             device: HomePilotDevice = manager.devices[did]
-            if isinstance(device, HomePilotHub):
-                _LOGGER.info("Found FW Update Sensor for Device ID: %s", device.did)
-                new_entities.append(
-                    HomePilotBinarySensorEntity(
-                        coordinator=coordinator,
-                        device=device,
-                        id_suffix="fw_update",
-                        name_suffix="FW Update Status",
-                        value_attr="fw_update_available",
-                        device_class=BinarySensorDeviceClass.UPDATE,
-                        entity_category=EntityCategory.DIAGNOSTIC,
-                    )
-                )
             if isinstance(device, HomePilotSensor):
                 if device.has_rain_detection:
                     _LOGGER.info(

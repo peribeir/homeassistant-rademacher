@@ -33,6 +33,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
             if isinstance(device, HomePilotHub):
                 _LOGGER.info("Found Led Switch for Device ID: %s", device.did)
                 new_entities.append(HomePilotLedSwitchEntity(coordinator, device))
+                new_entities.append(HomePilotAutoUpdaeSwitchEntity(coordinator, device))
             if isinstance(device, HomePilotSwitch):
                 _LOGGER.info("Found Switch for Device ID: %s", device.did)
                 new_entities.append(HomePilotSwitchEntity(coordinator, device))
@@ -117,6 +118,47 @@ class HomePilotLedSwitchEntity(HomePilotEntity, SwitchEntity):
         """Turn the entity off."""
         device: HomePilotHub = self.coordinator.data[self.did]
         await device.async_turn_led_off()
+        await asyncio.sleep(5)
+        await self.coordinator.async_request_refresh()
+
+    async def async_toggle(self, **kwargs):
+        """Toggle the entity."""
+        if self.is_on:
+            await self.async_turn_off()
+        else:
+            await self.async_turn_on()
+
+class HomePilotAutoUpdaeSwitchEntity(HomePilotEntity, SwitchEntity):
+    """This class represents the Led Switch which controls the LEDs on the hub"""
+
+    def __init__(
+        self, coordinator: DataUpdateCoordinator, device: HomePilotDevice
+    ) -> None:
+        super().__init__(
+            coordinator,
+            device,
+            unique_id=f"{device.uid}_auto_update",
+            name=f"{device.name} Auto Update",
+            device_class=SwitchDeviceClass.SWITCH.value,
+            entity_category=EntityCategory.CONFIG,
+        )
+
+    @property
+    def is_on(self):
+        device: HomePilotHub = self.coordinator.data[self.did]
+        return device.auto_update
+
+    async def async_turn_on(self, **kwargs):
+        """Turn the entity on."""
+        device: HomePilotHub = self.coordinator.data[self.did]
+        await device.async_set_auto_update_on()
+        await asyncio.sleep(5)
+        await self.coordinator.async_request_refresh()
+
+    async def async_turn_off(self, **kwargs):
+        """Turn the entity off."""
+        device: HomePilotHub = self.coordinator.data[self.did]
+        await device.async_set_auto_update_off()
         await asyncio.sleep(5)
         await self.coordinator.async_request_refresh()
 

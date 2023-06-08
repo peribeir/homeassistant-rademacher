@@ -8,7 +8,6 @@ from homeassistant.components.button import ButtonEntity
 from homeassistant.helpers.entity import EntityCategory
 
 from homepilot.device import HomePilotDevice
-from homepilot.hub import HomePilotHub
 from homepilot.manager import HomePilotManager
 
 from .entity import HomePilotEntity
@@ -30,11 +29,6 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
             if device.has_ping_cmd:
                 _LOGGER.info("Found Ping Command Button for Device ID: %s", device.did)
                 new_entities.append(HomePilotPingButtonEntity(coordinator, device))
-            if isinstance(device, HomePilotHub):
-                _LOGGER.info(
-                    "Found FW Update Command Button for Device ID: %s", device.did
-                )
-                new_entities.append(HomePilotFWUpdateButtonEntity(coordinator, device))
     # If we have any new devices, add them
     if new_entities:
         async_add_entities(new_entities)
@@ -71,33 +65,3 @@ class HomePilotPingButtonEntity(HomePilotEntity, ButtonEntity):
         await asyncio.sleep(5)
         await self.coordinator.async_request_refresh()
 
-
-class HomePilotFWUpdateButtonEntity(HomePilotEntity, ButtonEntity):
-    """This class represents a button which triggers FW update of the hub"""
-
-    def __init__(
-        self, coordinator: DataUpdateCoordinator, device: HomePilotDevice
-    ) -> None:
-        super().__init__(
-            coordinator,
-            device,
-            unique_id=f"{device.uid}_start_fw_update",
-            name=f"{device.name} Start FW Update",
-        )
-
-    @property
-    def entity_category(self):
-        return EntityCategory.DIAGNOSTIC
-
-    @property
-    def entity_registry_enabled_default(self):
-        return False
-
-    @property
-    def available(self):
-        device: HomePilotHub = self.coordinator.data[self.did]
-        return device.fw_update_available
-
-    async def async_press(self) -> None:
-        device: HomePilotHub = self.coordinator.data[self.did]
-        await device.async_update_firmware()
