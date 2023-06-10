@@ -13,14 +13,16 @@ from homeassistant.const import (
     CONF_PASSWORD,
     CONF_SENSOR_TYPE,
 )
-from homeassistant.core import HomeAssistant
-from homeassistant.helpers.device_registry import DeviceEntry, DeviceRegistry
+from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers.device_registry import DeviceEntry, DeviceRegistry, format_mac
+from homeassistant.helpers.entity_registry import async_migrate_entries
 from homeassistant.helpers.update_coordinator import (
     DataUpdateCoordinator,
 )
-from homeassistant.exceptions import ConfigEntryAuthFailed
+from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
 
 from homepilot.manager import HomePilotManager
+from homepilot.hub import HomePilotHub
 from homepilot.api import HomePilotApi, AuthError
 
 from .const import DOMAIN
@@ -31,6 +33,54 @@ PLATFORMS = ["cover", "button", "switch", "sensor", "binary_sensor", "climate", 
 
 _LOGGER = logging.getLogger(__name__)
 
+
+async def async_migrate_entry(hass, config_entry: ConfigEntry):
+    """Migrate old entry."""
+    _LOGGER.info("Migrating from version %s", config_entry.version)
+
+    #  Flatten configuration but keep old data if user rollbacks HASS prior to 0.106
+    if config_entry.version == 1:
+        api = HomePilotApi(config_entry.data[CONF_HOST], config_entry.data[CONF_PASSWORD])
+        try:
+            host = config_entry.data[CONF_HOST]
+            mac_address = format_mac(await HomePilotHub.get_hub_macaddress(api))
+            nodename = (await api.async_get_nodename())["nodename"]
+        except AuthError as err:
+            _LOGGER.error(f"Cannot migrate config entry. Authentication error. Please delete integration and restart HomeAssistant.")
+            return False
+        except Exception as err:
+            _LOGGER.error(f"Cannot migrate config entry ({err}). Check if bridge is online and restart Home Assistant. If problem persists, delete integration and restart HomeAssistant.")
+            return False
+
+        @callback
+        def update_unique_id(entity_entry):
+            """Update unique ID of entity entry."""
+            new_unique_id = entity_entry.unique_id.replace(
+                host, mac_address
+            )
+            if new_unique_id == entity_entry.unique_id:
+                return None
+            return {
+                "new_unique_id": entity_entry.unique_id.replace(
+                    host, mac_address
+                )
+            }
+
+        await async_migrate_entries(hass, config_entry.entry_id, update_unique_id)
+
+        hass.config_entries.async_update_entry(
+            config_entry, title=f"{nodename} ({mac_address})", unique_id=mac_address, data=config_entry.data, options=config_entry.options
+        )
+
+
+
+
+
+        config_entry.version = 2
+
+    _LOGGER.info("Migration to version %s successful", config_entry.version)
+
+    return True
 
 async def async_setup(hass: HomeAssistant, config: dict):
     """Set up the Rademacher component."""
@@ -56,6 +106,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         # Raising ConfigEntryAuthFailed will cancel future updates
         # and start a config flow with SOURCE_REAUTH (async_step_reauth)
         raise ConfigEntryAuthFailed from err 
+    except Exception as err:
+        raise ConfigEntryNotReady from err
 
     _LOGGER.info("Manager instance created, found %s devices", len(manager.devices))
     _LOGGER.debug("Device IDs: %s", list(manager.devices))

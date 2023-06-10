@@ -5,9 +5,10 @@ import voluptuous as vol
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import callback
+from homeassistant.helpers.device_registry import format_mac
 import homeassistant.helpers.config_validation as cv
 from homeassistant import config_entries, exceptions, data_entry_flow
-from homeassistant.components.dhcp import IP_ADDRESS
+from homeassistant.components.dhcp import IP_ADDRESS, HOSTNAME, MAC_ADDRESS
 from homeassistant.const import (
     CONF_DEVICES,
     CONF_EXCLUDE,
@@ -30,10 +31,12 @@ DATA_SCHEMA_PASSWORD = vol.Schema({vol.Required(CONF_PASSWORD): str})
 
 class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
-    VERSION = 1
+    VERSION = 2
     CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_POLL
     host: str = ""
     password: str = ""
+    mac_address: str = ""
+    hostname: str = ""
     reauth_entry: ConfigEntry | None = None
     exclude_devices: list[str] = []
     ternary_contact_sensors: list[str] = []
@@ -57,7 +60,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     CONF_SENSOR_TYPE: self.ternary_contact_sensors,
                 }
                 return self.async_create_entry(
-                    title=f"Host: {self.host}", data=data, options=options
+                    title=f"{self.hostname} ({self.mac_address})", data=data, options=options
                 )
             except Exception:  # pylint: disable=broad-except
                 _LOGGER.exception("Unexpected exception", exc_info=True)
@@ -66,6 +69,12 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             self.host, self.password
         )  # password can be empty if not defined ("")
         manager = await HomePilotManager.async_build_manager(api)
+        self.hostname = await manager.get_nodename()
+        if not self.mac_address:
+            self.mac_address = format_mac(await manager.get_hub_macaddress())
+            await self.async_set_unique_id(self.mac_address)
+            self._abort_if_unique_id_configured(updates={CONF_HOST: self.host})
+
         if not manager.devices:
             return self.async_abort(reason="no_devices_found")
         data_schema_config = self.build_data_schema(manager.devices)
@@ -166,8 +175,6 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             try:
                 self.host = socket.gethostbyname(user_input[CONF_HOST])
                 _LOGGER.info("Starting manual config for IP %s", self.host)
-                await self.async_set_unique_id(self.host)
-                self._abort_if_unique_id_configured()
                 conn_test = await HomePilotApi.test_connection(user_input[CONF_HOST])
                 if conn_test == "ok":
                     _LOGGER.info(
@@ -211,7 +218,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 "User confirmed integration (IP %s), creating entries", self.host
             )
             return self.async_create_entry(
-                title=f"Host: {self.host}", data={CONF_HOST: self.host}
+                title=f"{self.hostname} ({self.mac_address})", data={CONF_HOST: self.host}
             )
 
         self._set_confirm_only()
@@ -229,9 +236,21 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             if hasattr(discovery_info, "ip")
             else discovery_info[IP_ADDRESS]
         )
+        self.hostname = (
+            discovery_info.hostname
+            if hasattr(discovery_info, "hostname")
+            else discovery_info[HOSTNAME]
+        )
+        self.mac_address = format_mac(
+            discovery_info.macaddress
+            if hasattr(discovery_info, "macaddress")
+            else discovery_info[MAC_ADDRESS]
+        )
         _LOGGER.info("Starting DHCP Discovery with IP Address %s", self.host)
-        await self.async_set_unique_id(self.host)
-        self._abort_if_unique_id_configured()
+
+        await self.async_set_unique_id(self.mac_address)
+        self._abort_if_unique_id_configured(updates={CONF_HOST: self.host})
+
         conn_test = await HomePilotApi.test_connection(self.host)
         if conn_test == "ok":
             _LOGGER.info(
@@ -297,7 +316,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                 if CONF_SENSOR_TYPE in user_input
                 else [],
             }
-            return self.async_create_entry(title=f"Host: {self.host}", data=data)
+            return self.async_create_entry(title=f"{self.hostname} ({self.mac_address})", data=data)
         self.host = self.config_entry.data[CONF_HOST]
         self.password = (
             self.config_entry.data[CONF_PASSWORD]
@@ -308,6 +327,8 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
             self.host, self.password
         )  # password can be empty if not defined ("")
         manager = await HomePilotManager.async_build_manager(api)
+        self.mac_address = format_mac(await manager.get_hub_macaddress())
+        self.hostname = await manager.get_nodename()
         if not manager.devices:
             return self.async_abort(reason="no_devices_found")
 
