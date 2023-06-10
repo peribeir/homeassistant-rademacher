@@ -25,7 +25,6 @@ class HomePilotEntity(CoordinatorEntity):
         self._icon = icon
         self._did = device.did
         self._model = device.model
-        self._sw_version = device.fw_version
 
     @property
     def did(self):
@@ -57,7 +56,7 @@ class HomePilotEntity(CoordinatorEntity):
 
     @property
     def sw_version(self):
-        return self._sw_version
+        return self.coordinator.data[self.did].fw_version
 
     @property
     def icon(self):
@@ -70,7 +69,7 @@ class HomePilotEntity(CoordinatorEntity):
             "identifiers": {(DOMAIN, self.did)},
             # If desired, the name for the device could be different to the entity
             "name": self.device_name,
-            "sw_version": self.sw_version,
+            "sw_version": self.coordinator.data[self.did].fw_version,
             "model": self.model,
             "manufacturer": "Rademacher",
         }
