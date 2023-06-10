@@ -12,6 +12,6 @@
   "integration_type": "hub",
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/peribeir/homeassistant-rademacher/issues",
-  "requirements": ["pyrademacher==0.9.13"],
-  "version": "1.12.1"
+  "requirements": ["pyrademacher==0.9.16"],
+  "version": "1.12.2"
 }
