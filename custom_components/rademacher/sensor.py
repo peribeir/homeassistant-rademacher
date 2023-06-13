@@ -139,6 +139,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                         HomePilotSensorEntity(
                             coordinator=coordinator,
                             device=device,
+                            device_class=SensorDeviceClass.ENUM.value,
                             id_suffix="contact_state",
                             name_suffix="Contact State",
                             value_attr="contact_state_value",
@@ -149,6 +150,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                                 if val == ContactState.TILTED
                                 else "mdi:square"
                             ),
+                            options=["Open", "Tilted", "Closed"]
                         )
                     )
             if isinstance(device, HomePilotSensor) or isinstance(
@@ -190,6 +192,7 @@ class HomePilotSensorEntity(HomePilotEntity, SensorEntity):
         icon=None,
         icon_template=None,
         entity_category=None,
+        options=None,
     ) -> None:
         super().__init__(
             coordinator,
@@ -203,6 +206,7 @@ class HomePilotSensorEntity(HomePilotEntity, SensorEntity):
         self._value_attr = value_attr
         self._icon_template = icon_template
         self._native_unit_of_measurement = native_unit_of_measurement
+        self._attr_options = options
 
     @property
     def value_attr(self):
