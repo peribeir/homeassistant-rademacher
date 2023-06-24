@@ -72,10 +72,6 @@ async def async_migrate_entry(hass, config_entry: ConfigEntry):
             config_entry, title=f"{nodename} ({mac_address})", unique_id=mac_address, data=config_entry.data, options=config_entry.options
         )
 
-
-
-
-
         config_entry.version = 2
 
     _LOGGER.info("Migration to version %s successful", config_entry.version)

@@ -143,6 +143,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                             id_suffix="contact_state",
                             name_suffix="Contact State",
                             value_attr="contact_state_value",
+                            state_class=None,
                             icon_template=lambda val: "mdi:square-outline"
                             if val == ContactState.OPEN
                             else (
@@ -193,6 +194,7 @@ class HomePilotSensorEntity(HomePilotEntity, SensorEntity):
         icon_template=None,
         entity_category=None,
         options=None,
+        state_class=SensorStateClass.MEASUREMENT
     ) -> None:
         super().__init__(
             coordinator,
@@ -205,22 +207,15 @@ class HomePilotSensorEntity(HomePilotEntity, SensorEntity):
         )
         self._value_attr = value_attr
         self._icon_template = icon_template
-        self._native_unit_of_measurement = native_unit_of_measurement
+        self._attr_native_unit_of_measurement = native_unit_of_measurement
         self._attr_options = options
+        self._attr_state_class = state_class
 
     @property
     def value_attr(self):
         """This property stores which attribute contains the is_on value on
         the HomePilotDevice supporting class"""
         return self._value_attr
-
-    @property
-    def native_unit_of_measurement(self):
-        return self._native_unit_of_measurement
-
-    @property
-    def state_class(self):
-        return SensorStateClass.MEASUREMENT
 
     @property
     def native_value(self):
