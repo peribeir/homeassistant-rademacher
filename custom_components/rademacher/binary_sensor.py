@@ -16,6 +16,7 @@ from homeassistant.components.binary_sensor import (
 from homepilot.device import HomePilotDevice
 from homepilot.sensor import HomePilotSensor
 from homepilot.manager import HomePilotManager
+from homepilot.wallcontroller import HomePilotWallController
 
 from .entity import HomePilotEntity
 
@@ -99,6 +100,39 @@ async def async_setup_entry(hass, config_entry: ConfigEntry, async_add_entities)
                             name_suffix="Smoke Detection",
                             value_attr="smoke_detection_value",
                             device_class=BinarySensorDeviceClass.SMOKE,
+                        )
+                    )
+            if isinstance(device, HomePilotWallController):
+                channels = device.channels
+                if channels is not None:
+                    _LOGGER.info("Found Wall Controller with %s Button(s) for Device ID: %s", str(len(channels)), device.did)
+                    for channel in channels:
+                        _LOGGER.info("Adding Wall Controller Button: %s", channel)
+                        new_entities.append(
+                            HomePilotBinarySensorEntity(
+                                coordinator=coordinator,
+                                device=device,
+                                id_suffix=channel,
+                                name_suffix=channel,
+                                value_attr=f"channel_{channel}",
+                                device_class=BinarySensorDeviceClass.RUNNING,
+                            )
+                        )
+                else:
+                    _LOGGER.info("No Wall Controller Channels for Device ID: %s", device.did)
+                if device.has_battery_low:
+                    _LOGGER.info(
+                        "Found Battery Low Event for Device ID: %s", device.did
+                    )
+                    new_entities.append(
+                        HomePilotBinarySensorEntity(
+                            coordinator=coordinator,
+                            device=device,
+                            id_suffix="battery_low",
+                            name_suffix="Battery Low",
+                            value_attr="battery_low_value",
+                            device_class=BinarySensorDeviceClass.BATTERY,
+                            entity_category=EntityCategory.DIAGNOSTIC,
                         )
                     )
     # If we have any new devices, add them
