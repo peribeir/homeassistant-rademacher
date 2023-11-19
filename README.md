@@ -6,7 +6,11 @@
 ![logo](https://github.com/peribeir/homeassistant-rademacher/raw/master/img/logo.png)
 A Home Assistant custom Integration for local handling of Devices connected to Rademacher bridge.
 
+# Hardware Support
+
 Works exclusively when devices are connected through HomePilot or Start2Smart Bridge.
+**Currently, only Bridges/Gateways from Rademacher are supported.**
+**The new Homepilot branded Gateway Premium is not supported.**
 
 ### **Supports Covers, Switches, Sensors, Dimmers and Thermostats.**
 
