@@ -173,3 +173,8 @@ The integration should work with the following devices (tested devices are marke
 ## Thermostat
 - **DuoFern Room Thermostat (DN:32501812_A)**
   - Tested on DuoFern 9485 wireless radiator thermostat
+
+## Wall Controllers (new)
+  - **DuoFern Multiple Wall Controller BAT (DN:32501974)**
+    - Tested on DuoFern multiple wall switch BAT 9494-1
+  - DuoFern Wall Controller 1 channel (DN:32501973)
