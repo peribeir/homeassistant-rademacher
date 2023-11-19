@@ -182,6 +182,13 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         self.host,
                     )
                     return await self.async_step_config(user_input=user_input)
+                if conn_test == "ok_v2":
+                    self.host = f"{self.host}/hp"
+                    _LOGGER.info(
+                        "Connection Test Successful (IP %s) with New Homepilot, no Password required",
+                        self.host,
+                    )
+                    return await self.async_step_config(user_input=user_input)
                 if conn_test == "auth_required":
                     _LOGGER.info(
                         "Connection Test Successful (IP %s), Password needed",
@@ -255,6 +262,12 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if conn_test == "ok":
             _LOGGER.info(
                 "Connection Test Successful (IP %s), no Password required", self.host
+            )
+            return await self.async_step_config()
+        if conn_test == "ok_v2":
+            self.host = f"{self.host}/hp"
+            _LOGGER.info(
+                "Connection Test Successful (IP %s) with New Homepilot, no Password required", self.host
             )
             return await self.async_step_config()
         if conn_test == "auth_required":
