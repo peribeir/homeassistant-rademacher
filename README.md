@@ -177,6 +177,8 @@ The integration should work with the following devices (tested devices are marke
   - Tested on DuoFern 9485 wireless radiator thermostat
 - **DuoFern Smoke Alarm Device (DN: 32001664)**
   - Tested on DuoFern 9481 Wireless Smoke detector
+- **DuoFern Sun/Wind Sensor (DN:32004464)**
+  - Tested on DuoFern sun/wind sensor 9499
 
 ## Switches
 - DuoFern Switch actuator (DN:35001164)
