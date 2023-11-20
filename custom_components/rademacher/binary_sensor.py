@@ -69,6 +69,22 @@ async def async_setup_entry(hass, config_entry: ConfigEntry, async_add_entities)
                             device_class=BinarySensorDeviceClass.LIGHT,
                         )
                     )
+                if device.has_wind_detection:
+                    _LOGGER.info(
+                        "Found Wind Detection Sensor for Device ID: %s", device.did
+                    )
+                    new_entities.append(
+                        HomePilotBinarySensorEntity(
+                            coordinator=coordinator,
+                            device=device,
+                            id_suffix="wind_detect",
+                            name_suffix="Wind Detection",
+                            value_attr="wind_detection_value",
+                            device_class=None,
+                            icon_off="mdi:weather-windy",
+                            icon_on="mdi:weather-windy",
+                        )
+                    )
                 if device.has_contact_state and device.did not in ternary_contact_sensors:
                     _LOGGER.info("Found Contact Sensor for Device ID: %s", device.did)
                     new_entities.append(
