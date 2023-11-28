@@ -6,6 +6,8 @@
 ![logo](https://github.com/peribeir/homeassistant-rademacher/raw/master/img/logo.png)
 A Home Assistant custom Integration for local handling of Devices connected to Rademacher bridge.
 
+### ATENTION: If using Home Pilot Gateway, please delete and add Integration after upgrade to version 2.1.0
+
 # Hardware Support (now with BETA support for HP Gateway Premium)
 
 Works exclusively when devices are connected through HomePilot or Start2Smart Bridge.
@@ -16,9 +18,13 @@ Works exclusively when devices are connected through HomePilot or Start2Smart Br
 
 ***HP Gateway Premium with local password protection not supported yet.***
 
-### **Supports Covers, Switches, Sensors, Dimmers and Thermostats.**
+### **Supports Covers, Switches, Sensors, Dimmers, Thermostats and Wall Controllers.**
 
 *See full device list support at the end.*
+
+### **Scenes are now supported since version 2.1.0** ###
+
+Scenes will be automatically added as Home Assistant Scenes with "Homepilot" prefix. These scenes can be activated as any other Home Assistant Scene but cannot be edited.
 
 # Installation
 
