@@ -12,6 +12,7 @@ from homeassistant.const import (
     CONF_HOST,
     CONF_PASSWORD,
     CONF_SENSOR_TYPE,
+    CONF_API_VERSION
 )
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.device_registry import DeviceEntry, DeviceRegistry, format_mac
@@ -95,6 +96,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     api = HomePilotApi(
         entry.data[CONF_HOST],
         entry.data[CONF_PASSWORD] if CONF_PASSWORD in entry.data else "",
+        entry.data[CONF_API_VERSION],
     )
     try:
         manager = await HomePilotManager.async_build_manager(api)

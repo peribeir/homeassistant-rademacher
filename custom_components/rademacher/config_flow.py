@@ -15,6 +15,7 @@ from homeassistant.const import (
     CONF_HOST,
     CONF_PASSWORD,
     CONF_SENSOR_TYPE,
+    CONF_API_VERSION
 )
 
 from homepilot.manager import HomePilotManager
@@ -35,6 +36,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_POLL
     host: str = ""
     password: str = ""
+    api_version: int = 1
     mac_address: str = ""
     hostname: str = ""
     reauth_entry: ConfigEntry | None = None
@@ -54,6 +56,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 data = {
                     CONF_HOST: self.host,
                     CONF_PASSWORD: self.password,
+                    CONF_API_VERSION: self.api_version
                 }
                 options = {
                     CONF_EXCLUDE: self.exclude_devices,
@@ -66,7 +69,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 _LOGGER.exception("Unexpected exception", exc_info=True)
                 errors["base"] = "unknown"
         api = HomePilotApi(
-            self.host, self.password
+            self.host, self.password, self.api_version
         )  # password can be empty if not defined ("")
         manager = await HomePilotManager.async_build_manager(api)
         self.hostname = await manager.get_nodename()
@@ -100,6 +103,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 data = {
                     CONF_HOST: self.host,
                     CONF_PASSWORD: "",
+                    CONF_API_VERSION: 1
                 }
                 self.hass.config_entries.async_update_entry(self.reauth_entry, data=data)
                 await self.hass.config_entries.async_reload(self.reauth_entry.entry_id)
@@ -138,6 +142,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     data = {
                         CONF_HOST: self.host,
                         CONF_PASSWORD: self.password,
+                        CONF_API_VERSION: 1
                     }
                     self.hass.config_entries.async_update_entry(self.reauth_entry, data=data)
                     await self.hass.config_entries.async_reload(self.reauth_entry.entry_id)
@@ -177,21 +182,30 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 _LOGGER.info("Starting manual config for IP %s", self.host)
                 conn_test = await HomePilotApi.test_connection(user_input[CONF_HOST])
                 if conn_test == "ok":
+                    self.api_version = 1
                     _LOGGER.info(
                         "Connection Test Successful (IP %s), no Password required",
                         self.host,
                     )
                     return await self.async_step_config(user_input=user_input)
                 if conn_test == "ok_v2":
-                    self.host = f"{self.host}/hp"
+                    self.api_version = 2
                     _LOGGER.info(
                         "Connection Test Successful (IP %s) with New Homepilot, no Password required",
                         self.host,
                     )
                     return await self.async_step_config(user_input=user_input)
                 if conn_test == "auth_required":
+                    self.api_version = 1
                     _LOGGER.info(
                         "Connection Test Successful (IP %s), Password needed",
+                        self.host,
+                    )
+                    return await self.async_step_user_password(user_input=user_input)
+                if conn_test == "auth_required_v2":
+                    self.api_version = 2
+                    _LOGGER.info(
+                        "Connection Test Successful (IP %s) with New Homepilot, Password needed",
                         self.host,
                     )
                     return await self.async_step_user_password(user_input=user_input)
@@ -225,7 +239,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 "User confirmed integration (IP %s), creating entries", self.host
             )
             return self.async_create_entry(
-                title=f"{self.hostname} ({self.mac_address})", data={CONF_HOST: self.host}
+                title=f"{self.hostname} ({self.mac_address})", data={CONF_HOST: self.host, CONF_API_VERSION: self.api_version}
             )
 
         self._set_confirm_only()
@@ -260,19 +274,27 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         conn_test = await HomePilotApi.test_connection(self.host)
         if conn_test == "ok":
+            self.api_version = 1
             _LOGGER.info(
                 "Connection Test Successful (IP %s), no Password required", self.host
             )
             return await self.async_step_config()
         if conn_test == "ok_v2":
-            self.host = f"{self.host}/hp"
+            self.api_version = 2
             _LOGGER.info(
                 "Connection Test Successful (IP %s) with New Homepilot, no Password required", self.host
             )
             return await self.async_step_config()
         if conn_test == "auth_required":
+            self.api_version = 1
             _LOGGER.info(
                 "Connection Test Successful (IP %s), Password needed", self.host
+            )
+            return await self.async_step_user_password()
+        if conn_test == "auth_required_v2":
+            self.api_version = 2
+            _LOGGER.info(
+                "Connection Test Successful (IP %s) with New Homepilot, Password needed", self.host
             )
             return await self.async_step_user_password()
         _LOGGER.warning("Connection Test not Successful (IP %s)", self.host)
@@ -336,8 +358,13 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
             if CONF_PASSWORD in self.config_entry.data
             else ""
         )
+        self.api_version = (
+            self.config_entry.data[CONF_API_VERSION]
+            if CONF_API_VERSION in self.config_entry.data
+            else 1
+        )
         api = HomePilotApi(
-            self.host, self.password
+            self.host, self.password, self.api_version
         )  # password can be empty if not defined ("")
         manager = await HomePilotManager.async_build_manager(api)
         self.mac_address = format_mac(await manager.get_hub_macaddress())
