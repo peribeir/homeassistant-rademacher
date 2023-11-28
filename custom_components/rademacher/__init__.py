@@ -96,7 +96,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     api = HomePilotApi(
         entry.data[CONF_HOST],
         entry.data[CONF_PASSWORD] if CONF_PASSWORD in entry.data else "",
-        entry.data[CONF_API_VERSION],
+        entry.data[CONF_API_VERSION] if CONF_API_VERSION in entry.data else 1,
     )
     try:
         manager = await HomePilotManager.async_build_manager(api)
