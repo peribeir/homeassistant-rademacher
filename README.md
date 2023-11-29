@@ -6,7 +6,7 @@
 ![logo](https://github.com/peribeir/homeassistant-rademacher/raw/master/img/logo.png)
 A Home Assistant custom Integration for local handling of Devices connected to Rademacher bridge.
 
-### ATENTION: If using Home Pilot Gateway, please delete and add Integration after upgrade to version 2.1.0
+### ATENTION: If using Home Pilot Gateway Premium, please delete and add Integration after upgrade to version 2.1.0
 
 # Hardware Support (now with BETA support for HP Gateway Premium)
 
