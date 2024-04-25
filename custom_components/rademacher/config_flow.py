@@ -109,7 +109,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 await self.hass.config_entries.async_reload(self.reauth_entry.entry_id)
                 return self.async_abort(reason="reauth_successful")
 
-            await HomePilotApi.test_auth(self.host, self.password)
+            await HomePilotApi.test_auth(self.host, self.password, self.api_version)
             return self.async_abort(reason="reauth_successful")
         except CannotConnect:
             _LOGGER.warning("Connect error (IP %s)", self.host)
@@ -133,7 +133,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is not None and CONF_PASSWORD in user_input:
             try:
                 self.password = user_input[CONF_PASSWORD]
-                await HomePilotApi.test_auth(self.host, self.password)
+                await HomePilotApi.test_auth(self.host, self.password, self.api_version)
                 _LOGGER.info(
                     "Password correct (IP %s), creating entries",
                     self.host,
@@ -142,7 +142,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     data = {
                         CONF_HOST: self.host,
                         CONF_PASSWORD: self.password,
-                        CONF_API_VERSION: 1
+                        CONF_API_VERSION: self.api_version
                     }
                     self.hass.config_entries.async_update_entry(self.reauth_entry, data=data)
                     await self.hass.config_entries.async_reload(self.reauth_entry.entry_id)
