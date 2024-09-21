@@ -1,13 +1,15 @@
-"""Platform for Rademacher Bridge"""
+"""Platform for Rademacher Bridge."""
+from enum import Enum
 import logging
 
-from enum import Enum
+from homepilot.device import HomePilotDevice
+from homepilot.manager import HomePilotManager
+from homepilot.sensor import ContactState, HomePilotSensor
+from homepilot.thermostat import HomePilotThermostat
 
-from homeassistant.helpers.entity import EntityCategory
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.components.sensor import (
-    SensorEntity,
     SensorDeviceClass,
+    SensorEntity,
     SensorStateClass,
 )
 from homeassistant.const import (
@@ -19,20 +21,17 @@ from homeassistant.const import (
     UnitOfSpeed,
     UnitOfTemperature,
 )
+from homeassistant.helpers.entity import EntityCategory
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
-from homepilot.manager import HomePilotManager
-from homepilot.device import HomePilotDevice
-from homepilot.sensor import HomePilotSensor, ContactState
-from homepilot.thermostat import HomePilotThermostat
-
-from .entity import HomePilotEntity
 from .const import DOMAIN
+from .entity import HomePilotEntity
 
 _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
-    """Setup of entities for sensor platform"""
+    """Setup of entities for sensor platform."""
     entry = hass.data[DOMAIN][config_entry.entry_id]
     manager: HomePilotManager = entry[0]
     coordinator: DataUpdateCoordinator = entry[1]
@@ -154,9 +153,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                             options=["Open", "Tilted", "Closed"]
                         )
                     )
-            if isinstance(device, HomePilotSensor) or isinstance(
-                device, HomePilotThermostat
-            ):
+            if isinstance(device, (HomePilotSensor, HomePilotThermostat)):
                 if device.has_battery_level:
                     _LOGGER.info(
                         "Found Battery Level Sensor for Device ID: %s", device.did
@@ -179,7 +176,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 
 
 class HomePilotSensorEntity(HomePilotEntity, SensorEntity):
-    """This class represents all Sensors supported"""
+    """This class represents all Sensors supported."""
 
     def __init__(
         self,
@@ -214,7 +211,8 @@ class HomePilotSensorEntity(HomePilotEntity, SensorEntity):
     @property
     def value_attr(self):
         """This property stores which attribute contains the is_on value on
-        the HomePilotDevice supporting class"""
+        the HomePilotDevice supporting class.
+        """
         return self._value_attr
 
     @property

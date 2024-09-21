@@ -1,17 +1,16 @@
-"""Platform for Rademacher Bridge"""
+"""Platform for Rademacher Bridge."""
 import asyncio
 import logging
 
-from homeassistant.helpers.entity import EntityCategory
-
-from homeassistant.const import CONF_EXCLUDE, UnitOfTemperature, PERCENTAGE
-from homeassistant.components.number import NumberDeviceClass, NumberEntity, NumberMode
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
-
-from homepilot.manager import HomePilotManager
-from homepilot.device import HomePilotDevice
 from homepilot.cover import HomePilotCover
+from homepilot.device import HomePilotDevice
+from homepilot.manager import HomePilotManager
 from homepilot.thermostat import HomePilotThermostat
+
+from homeassistant.components.number import NumberDeviceClass, NumberEntity, NumberMode
+from homeassistant.const import CONF_EXCLUDE, PERCENTAGE, UnitOfTemperature
+from homeassistant.helpers.entity import EntityCategory
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from .const import DOMAIN
 from .entity import HomePilotEntity
@@ -20,7 +19,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
-    """Setup of entities for switch platform"""
+    """Setup of entities for switch platform."""
     entry = hass.data[DOMAIN][config_entry.entry_id]
     manager: HomePilotManager = entry[0]
     coordinator: DataUpdateCoordinator = entry[1]
@@ -54,7 +53,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 
 
 class HomePilotVentilationPositionEntity(HomePilotEntity, NumberEntity):
-    """This class represents Cover Ventilation Position"""
+    """This class represents Cover Ventilation Position."""
 
     def __init__(
         self, coordinator: DataUpdateCoordinator, device: HomePilotDevice
@@ -91,7 +90,7 @@ class HomePilotVentilationPositionEntity(HomePilotEntity, NumberEntity):
         await self.coordinator.async_request_refresh()
 
 class HomePilotTemperatureThresholdEntity(HomePilotEntity, NumberEntity):
-    """This class represents Cover Ventilation Position"""
+    """This class represents Cover Ventilation Position."""
     thresh_number: int = 0
 
     def __init__(

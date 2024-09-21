@@ -1,30 +1,31 @@
-"""Integration for Rademacher Bridge"""
+"""Integration for Rademacher Bridge."""
 import asyncio
 from datetime import timedelta
 import logging
-import async_timeout
 
-from homeassistant.helpers import device_registry as dr
+from homepilot.api import AuthError, HomePilotApi
+from homepilot.hub import HomePilotHub
+from homepilot.manager import HomePilotManager
+
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
+    CONF_API_VERSION,
     CONF_DEVICES,
     CONF_EXCLUDE,
     CONF_HOST,
     CONF_PASSWORD,
     CONF_SENSOR_TYPE,
-    CONF_API_VERSION
 )
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.helpers.device_registry import DeviceEntry, DeviceRegistry, format_mac
-from homeassistant.helpers.entity_registry import async_migrate_entries
-from homeassistant.helpers.update_coordinator import (
-    DataUpdateCoordinator,
-)
 from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
-
-from homepilot.manager import HomePilotManager
-from homepilot.hub import HomePilotHub
-from homepilot.api import HomePilotApi, AuthError
+from homeassistant.helpers import device_registry as dr
+from homeassistant.helpers.device_registry import (
+    DeviceEntry,
+    DeviceRegistry,
+    format_mac,
+)
+from homeassistant.helpers.entity_registry import async_migrate_entries
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from .const import DOMAIN
 
@@ -46,11 +47,11 @@ async def async_migrate_entry(hass, config_entry: ConfigEntry):
             host = config_entry.data[CONF_HOST]
             mac_address = format_mac(await HomePilotHub.get_hub_macaddress(api))
             nodename = (await api.async_get_nodename())["nodename"]
-        except AuthError as err:
-            _LOGGER.error(f"Cannot migrate config entry. Authentication error. Please delete integration and restart HomeAssistant.")
+        except AuthError:
+            _LOGGER.error("Cannot migrate config entry. Authentication error. Please delete integration and restart HomeAssistant.")
             return False
         except Exception as err:
-            _LOGGER.error(f"Cannot migrate config entry ({err}). Check if bridge is online and restart Home Assistant. If problem persists, delete integration and restart HomeAssistant.")
+            _LOGGER.error("Cannot migrate config entry (%s). Check if bridge is online and restart Home Assistant. If problem persists, delete integration and restart HomeAssistant.", err)
             return False
 
         @callback
@@ -95,15 +96,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # with your actual devices.
     api = HomePilotApi(
         entry.data[CONF_HOST],
-        entry.data[CONF_PASSWORD] if CONF_PASSWORD in entry.data else "",
-        entry.data[CONF_API_VERSION] if CONF_API_VERSION in entry.data else 1,
+        entry.data.get(CONF_PASSWORD, ""),
+        entry.data.get(CONF_API_VERSION, 1),
     )
     try:
         manager = await HomePilotManager.async_build_manager(api)
     except AuthError as err:
         # Raising ConfigEntryAuthFailed will cancel future updates
         # and start a config flow with SOURCE_REAUTH (async_step_reauth)
-        raise ConfigEntryAuthFailed from err 
+        raise ConfigEntryAuthFailed from err
     except Exception as err:
         raise ConfigEntryNotReady from err
 
@@ -119,7 +120,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         try:
             # Note: asyncio.TimeoutError and aiohttp.ClientError are already
             # handled by the data update coordinator.
-            async with async_timeout.timeout(10):
+            async with asyncio.timeout(10):
                 return await manager.update_states()
         except AuthError as err:
             # Raising ConfigEntryAuthFailed will cancel future updates
@@ -137,7 +138,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     )
 
     # Backward compatibility
-    entry_options = {key: entry.options[key] for key in entry.options.keys()}
+    entry_options = {key: entry.options[key] for key in entry.options}
     if CONF_EXCLUDE not in entry.options:
         if CONF_DEVICES in entry.options:
             entry_options[CONF_EXCLUDE] = [
@@ -185,7 +186,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
     # needs to unload itself, and remove callbacks. See the classes for further
     # details
     unloaded = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
-    if unload_ok:
+    if unloaded:
         hass.data[DOMAIN].pop(entry.entry_id)
 
-    return unload_ok
+    return unloaded

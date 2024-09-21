@@ -1,26 +1,26 @@
 """Config flow for Rademacher integration."""
 import logging
 import socket
+
+from homepilot.api import AuthError, CannotConnect, HomePilotApi
+from homepilot.manager import HomePilotManager
+from homepilot.sensor import HomePilotSensor
 import voluptuous as vol
 
+from homeassistant import config_entries, data_entry_flow, exceptions
+from homeassistant.components.dhcp import HOSTNAME, IP_ADDRESS, MAC_ADDRESS
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import callback
-from homeassistant.helpers.device_registry import format_mac
-import homeassistant.helpers.config_validation as cv
-from homeassistant import config_entries, exceptions, data_entry_flow
-from homeassistant.components.dhcp import IP_ADDRESS, HOSTNAME, MAC_ADDRESS
 from homeassistant.const import (
+    CONF_API_VERSION,
     CONF_DEVICES,
     CONF_EXCLUDE,
     CONF_HOST,
     CONF_PASSWORD,
     CONF_SENSOR_TYPE,
-    CONF_API_VERSION
 )
-
-from homepilot.manager import HomePilotManager
-from homepilot.api import CannotConnect, AuthError, HomePilotApi
-from homepilot.sensor import HomePilotSensor
+from homeassistant.core import callback
+import homeassistant.helpers.config_validation as cv
+from homeassistant.helpers.device_registry import format_mac
 
 from .const import DOMAIN
 
@@ -49,9 +49,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             try:
                 self.exclude_devices = user_input[CONF_EXCLUDE]
                 self.ternary_contact_sensors = (
-                    user_input[CONF_SENSOR_TYPE]
-                    if CONF_SENSOR_TYPE in user_input
-                    else []
+                    user_input.get(CONF_SENSOR_TYPE, [])
                 )
                 data = {
                     CONF_HOST: self.host,
@@ -347,22 +345,12 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
         if user_input is not None:
             data = {
                 CONF_EXCLUDE: user_input[CONF_EXCLUDE],
-                CONF_SENSOR_TYPE: user_input[CONF_SENSOR_TYPE]
-                if CONF_SENSOR_TYPE in user_input
-                else [],
+                CONF_SENSOR_TYPE: user_input.get(CONF_SENSOR_TYPE, []),
             }
             return self.async_create_entry(title=f"{self.hostname} ({self.mac_address})", data=data)
         self.host = self.config_entry.data[CONF_HOST]
-        self.password = (
-            self.config_entry.data[CONF_PASSWORD]
-            if CONF_PASSWORD in self.config_entry.data
-            else ""
-        )
-        self.api_version = (
-            self.config_entry.data[CONF_API_VERSION]
-            if CONF_API_VERSION in self.config_entry.data
-            else 1
-        )
+        self.password = self.config_entry.data.get(CONF_PASSWORD, "")
+        self.api_version = self.config_entry.data.get(CONF_API_VERSION, 1)
         api = HomePilotApi(
             self.host, self.password, self.api_version
         )  # password can be empty if not defined ("")

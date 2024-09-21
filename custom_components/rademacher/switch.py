@@ -1,18 +1,17 @@
-"""Platform for Rademacher Bridge"""
+"""Platform for Rademacher Bridge."""
 import asyncio
 import logging
 
-from homeassistant.helpers.entity import EntityCategory
-
-from homeassistant.const import CONF_EXCLUDE
-from homeassistant.components.switch import SwitchDeviceClass, SwitchEntity
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
-
-from homepilot.manager import HomePilotManager
+from homepilot.cover import HomePilotCover
 from homepilot.device import HomePilotDevice
 from homepilot.hub import HomePilotHub
+from homepilot.manager import HomePilotManager
 from homepilot.switch import HomePilotSwitch
-from homepilot.cover import HomePilotCover
+
+from homeassistant.components.switch import SwitchDeviceClass, SwitchEntity
+from homeassistant.const import CONF_EXCLUDE
+from homeassistant.helpers.entity import EntityCategory
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from .const import DOMAIN
 from .entity import HomePilotEntity
@@ -21,7 +20,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
-    """Setup of entities for switch platform"""
+    """Setup of entities for switch platform."""
     entry = hass.data[DOMAIN][config_entry.entry_id]
     manager: HomePilotManager = entry[0]
     coordinator: DataUpdateCoordinator = entry[1]
@@ -48,7 +47,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 
 
 class HomePilotSwitchEntity(HomePilotEntity, SwitchEntity):
-    """This class represents all Switches supported"""
+    """This class represents all Switches supported."""
 
     def __init__(
         self, coordinator: DataUpdateCoordinator, device: HomePilotDevice
@@ -88,7 +87,7 @@ class HomePilotSwitchEntity(HomePilotEntity, SwitchEntity):
 
 
 class HomePilotLedSwitchEntity(HomePilotEntity, SwitchEntity):
-    """This class represents the Led Switch which controls the LEDs on the hub"""
+    """This class represents the Led Switch which controls the LEDs on the hub."""
 
     def __init__(
         self, coordinator: DataUpdateCoordinator, device: HomePilotDevice
@@ -129,7 +128,7 @@ class HomePilotLedSwitchEntity(HomePilotEntity, SwitchEntity):
             await self.async_turn_on()
 
 class HomePilotAutoUpdaeSwitchEntity(HomePilotEntity, SwitchEntity):
-    """This class represents the Led Switch which controls the LEDs on the hub"""
+    """This class represents the Led Switch which controls the LEDs on the hub."""
 
     def __init__(
         self, coordinator: DataUpdateCoordinator, device: HomePilotDevice
@@ -170,7 +169,7 @@ class HomePilotAutoUpdaeSwitchEntity(HomePilotEntity, SwitchEntity):
             await self.async_turn_on()
 
 class HomePilotVentilationSwitchEntity(HomePilotEntity, SwitchEntity):
-    """This class represents the Switch which controls Ventilation Position Mode"""
+    """This class represents the Switch which controls Ventilation Position Mode."""
 
     def __init__(
         self, coordinator: DataUpdateCoordinator, device: HomePilotDevice

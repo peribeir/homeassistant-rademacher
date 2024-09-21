@@ -1,23 +1,23 @@
-"""Platform for Rademacher Bridge"""
+"""Platform for Rademacher Bridge."""
 import asyncio
 import logging
-
-from homeassistant.const import CONF_EXCLUDE
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
-from homeassistant.components.button import ButtonEntity
-from homeassistant.helpers.entity import EntityCategory
 
 from homepilot.device import HomePilotDevice
 from homepilot.manager import HomePilotManager
 
-from .entity import HomePilotEntity
+from homeassistant.components.button import ButtonEntity
+from homeassistant.const import CONF_EXCLUDE
+from homeassistant.helpers.entity import EntityCategory
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
+
 from .const import DOMAIN
+from .entity import HomePilotEntity
 
 _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
-    """Setup of entities for button platform"""
+    """Setup of entities for button platform."""
     entry = hass.data[DOMAIN][config_entry.entry_id]
     manager: HomePilotManager = entry[0]
     coordinator: DataUpdateCoordinator = entry[1]
@@ -35,7 +35,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 
 
 class HomePilotPingButtonEntity(HomePilotEntity, ButtonEntity):
-    """This class represents a button which sends a ping command to a device"""
+    """This class represents a button which sends a ping command to a device."""
 
     def __init__(
         self, coordinator: DataUpdateCoordinator, device: HomePilotDevice

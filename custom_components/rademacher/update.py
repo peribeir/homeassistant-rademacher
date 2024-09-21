@@ -1,15 +1,18 @@
-"""Platform for Rademacher Bridge"""
-import asyncio
+"""Platform for Rademacher Bridge."""
 import logging
 from typing import Any
 
-from homeassistant.const import CONF_EXCLUDE
-from homeassistant.components.update import UpdateDeviceClass, UpdateEntityFeature, UpdateEntity
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
-
-from homepilot.manager import HomePilotManager
 from homepilot.device import HomePilotDevice
 from homepilot.hub import HomePilotHub
+from homepilot.manager import HomePilotManager
+
+from homeassistant.components.update import (
+    UpdateDeviceClass,
+    UpdateEntity,
+    UpdateEntityFeature,
+)
+from homeassistant.const import CONF_EXCLUDE
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from .const import DOMAIN
 from .entity import HomePilotEntity
@@ -18,7 +21,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
-    """Setup of entities for switch platform"""
+    """Setup of entities for switch platform."""
     entry = hass.data[DOMAIN][config_entry.entry_id]
     manager: HomePilotManager = entry[0]
     coordinator: DataUpdateCoordinator = entry[1]
@@ -45,7 +48,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 
 
 class HomePilotUpdateEntity(HomePilotEntity, UpdateEntity):
-    """This class represents all Switches supported"""
+    """This class represents all Switches supported."""
 
     def __init__(
         self,
@@ -92,5 +95,5 @@ class HomePilotUpdateEntity(HomePilotEntity, UpdateEntity):
     async def async_install(self, version: str | None, backup: bool, **kwargs: Any):
         """Install update."""
         device: HomePilotHub = self.coordinator.data[self.did]
-        _LOGGER.info(f"Install update v:{version} b:{backup}")
+        _LOGGER.info("Install update v:%s b:%s", version, backup)
         await device.async_update_firmware()

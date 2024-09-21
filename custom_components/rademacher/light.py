@@ -1,30 +1,24 @@
-"""Platform for Rademacher Bridge"""
+"""Platform for Rademacher Bridge."""
 import asyncio
 import logging
 from typing import Any
-
-from homeassistant.const import CONF_EXCLUDE
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
-from homeassistant.components.light import (
-    LightEntity,
-    LightEntityFeature,
-    ColorMode,
-    ATTR_BRIGHTNESS,
-)
 
 from homepilot.actuator import HomePilotActuator
 from homepilot.device import HomePilotDevice
 from homepilot.manager import HomePilotManager
 
-from .entity import HomePilotEntity
+from homeassistant.components.light import ATTR_BRIGHTNESS, ColorMode, LightEntity
+from homeassistant.const import CONF_EXCLUDE
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from .const import DOMAIN
+from .entity import HomePilotEntity
 
 _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
-    """Setup of entities for light platform"""
+    """Setup of entities for light platform."""
     entry = hass.data[DOMAIN][config_entry.entry_id]
     manager: HomePilotManager = entry[0]
     coordinator: DataUpdateCoordinator = entry[1]
@@ -42,7 +36,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 
 
 class HomePilotLightEntity(HomePilotEntity, LightEntity):
-    """This class represents the Light entity"""
+    """This class represents the Light entity."""
 
     def __init__(
         self, coordinator: DataUpdateCoordinator, actuator: HomePilotActuator
