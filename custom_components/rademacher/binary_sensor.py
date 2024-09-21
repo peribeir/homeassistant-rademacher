@@ -1,35 +1,30 @@
-"""Platform for Rademacher Bridge"""
+"""Platform for Rademacher Bridge."""
+from datetime import timedelta
 import logging
 
-from homeassistant.helpers.entity import EntityCategory
+from homepilot.device import HomePilotDevice
+from homepilot.manager import HomePilotManager
+from homepilot.sensor import HomePilotSensor
+from homepilot.wallcontroller import HomePilotWallController
 
-from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_EXCLUDE, CONF_SENSOR_TYPE, STATE_OFF, STATE_ON
-from homeassistant.helpers.update_coordinator import (
-    DataUpdateCoordinator,
-)
 from homeassistant.components.binary_sensor import (
     BinarySensorDeviceClass,
     BinarySensorEntity,
 )
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import CONF_EXCLUDE, CONF_SENSOR_TYPE, STATE_OFF, STATE_ON
+from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.event import async_track_time_interval
-
-from homepilot.device import HomePilotDevice
-from homepilot.sensor import HomePilotSensor
-from homepilot.manager import HomePilotManager
-from homepilot.wallcontroller import HomePilotWallController
-
-from .entity import HomePilotEntity
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from .const import DOMAIN
-
-from datetime import timedelta
+from .entity import HomePilotEntity
 
 _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(hass, config_entry: ConfigEntry, async_add_entities):
-    """Setup of entities for binary_sensor platform"""
+    """Setup of entities for binary_sensor platform."""
     entry = hass.data[DOMAIN][config_entry.entry_id]
     manager: HomePilotManager = entry[0]
     coordinator: DataUpdateCoordinator = entry[1]
@@ -162,7 +157,7 @@ async def async_setup_entry(hass, config_entry: ConfigEntry, async_add_entities)
 
 
 class HomePilotBinarySensorEntity(HomePilotEntity, BinarySensorEntity):
-    """This class represents all Binary Sensors supported"""
+    """This class represents all Binary Sensors supported."""
 
     def __init__(
         self,
@@ -193,7 +188,7 @@ class HomePilotBinarySensorEntity(HomePilotEntity, BinarySensorEntity):
         self._should_poll = should_poll
 
     async def async_added_to_hass(self) -> None:
-        """Set up a timer for updating"""
+        """Set up a timer for updating."""
         if self._has_channels:
             self.async_on_remove(
                 async_track_time_interval(
@@ -220,7 +215,8 @@ class HomePilotBinarySensorEntity(HomePilotEntity, BinarySensorEntity):
     @property
     def value_attr(self):
         """This property stores which attribute contains the is_on value on
-        the HomePilotDevice supporting class"""
+        the HomePilotDevice supporting class.
+        """
         return self._value_attr
 
     @property

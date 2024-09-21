@@ -1,24 +1,19 @@
-"""Platform for Rademacher Bridge"""
-import asyncio
+"""Platform for Rademacher Bridge."""
 import logging
 from typing import Any
-
-from homeassistant.helpers.entity import EntityCategory
-
-from homeassistant.components.scene import Scene
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from homepilot.manager import HomePilotManager
 from homepilot.scenes import HomePilotScene
 
+from homeassistant.components.scene import Scene
+
 from .const import DOMAIN
-from .entity import HomePilotEntity
 
 _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
-    """Setup of entities for switch platform"""
+    """Setup of entities for switch platform."""
     entry = hass.data[DOMAIN][config_entry.entry_id]
     manager: HomePilotManager = entry[0]
     new_entities = []
@@ -32,7 +27,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 
 
 class HomePilotSceneEntity(Scene):
-    """This class represents Cover Ventilation Position"""
+    """This class represents Cover Ventilation Position."""
     _sid: str
     _scene: HomePilotScene
 

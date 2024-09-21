@@ -1,30 +1,30 @@
-"""Platform for Rademacher Bridge"""
+"""Platform for Rademacher Bridge."""
 import asyncio
 import logging
 
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
-from homeassistant.components.climate import ClimateEntity
-from homeassistant.const import (
-    CONF_EXCLUDE,
-    UnitOfTemperature,
-)
-from homeassistant.components.climate.const import (
-    ClimateEntityFeature,
-    HVACMode
-)
-
-from homepilot.manager import HomePilotManager
 from homepilot.device import HomePilotDevice
+from homepilot.manager import HomePilotManager
 from homepilot.thermostat import HomePilotThermostat
 
-from .entity import HomePilotEntity
+from homeassistant.components.climate import ClimateEntity
+from homeassistant.components.climate.const import (
+    PRESET_BOOST,
+    PRESET_ECO,
+    PRESET_NONE,
+    ClimateEntityFeature,
+    HVACMode,
+)
+from homeassistant.const import CONF_EXCLUDE, UnitOfTemperature
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
+
 from .const import DOMAIN
+from .entity import HomePilotEntity
 
 _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
-    """Setup of entities for sensor platform"""
+    """Setup of entities for sensor platform."""
     entry = hass.data[DOMAIN][config_entry.entry_id]
     manager: HomePilotManager = entry[0]
     coordinator: DataUpdateCoordinator = entry[1]
@@ -48,7 +48,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 
 
 class HomePilotClimateEntity(HomePilotEntity, ClimateEntity):
-    """This class represents all Sensors supported"""
+    """This class represents all Sensors supported."""
 
     def __init__(
         self,
@@ -68,10 +68,9 @@ class HomePilotClimateEntity(HomePilotEntity, ClimateEntity):
         self._attr_min_temp = device.min_target_temperature
         self._attr_target_temperature_step = device.step_target_temperature
         self._attr_hvac_modes = (
-            [HVACMode.AUTO, HVACMode.HEAT_COOL]
-            if device.has_auto_mode
-            else [HVACMode.HEAT_COOL]
+            [HVACMode.HEAT, HVACMode.OFF]
         )
+        self._attr_preset_modes = ([PRESET_ECO, PRESET_BOOST, PRESET_NONE])
 
     async def async_set_hvac_mode(self, hvac_mode: str) -> None:
         device: HomePilotThermostat = self.coordinator.data[self.did]
@@ -100,12 +99,21 @@ class HomePilotClimateEntity(HomePilotEntity, ClimateEntity):
         )
 
     @property
+    def preset_mode(self) -> str:
+        device: HomePilotThermostat = self.coordinator.data[self.did]
+        return (
+            PRESET_NONE
+            if not device.has_auto_mode
+            else (PRESET_ECO if device.auto_mode_value else PRESET_BOOST)
+        )
+
+    @property
     def hvac_mode(self) -> str:
         device: HomePilotThermostat = self.coordinator.data[self.did]
         return (
-            HVACMode.AUTO
-            if device.has_auto_mode and device.auto_mode_value
-            else HVACMode.HEAT_COOL
+            HVACMode.HEAT
+            if device.has_relais_status and device.relais_value == 1
+            else HVACMode.OFF
         )
 
     @property

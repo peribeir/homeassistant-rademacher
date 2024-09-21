@@ -1,7 +1,10 @@
-from typing import Any
 from collections.abc import Mapping
+from typing import Any
+
 from homepilot.device import HomePilotDevice
+
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+
 from .const import DOMAIN
 
 
