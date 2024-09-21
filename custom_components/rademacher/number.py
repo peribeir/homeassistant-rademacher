@@ -4,7 +4,7 @@ import logging
 
 from homeassistant.helpers.entity import EntityCategory
 
-from homeassistant.const import CONF_EXCLUDE, TEMP_CELSIUS, PERCENTAGE
+from homeassistant.const import CONF_EXCLUDE, UnitOfTemperature, PERCENTAGE
 from homeassistant.components.number import NumberDeviceClass, NumberEntity, NumberMode
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
@@ -109,7 +109,7 @@ class HomePilotTemperatureThresholdEntity(HomePilotEntity, NumberEntity):
         self._attr_native_max_value = device.temperature_thresh_cfg_max[thresh_number-1]
         self._attr_native_min_value = device.temperature_thresh_cfg_min[thresh_number-1]
         self._attr_native_step = device.temperature_thresh_cfg_step[thresh_number-1]
-        self._attr_native_unit_of_measurement = TEMP_CELSIUS
+        self._attr_native_unit_of_measurement = UnitOfTemperature.CELSIUS
         self._thresh_number = thresh_number
 
     @property

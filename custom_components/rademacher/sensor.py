@@ -16,8 +16,8 @@ from homeassistant.const import (
     DEGREE,
     LIGHT_LUX,
     PERCENTAGE,
-    SPEED_METERS_PER_SECOND,
-    TEMP_CELSIUS,
+    UnitOfSpeed,
+    UnitOfTemperature,
 )
 
 from homepilot.manager import HomePilotManager
@@ -55,7 +55,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                             name_suffix="Temperature",
                             value_attr="temperature_value",
                             device_class=SensorDeviceClass.TEMPERATURE.value,
-                            native_unit_of_measurement=TEMP_CELSIUS,
+                            native_unit_of_measurement=UnitOfTemperature.CELSIUS,
                         )
                     )
                 if device.has_target_temperature:
@@ -70,7 +70,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                             name_suffix="Target Temperature",
                             value_attr="target_temperature_value",
                             device_class=SensorDeviceClass.TEMPERATURE.value,
-                            native_unit_of_measurement=TEMP_CELSIUS,
+                            native_unit_of_measurement=UnitOfTemperature.CELSIUS,
                         )
                     )
                 if device.has_wind_speed:
@@ -84,7 +84,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                             id_suffix="wind_speed",
                             name_suffix="Wind Speed",
                             value_attr="wind_speed_value",
-                            native_unit_of_measurement=SPEED_METERS_PER_SECOND,
+                            native_unit_of_measurement=UnitOfSpeed.METERS_PER_SECOND,
                             icon="mdi:weather-windy",
                         )
                     )
