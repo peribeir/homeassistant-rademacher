@@ -66,11 +66,11 @@ class HomePilotLightEntity(HomePilotEntity, LightEntity):
             await device.async_set_brightness(round(kwargs[ATTR_BRIGHTNESS]*100/255))
         else:
             await device.async_turn_on()
-        await asyncio.sleep(5)
-        await self.coordinator.async_request_refresh()
+        async with asyncio.timeout(5):
+            await self.coordinator.async_request_refresh()
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         device: HomePilotActuator = self.coordinator.data[self.did]
         await device.async_turn_off()
-        await asyncio.sleep(5)
-        await self.coordinator.async_request_refresh()
+        async with asyncio.timeout(5):
+            await self.coordinator.async_request_refresh()
