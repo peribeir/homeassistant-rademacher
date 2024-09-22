@@ -86,8 +86,8 @@ class HomePilotVentilationPositionEntity(HomePilotEntity, NumberEntity):
         """Turn the entity on."""
         device: HomePilotCover = self.coordinator.data[self.did]
         await device.async_set_ventilation_position(value)
-        await asyncio.sleep(5)
-        await self.coordinator.async_request_refresh()
+        async with asyncio.timeout(5):
+            await self.coordinator.async_request_refresh()
 
 class HomePilotTemperatureThresholdEntity(HomePilotEntity, NumberEntity):
     """This class represents Cover Ventilation Position."""
@@ -120,5 +120,5 @@ class HomePilotTemperatureThresholdEntity(HomePilotEntity, NumberEntity):
         """Turn the entity on."""
         device: HomePilotThermostat = self.coordinator.data[self.did]
         await device.async_set_temperature_thresh_cfg(self._thresh_number, value)
-        await asyncio.sleep(5)
-        await self.coordinator.async_request_refresh()
+        async with asyncio.timeout(5):
+            await self.coordinator.async_request_refresh()
