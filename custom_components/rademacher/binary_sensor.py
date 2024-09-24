@@ -2,6 +2,7 @@
 from datetime import timedelta
 import logging
 
+from homepilot.cover import HomePilotCover
 from homepilot.device import HomePilotDevice
 from homepilot.manager import HomePilotManager
 from homepilot.sensor import HomePilotSensor
@@ -114,6 +115,41 @@ async def async_setup_entry(hass, config_entry: ConfigEntry, async_add_entities)
                             name_suffix="Smoke Detection",
                             value_attr="smoke_detection_value",
                             device_class=BinarySensorDeviceClass.SMOKE,
+                        )
+                    )
+            if isinstance(device, HomePilotCover):
+                if device.has_blocking_detection:
+                    _LOGGER.info(
+                        "Found Blocking Detection Sensor for Device ID: %s", device.did
+                    )
+                    new_entities.append(
+                        HomePilotBinarySensorEntity(
+                            coordinator=coordinator,
+                            device=device,
+                            id_suffix="blocking_detection",
+                            name_suffix="Blocking Detection",
+                            value_attr="blocking_detection_status",
+                            device_class=BinarySensorDeviceClass.PROBLEM,
+                            icon_off="mdi:window-shutter",
+                            icon_on="mdi:window-shutter-alert",
+                            entity_category=EntityCategory.DIAGNOSTIC,
+                        )
+                    )
+                if device.has_obstacle_detection:
+                    _LOGGER.info(
+                        "Found Obstacle Detection Sensor for Device ID: %s", device.did
+                    )
+                    new_entities.append(
+                        HomePilotBinarySensorEntity(
+                            coordinator=coordinator,
+                            device=device,
+                            id_suffix="obstacle_detection",
+                            name_suffix="Obstacle Detection",
+                            value_attr="obstacle_detection_status",
+                            device_class=BinarySensorDeviceClass.PROBLEM,
+                            icon_off="mdi:window-shutter",
+                            icon_on="mdi:window-shutter-alert",
+                            entity_category=EntityCategory.DIAGNOSTIC,
                         )
                     )
             if isinstance(device, HomePilotWallController):
