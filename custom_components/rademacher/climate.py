@@ -7,13 +7,7 @@ from homepilot.manager import HomePilotManager
 from homepilot.thermostat import HomePilotThermostat
 
 from homeassistant.components.climate import ClimateEntity
-from homeassistant.components.climate.const import (
-    PRESET_BOOST,
-    PRESET_ECO,
-    PRESET_NONE,
-    ClimateEntityFeature,
-    HVACMode,
-)
+from homeassistant.components.climate.const import ClimateEntityFeature, HVACMode
 from homeassistant.const import CONF_EXCLUDE, UnitOfTemperature
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
@@ -68,17 +62,15 @@ class HomePilotClimateEntity(HomePilotEntity, ClimateEntity):
         self._attr_min_temp = device.min_target_temperature
         self._attr_target_temperature_step = device.step_target_temperature
         self._attr_hvac_modes = (
-            [HVACMode.HEAT, HVACMode.OFF]
+            [HVACMode.AUTO, HVACMode.HEAT_COOL]
+            if device.has_auto_mode
+            else [HVACMode.HEAT_COOL]
         )
-        self._attr_preset_modes = ([PRESET_ECO, PRESET_BOOST])
 
     async def async_set_hvac_mode(self, hvac_mode: str) -> None:
         device: HomePilotThermostat = self.coordinator.data[self.did]
-
-    async def async_set_preset_mode(self, preset_mode: str) -> None:
-        device: HomePilotThermostat = self.coordinator.data[self.did]
         if device.has_auto_mode:
-            await device.async_set_auto_mode(preset_mode == PRESET_ECO)
+            await device.async_set_auto_mode(hvac_mode == HVACMode.AUTO)
             async with asyncio.timeout(5):
                 await self.coordinator.async_request_refresh()
 
@@ -102,31 +94,19 @@ class HomePilotClimateEntity(HomePilotEntity, ClimateEntity):
         )
 
     @property
-    def preset_mode(self) -> str:
-        device: HomePilotThermostat = self.coordinator.data[self.did]
-        return (
-            PRESET_NONE
-            if not device.has_auto_mode
-            else (PRESET_ECO if device.auto_mode_value else PRESET_BOOST)
-        )
-
-    @property
     def hvac_mode(self) -> str:
         device: HomePilotThermostat = self.coordinator.data[self.did]
         return (
-            HVACMode.HEAT
-            if device.has_relais_status and device.relais_value == 1
-            else HVACMode.OFF
+            HVACMode.AUTO
+            if device.has_auto_mode and device.auto_mode_value
+            else HVACMode.HEAT_COOL
         )
 
     @property
     def supported_features(self) -> int:
         device: HomePilotThermostat = self.coordinator.data[self.did]
         return (
-            (ClimateEntityFeature.TARGET_TEMPERATURE
+            ClimateEntityFeature.TARGET_TEMPERATURE
             if device.can_set_target_temperature
-            else 0) |
-            (ClimateEntityFeature.PRESET_MODE
-            if device.has_auto_mode
-            else 0)
+            else 0
         )
