@@ -8,15 +8,11 @@ A Home Assistant custom Integration for local handling of Devices connected to R
 
 ### ATENTION: If using Home Pilot Gateway Premium, please delete and add Integration after upgrade to version 2.1.0
 
-# Hardware Support (now with BETA support for HP Gateway Premium)
+# Hardware Support (now with support for HP Gateway Premium)
 
 Works exclusively when devices are connected through HomePilot or Start2Smart Bridge.
 
 **Bridges/Gateways from Rademacher are fully supported.**
-
-***Version 2.x added BETA support for the new Homepilot Gateway Premium. Needs further testing.***
-
-***HP Gateway Premium with local password protection not supported yet.***
 
 ### **Supports Covers, Switches, Sensors, Dimmers, Thermostats and Wall Controllers.**
 
@@ -24,7 +20,7 @@ Works exclusively when devices are connected through HomePilot or Start2Smart Br
 
 ### **Scenes are now supported since version 2.1.0** ###
 
-Scenes will be automatically added as Home Assistant Scenes with "Homepilot" prefix. These scenes can be activated as any other Home Assistant Scene but cannot be edited.
+Scenes will be automatically added as Home Assistant Scenes with "Homepilot" prefix. These scenes can be executed as any other Home Assistant Scene but cannot be edited.
 
 # Installation
 
@@ -199,7 +195,10 @@ The integration should work with the following devices (tested devices are marke
 - **DuoFern Room Thermostat (DN:32501812_A)**
   - Tested on DuoFern 9485 wireless radiator thermostat
 
-## Wall Controllers (new)
+## Wall Controllers
   - **DuoFern Multiple Wall Controller BAT (DN:32501974)**
     - Tested on DuoFern multiple wall switch BAT 9494-1
   - DuoFern Wall Controller 1 channel (DN:32501973)
+
+## Lights (new)
+  - **Zigbee LED lights through Zigbee USB-Dongle in Homepilot
