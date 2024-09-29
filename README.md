@@ -201,4 +201,4 @@ The integration should work with the following devices (tested devices are marke
   - DuoFern Wall Controller 1 channel (DN:32501973)
 
 ## Lights (new)
-  - **Zigbee LED lights through Zigbee USB-Dongle in Homepilot
+  - **Zigbee LED lights through Zigbee USB-Dongle in Homepilot**
