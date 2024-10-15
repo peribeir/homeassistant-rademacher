@@ -98,11 +98,13 @@ class HomePilotLightEntity(HomePilotEntity, LightEntity):
             unique_id=light.uid,
             name=light.name,
         )
-        self._attr_supported_color_modes = {ColorMode.BRIGHTNESS}
+        self._attr_supported_color_modes = set()
         if light.has_rgb:
             self._attr_supported_color_modes.add(ColorMode.RGB)
         if light.has_color_temp:
             self._attr_supported_color_modes.add(ColorMode.COLOR_TEMP)
+        if not light.has_rgb and not light.has_color_temp:
+            self._attr_supported_color_modes.add(ColorMode.BRIGHTNESS)
 
     @property
     def color_mode(self):
@@ -110,7 +112,10 @@ class HomePilotLightEntity(HomePilotEntity, LightEntity):
         if device.has_color_mode:
             return ColorMode.COLOR_TEMP if device.color_mode_value == "ct" else ColorMode.RGB
         else:
-            return ColorMode.UNKNOWN
+            if not device.has_rgb and not device.has_color_temp:
+                return ColorMode.BRIGHTNESS
+            else:
+                return ColorMode.UNKNOWN
 
     @property
     def brightness(self):
