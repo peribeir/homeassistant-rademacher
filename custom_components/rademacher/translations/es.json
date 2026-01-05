@@ -1,53 +1,58 @@
 {
-    "title": "Rademacher HomePilot",
-    "options": {
-      "step": {
-        "init": {
-          "title": "Configuración",
-          "description": "",
-          "data": {
-            "exclude": "EXCLUIR dispositivos (marca los dispositivos que NO quieres agregar):",
-            "sensor_type": "Selecciona los sensores de Contacto con posición inclinada:"
-          }
+  "title": "Rademacher HomePilot",
+  "options": {
+    "step": {
+      "init": {
+        "title": "Configuración",
+        "description": "",
+        "data": {
+          "exclude": "EXCLUIR dispositivos (marca los dispositivos que NO quieres agregar):",
+          "sensor_type": "Selecciona los sensores de Contacto con posición inclinada:",
+          "enable_cyclic_scene_polling": "Habilitar sondeo cíclico de escenas",
+          "create_scene_activation_entities": "Crear entidades de activación de escenas",
+          "include_non_executable_scenes": "Incluir escenas no ejecutables"
+        }
+      }
+    }
+  },
+  "config": {
+    "step": {
+      "user": {
+        "title": "Introduce el Hostname/IP del dispositivo Bridge",
+        "description": "Por favor, escribe el Hostname o dirección IP de tu dispositivo Rademacher Bridge (Start2Smart or HomePilot).",
+        "data": {
+          "host": "Hostname/IP"
+        }
+      },
+      "user_password": {
+        "title": "Introducir contraseña",
+        "description": "Por favor, escribe la contraseña de tu Rademacher Bridge (Start2Smart or HomePilot).",
+        "data": {
+          "password": "Contraseña"
+        }
+      },
+      "config": {
+        "title": "Configuración",
+        "description": "",
+        "data": {
+          "exclude": "EXCLUIR dispositivos (marca los dispositivos que NO quieres agregar):",
+          "sensor_type": "Selecciona los sensores de Contacto con posición inclinada:",
+          "include_non_executable_scenes": "Incluir escenas no ejecutables",
+          "enable_cyclic_scene_polling": "Habilitar sondeo cíclico de escenas",
+          "create_scene_activation_entities": "Crear entidades de activación de escenas"
         }
       }
     },
-    "config": {
-      "step": {
-        "user": {
-          "title": "Introduce el Hostname/IP del dispositivo Bridge",
-          "description": "Por favor, escribe el Hostname o dirección IP de tu dispositivo Rademacher Bridge (Start2Smart or HomePilot).",
-          "data": {
-            "host": "Hostname/IP"
-          }
-        },
-        "user_password": {
-          "title": "Introducir contraseña",
-          "description": "Por favor, escribe la contraseña de tu Rademacher Bridge (Start2Smart or HomePilot).",
-          "data": {
-            "password": "Contraseña"
-          }
-        },
-        "config": {
-          "title": "Configuración",
-          "description": "",
-          "data": {
-            "exclude": "EXCLUIR dispositivos (marca los dispositivos que NO quieres agregar):",
-            "sensor_type": "Selecciona los sensores de Contacto con posición inclinada:"
-          }
-        }
-      },
-      "error": {
-        "no_device_selected": "Tienes que seleccionar al menos un dispositivo.",
-        "cannot_connect": "Error al conectarse al bridge. Por favor, comprueba que el bridge está conectado a la red, y que el Hostname/IP son correctos.",
-        "auth_error": "Contraseña inválida. Asegúrate de introducir la contraseña correcta.",
-        "unknown": "Error desconocido."
-      },
-      "abort": {
-        "no_devices_found": "No se han encontrado dispositivos.",
-        "cannot_connect": "Error al conectarse al bridge. Por favor, comprueba que el bridge está conectado a la red, y que el Hostname/IP son correctos.",
-        "reauth_successful": "La reautenticación fue exitosa."
-      }
+    "error": {
+      "no_device_selected": "Tienes que seleccionar al menos un dispositivo.",
+      "cannot_connect": "Error al conectarse al bridge. Por favor, comprueba que el bridge está conectado a la red, y que el Hostname/IP son correctos.",
+      "auth_error": "Contraseña inválida. Asegúrate de introducir la contraseña correcta.",
+      "unknown": "Error desconocido."
+    },
+    "abort": {
+      "no_devices_found": "No se han encontrado dispositivos.",
+      "cannot_connect": "Error al conectarse al bridge. Por favor, comprueba que el bridge está conectado a la red, y que el Hostname/IP son correctos.",
+      "reauth_successful": "La reautenticación fue exitosa."
     }
   }
-  
+}

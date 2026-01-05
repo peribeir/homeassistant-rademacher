@@ -10,7 +10,7 @@ from homepilot.manager import HomePilotManager
 
 from homeassistant.components.light import (
     ATTR_BRIGHTNESS,
-    ATTR_COLOR_TEMP,
+    ATTR_COLOR_TEMP_KELVIN,
     ATTR_RGB_COLOR,
     ColorMode,
     LightEntity,
@@ -72,7 +72,7 @@ class HomePilotActuatorLightEntity(HomePilotEntity, LightEntity):
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         device: HomePilotActuator = self.coordinator.data[self.did]
-        if ATTR_BRIGHTNESS in kwargs: 
+        if ATTR_BRIGHTNESS in kwargs:
             await device.async_set_brightness(round(kwargs[ATTR_BRIGHTNESS]*100/255))
         else:
             await device.async_turn_on()
@@ -145,8 +145,8 @@ class HomePilotLightEntity(HomePilotEntity, LightEntity):
             await device.async_set_brightness(round(kwargs[ATTR_BRIGHTNESS]*100/255))
         if ATTR_RGB_COLOR in kwargs:
             await device.async_set_rgb(*kwargs[ATTR_RGB_COLOR])
-        if ATTR_COLOR_TEMP in kwargs:
-            await device.async_set_color_temp(kwargs[ATTR_COLOR_TEMP])
+        if ATTR_COLOR_TEMP_KELVIN in kwargs:
+            await device.async_set_color_temp(kwargs[ATTR_COLOR_TEMP_KELVIN])
         async with asyncio.timeout(5):
             await self.coordinator.async_request_refresh()
 

@@ -7,7 +7,7 @@ from homepilot.manager import HomePilotManager
 from homepilot.thermostat import HomePilotThermostat
 
 from homeassistant.components.climate import ClimateEntity
-from homeassistant.components.climate.const import ClimateEntityFeature, HVACMode
+from homeassistant.components.climate.const import ClimateEntityFeature, HVACMode, HVACAction, PRESET_NONE, PRESET_BOOST
 from homeassistant.const import CONF_EXCLUDE, UnitOfTemperature
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
@@ -66,6 +66,8 @@ class HomePilotClimateEntity(HomePilotEntity, ClimateEntity):
             if device.has_auto_mode
             else [HVACMode.HEAT_COOL]
         )
+        self._attr_hvac_action = HVACAction.IDLE if device.has_relais_status else None
+        self._attr_preset_modes = [PRESET_NONE, PRESET_BOOST] if device.has_boost_active else None
 
     async def async_set_hvac_mode(self, hvac_mode: str) -> None:
         device: HomePilotThermostat = self.coordinator.data[self.did]
@@ -103,10 +105,39 @@ class HomePilotClimateEntity(HomePilotEntity, ClimateEntity):
         )
 
     @property
+    def hvac_action(self) -> str:
+        device: HomePilotThermostat = self.coordinator.data[self.did]
+        if not device.has_relais_status:
+            return None
+        if device.relais_status:
+            if self.current_temperature < self.target_temperature:
+                return HVACAction.HEATING
+            else:
+                return HVACAction.COOLING
+        else:
+            return HVACAction.IDLE
+
+    @property
+    def preset_mode(self) -> str | None:
+        device: HomePilotThermostat = self.coordinator.data[self.did]
+        if not device.has_boost_active:
+            return None
+        return PRESET_BOOST if device.boost_active_value else PRESET_NONE
+
+    async def async_set_preset_mode(self, preset_mode: str) -> None:
+        device: HomePilotThermostat = self.coordinator.data[self.did]
+        if not device.has_boost_active:
+            return
+        if preset_mode == PRESET_BOOST:
+            await device.async_set_boost_active_cfg(True)
+        else:
+            await device.async_set_boost_active_cfg(False)
+        async with asyncio.timeout(5):
+            await self.coordinator.async_request_refresh()
+
+    @property
     def supported_features(self) -> int:
         device: HomePilotThermostat = self.coordinator.data[self.did]
-        return (
-            ClimateEntityFeature.TARGET_TEMPERATURE
-            if device.can_set_target_temperature
-            else 0
-        )
+        feature = ClimateEntityFeature.TARGET_TEMPERATURE if device.can_set_target_temperature else 0
+        feature |= ClimateEntityFeature.PRESET_MODE if device.has_boost_active else 0
+        return feature

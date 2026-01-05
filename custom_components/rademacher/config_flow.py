@@ -22,7 +22,12 @@ from homeassistant.core import callback
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.device_registry import format_mac
 
-from .const import DOMAIN
+from .const import (
+    DOMAIN,
+    CONF_ENABLE_CYCLIC_SCENE_POLLING,
+    CONF_CREATE_SCENE_ACTIVATION_ENTITIES,
+    CONF_INCLUDE_NON_EXECUTABLE_SCENES,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -32,8 +37,7 @@ DATA_SCHEMA_PASSWORD = vol.Schema({vol.Required(CONF_PASSWORD): str})
 
 class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
-    VERSION = 2
-    CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_POLL
+    VERSION = 3
     host: str = ""
     password: str = ""
     api_version: int = 1
@@ -59,6 +63,9 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 options = {
                     CONF_EXCLUDE: self.exclude_devices,
                     CONF_SENSOR_TYPE: self.ternary_contact_sensors,
+                    CONF_ENABLE_CYCLIC_SCENE_POLLING: user_input.get(CONF_ENABLE_CYCLIC_SCENE_POLLING, False),
+                    CONF_CREATE_SCENE_ACTIVATION_ENTITIES: user_input.get(CONF_CREATE_SCENE_ACTIVATION_ENTITIES, False),
+                    CONF_INCLUDE_NON_EXECUTABLE_SCENES: user_input.get(CONF_INCLUDE_NON_EXECUTABLE_SCENES, False),
                 }
                 return self.async_create_entry(
                     title=f"{self.hostname} ({self.mac_address})", data=data, options=options
@@ -69,23 +76,26 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         api = HomePilotApi(
             self.host, self.password, self.api_version
         )  # password can be empty if not defined ("")
-        manager = await HomePilotManager.async_build_manager(api)
-        self.hostname = await manager.get_nodename()
-        if not self.mac_address:
-            self.mac_address = format_mac(await manager.get_hub_macaddress())
-            await self.async_set_unique_id(self.mac_address)
-            self._abort_if_unique_id_configured(updates={CONF_HOST: self.host})
+        try:
+            manager = await HomePilotManager.async_build_manager(api)
+            self.hostname = await manager.get_nodename()
+            if not self.mac_address:
+                self.mac_address = format_mac(await manager.get_hub_macaddress())
+                await self.async_set_unique_id(self.mac_address)
+                self._abort_if_unique_id_configured(updates={CONF_HOST: self.host})
 
-        if not manager.devices:
-            return self.async_abort(reason="no_devices_found")
-        data_schema_config = self.build_data_schema(manager.devices)
-        # If there is no user input or there were errors, show the form again, including any errors that were found
-        # with the input.
-        return self.async_show_form(
-            step_id="config",
-            data_schema=data_schema_config,
-            errors=errors,
-        )
+            if not manager.devices:
+                return self.async_abort(reason="no_devices_found")
+            data_schema_config = self.build_data_schema(manager.devices)
+            # If there is no user input or there were errors, show the form again, including any errors that were found
+            # with the input.
+            return self.async_show_form(
+                step_id="config",
+                data_schema=data_schema_config,
+                errors=errors,
+            )
+        finally:
+            await api.async_close()
 
     async def async_step_reauth(self, user_input=None):
         self.reauth_entry = self.hass.config_entries.async_get_entry(
@@ -301,9 +311,9 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     @staticmethod
     @callback
     def async_get_options_flow(config_entry):
-        return OptionsFlowHandler(config_entry)
+        return OptionsFlowHandler()
 
-    def build_data_schema(self, devices):
+    def build_data_schema(self, devices, user_input=None):
         devices_to_exclude = {
             did: f"{devices[did].name} (id: {devices[did].did})" for did in devices
         }
@@ -329,6 +339,19 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     )
                 }
             )
+        # Add scene configuration options
+        schema = schema.extend(
+            {
+                vol.Optional(CONF_ENABLE_CYCLIC_SCENE_POLLING, default=False): bool,
+                vol.Optional(CONF_CREATE_SCENE_ACTIVATION_ENTITIES, default=False): bool,
+            }
+        )
+
+        schema = schema.extend(
+            {
+                vol.Optional(CONF_INCLUDE_NON_EXECUTABLE_SCENES, default=False): bool,
+            }
+        )
         return schema
 
 
@@ -336,16 +359,15 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
     host: str
     password: str
 
-    def __init__(self, config_entry):
-        """Initialize options flow."""
-        self.config_entry = config_entry
-
     async def async_step_init(self, user_input=None):
         """Manage the options."""
         if user_input is not None:
             data = {
                 CONF_EXCLUDE: user_input[CONF_EXCLUDE],
                 CONF_SENSOR_TYPE: user_input.get(CONF_SENSOR_TYPE, []),
+                CONF_ENABLE_CYCLIC_SCENE_POLLING: user_input.get(CONF_ENABLE_CYCLIC_SCENE_POLLING, False),
+                CONF_CREATE_SCENE_ACTIVATION_ENTITIES: user_input.get(CONF_CREATE_SCENE_ACTIVATION_ENTITIES, False),
+                CONF_INCLUDE_NON_EXECUTABLE_SCENES: user_input.get(CONF_INCLUDE_NON_EXECUTABLE_SCENES, False),
             }
             return self.async_create_entry(title=f"{self.hostname} ({self.mac_address})", data=data)
         self.host = self.config_entry.data[CONF_HOST]
@@ -354,37 +376,54 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
         api = HomePilotApi(
             self.host, self.password, self.api_version
         )  # password can be empty if not defined ("")
-        manager = await HomePilotManager.async_build_manager(api)
-        self.mac_address = format_mac(await manager.get_hub_macaddress())
-        self.hostname = await manager.get_nodename()
-        if not manager.devices:
-            return self.async_abort(reason="no_devices_found")
+        try:
+            # Check if include non executable scenes is enabled
+            include_non_manual = self.config_entry.options.get(CONF_INCLUDE_NON_EXECUTABLE_SCENES, False)
+            manager = await HomePilotManager.async_build_manager(api, include_non_manual_executable=include_non_manual)
+            self.mac_address = format_mac(await manager.get_hub_macaddress())
+            self.hostname = await manager.get_nodename()
+            if not manager.devices:
+                return self.async_abort(reason="no_devices_found")
 
-        if CONF_EXCLUDE in self.config_entry.options:
-            previous_excluded_devices = self.config_entry.options[CONF_EXCLUDE]
-        elif CONF_DEVICES in self.config_entry.options:
-            previous_excluded_devices = [
-                did
-                for did in manager.devices
-                if did not in self.config_entry.options[CONF_DEVICES]
-            ]
-        else:
-            previous_excluded_devices = []
-        if CONF_SENSOR_TYPE in self.config_entry.options:
-            previous_ternary_contact_sensors = self.config_entry.options[
-                CONF_SENSOR_TYPE
-            ]
-        else:
-            previous_ternary_contact_sensors = []
+            if CONF_EXCLUDE in self.config_entry.options:
+                previous_excluded_devices = self.config_entry.options[CONF_EXCLUDE]
+            elif CONF_DEVICES in self.config_entry.options:
+                previous_excluded_devices = [
+                    did
+                    for did in manager.devices
+                    if did not in self.config_entry.options[CONF_DEVICES]
+                ]
+            else:
+                previous_excluded_devices = []
+            if CONF_SENSOR_TYPE in self.config_entry.options:
+                previous_ternary_contact_sensors = self.config_entry.options[
+                    CONF_SENSOR_TYPE
+                ]
+            else:
+                previous_ternary_contact_sensors = []
 
-        data_schema_config = self.build_data_schema(
-            manager.devices, previous_excluded_devices, previous_ternary_contact_sensors
-        )
+            previous_include_non_executable_scenes = self.config_entry.options.get(
+                CONF_INCLUDE_NON_EXECUTABLE_SCENES, False
+            )
+            previous_enable_scene_polling = self.config_entry.options.get(
+                CONF_ENABLE_CYCLIC_SCENE_POLLING, False
+            )
+            previous_create_scene_activation_entities = self.config_entry.options.get(
+                CONF_CREATE_SCENE_ACTIVATION_ENTITIES, False
+            )
 
-        return self.async_show_form(step_id="init", data_schema=data_schema_config)
+            data_schema_config = self.build_data_schema(
+                manager.devices, previous_excluded_devices, previous_ternary_contact_sensors,
+                previous_enable_scene_polling, previous_create_scene_activation_entities, previous_include_non_executable_scenes
+            )
+
+            return self.async_show_form(step_id="init", data_schema=data_schema_config)
+        finally:
+            await api.async_close()
 
     def build_data_schema(
-        self, devices, previous_excluded_devices, previous_ternary_contact_sensors
+        self, devices, previous_excluded_devices, previous_ternary_contact_sensors,
+        previous_enable_scene_polling, previous_create_scene_activation_entities, previous_include_non_executable_scenes
     ):
         devices_to_exclude = {
             did: f"{devices[did].name} (id: {devices[did].did})" for did in devices
@@ -411,6 +450,24 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                     ): cv.multi_select(contact_sensors)
                 }
             )
+        schema = schema.extend(
+            {
+                vol.Optional(
+                    CONF_ENABLE_CYCLIC_SCENE_POLLING, default=previous_enable_scene_polling
+                ): bool,
+                vol.Optional(
+                    CONF_CREATE_SCENE_ACTIVATION_ENTITIES, default=previous_create_scene_activation_entities
+                ): bool,
+            }
+        )
+
+        schema = schema.extend(
+            {
+                vol.Optional(
+                    CONF_INCLUDE_NON_EXECUTABLE_SCENES, default=previous_include_non_executable_scenes
+                ): bool,
+            }
+        )
         return schema
 
 

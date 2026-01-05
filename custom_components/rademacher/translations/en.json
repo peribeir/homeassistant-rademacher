@@ -7,7 +7,10 @@
         "description": "",
         "data": {
           "exclude": "EXCLUDE Devices (select devices that you DON'T want to add):",
-          "sensor_type": "Select Contact Sensors with Tilted Position:"
+          "sensor_type": "Select Contact Sensors with Tilted Position:",
+          "enable_cyclic_scene_polling": "Enable Cyclic Scene Polling",
+          "create_scene_activation_entities": "Create Scene Activation Entities",
+          "include_non_executable_scenes": "Include Non Executable Scenes"
         }
       }
     }
@@ -33,7 +36,10 @@
         "description": "",
         "data": {
           "exclude": "EXCLUDE Devices (select devices that you DON'T want to add):",
-          "sensor_type": "Select Contact Sensors with Tilted Position:"
+          "sensor_type": "Select Contact Sensors with Tilted Position:",
+          "enable_cyclic_scene_polling": "Enable Cyclic Scene Polling",
+          "create_scene_activation_entities": "Create Scene Activation Entities",
+          "include_non_executable_scenes": "Include Non Executable Scenes"
         }
       }
     },

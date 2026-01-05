@@ -7,13 +7,14 @@ from homepilot.device import HomePilotDevice
 from homepilot.manager import HomePilotManager
 from homepilot.sensor import HomePilotSensor
 from homepilot.wallcontroller import HomePilotWallController
+from homepilot.thermostat import HomePilotThermostat
 
 from homeassistant.components.binary_sensor import (
     BinarySensorDeviceClass,
     BinarySensorEntity,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_EXCLUDE, CONF_SENSOR_TYPE, STATE_OFF, STATE_ON
+from homeassistant.const import CONF_EXCLUDE, CONF_SENSOR_TYPE
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
@@ -152,6 +153,77 @@ async def async_setup_entry(hass, config_entry: ConfigEntry, async_add_entities)
                             entity_category=EntityCategory.DIAGNOSTIC,
                         )
                     )
+                if device.has_rain_prog_active:
+                    _LOGGER.info(
+                        "Found Rain Program Active Sensor for Device ID: %s", device.did
+                    )
+                    new_entities.append(
+                        HomePilotBinarySensorEntity(
+                            coordinator=coordinator,
+                            device=device,
+                            id_suffix="rain_program_active",
+                            name_suffix="Rain Program Active",
+                            value_attr="_rain_prog_active_value",
+                            device_class=BinarySensorDeviceClass.RUNNING,
+                            icon_off="mdi:weather-cloudy",
+                            icon_on="mdi:weather-pouring",
+                            entity_category=EntityCategory.DIAGNOSTIC,
+                        )
+                    )
+                if device.has_wind_prog_active:
+                    _LOGGER.info(
+                        "Found Wind Program Active Sensor for Device ID: %s", device.did
+                    )
+                    new_entities.append(
+                        HomePilotBinarySensorEntity(
+                            coordinator=coordinator,
+                            device=device,
+                            id_suffix="wind_program_active",
+                            name_suffix="Wind Program Active",
+                            value_attr="_wind_prog_active_value",
+                            device_class=BinarySensorDeviceClass.RUNNING,
+                            icon_off="mdi:fan-off",
+                            icon_on="mdi:weather-windy",
+                            entity_category=EntityCategory.DIAGNOSTIC,
+                        )
+                    )
+                if device.has_sun_prog_active:
+                    _LOGGER.info(
+                        "Found Sun Program Active Sensor for Device ID: %s", device.did
+                    )
+                    new_entities.append(
+                        HomePilotBinarySensorEntity(
+                            coordinator=coordinator,
+                            device=device,
+                            id_suffix="sun_program_active",
+                            name_suffix="Sun Program Active",
+                            value_attr="_sun_prog_active_value",
+                            device_class=BinarySensorDeviceClass.RUNNING,
+                            icon_on="mdi:weather-sunny",
+                            icon_off="mdi:weather-sunny-off",
+                            entity_category=EntityCategory.DIAGNOSTIC,
+                        )
+                    )
+            if isinstance(device, HomePilotThermostat):
+                if device.has_ext_open_window_detect or device.has_int_open_window_detect:
+                    _LOGGER.info(
+                        "Found Internal / External Open Window Detection Sensor for Device ID: %s", device.did
+                    )
+                    new_entities.append(
+                        HomePilotBinaryInternalExternalSensorEntity(
+                            coordinator=coordinator,
+                            device=device,
+                            id_suffix="open_window_detect",
+                            name_suffix="Open Window Detection",
+                            value_attr="open_window_detect_value",
+                            device_class=BinarySensorDeviceClass.WINDOW,
+                            icon_off="mdi:window-closed",
+                            icon_on="mdi:window-open",
+                            entity_category=EntityCategory.DIAGNOSTIC,
+                            entity_registry_enabled_default=False
+                        )
+                    )
+
             if isinstance(device, HomePilotWallController):
                 channels = device.channels
                 if channels is not None:
@@ -208,6 +280,7 @@ class HomePilotBinarySensorEntity(HomePilotEntity, BinarySensorEntity):
         icon_off=None,
         has_channels=False,
         should_poll=True,
+        entity_registry_enabled_default=True,
     ):
         super().__init__(
             coordinator,
@@ -216,6 +289,7 @@ class HomePilotBinarySensorEntity(HomePilotEntity, BinarySensorEntity):
             name=f"{device.name} {name_suffix}",
             device_class=device_class,
             entity_category=entity_category,
+            entity_registry_enabled_default=entity_registry_enabled_default,
         )
         self._value_attr = value_attr
         self._icon_on = icon_on
@@ -259,6 +333,57 @@ class HomePilotBinarySensorEntity(HomePilotEntity, BinarySensorEntity):
     def is_on(self):
         value = getattr(self.coordinator.data[self.did], self.value_attr)
         return value if isinstance(value, bool) else value.value
+
+    @property
+    def icon(self):
+        return self._icon_on if self.is_on else self._icon_off
+
+
+class HomePilotBinaryInternalExternalSensorEntity(HomePilotEntity, BinarySensorEntity):
+    """This class represents all Binary Sensors supported."""
+
+    def __init__(
+        self,
+        coordinator,
+        device: HomePilotSensor,
+        id_suffix,
+        name_suffix,
+        value_attr,
+        device_class,
+        entity_category=None,
+        icon_on=None,
+        icon_off=None,
+        entity_registry_enabled_default=True,
+    ):
+        super().__init__(
+            coordinator,
+            device,
+            unique_id=f"{device.uid}_f{id_suffix}",
+            name=f"{device.name} {name_suffix}",
+            device_class=device_class,
+            entity_category=entity_category,
+            entity_registry_enabled_default=entity_registry_enabled_default,
+        )
+        self._value_attr_int = f"int_{value_attr}"
+        self._value_attr_ext = f"ext_{value_attr}"
+        self._icon_on = icon_on
+        self._icon_off = icon_off
+
+    @property
+    def value_attr_int(self):
+        return self._value_attr_int
+
+    @property
+    def value_attr_ext(self):
+        return self._value_attr_ext
+
+    @property
+    def is_on(self):
+        value_int = getattr(self.coordinator.data[self.did], self.value_attr_int)
+        value_ext = getattr(self.coordinator.data[self.did], self.value_attr_ext)
+        if not isinstance(value_int, bool) or not isinstance(value_ext, bool):
+            return value_int + value_ext
+        return value_int or value_ext
 
     @property
     def icon(self):

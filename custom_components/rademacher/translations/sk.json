@@ -7,7 +7,10 @@
         "description": "",
         "data": {
           "exclude": "VYLÚČIŤ zariadenia (vyberte zariadenia, ktoré NECHCETE pridať):",
-          "sensor_type": "Vyberte kontaktné senzory s naklonenou polohou:"
+          "sensor_type": "Vyberte kontaktné senzory s naklonenou polohou:",
+          "enable_cyclic_scene_polling": "Povoliť cyklické dotazovanie scén",
+          "create_scene_activation_entities": "Vytvoriť entity aktivácie scén",
+          "include_non_executable_scenes": "Zahrnúť nevykonateľné scény"
         }
       }
     }
@@ -25,7 +28,7 @@
         "title": "Zadajte heslo Bridge",
         "description": "Zadajte heslo svojho Rademacher Bridge (Start2Smart alebo Homepilot).",
         "data": {
-         "password": "Heslo"
+          "password": "Heslo"
         }
       },
       "config": {
@@ -33,7 +36,10 @@
         "description": "",
         "data": {
           "exclude": "VYLÚČIŤ zariadenia (vyberte zariadenia, ktoré NECHCETE pridať):",
-          "sensor_type": "Vyberte kontaktné senzory s naklonenou polohou:"
+          "sensor_type": "Vyberte kontaktné senzory s naklonenou polohou:",
+          "include_non_executable_scenes": "Zahrnúť nevykonateľné scény",
+          "enable_cyclic_scene_polling": "Povoliť cyklické dotazovanie scén",
+          "create_scene_activation_entities": "Vytvoriť entity aktivácie scén"
         }
       }
     },

@@ -7,7 +7,10 @@
         "description": "",
         "data": {
           "exclude": "Ger\u00e4te l\u00f6schen (W\u00e4hle Ger\u00e4te, die du NICHT hinzuf\u00fcgen m\u00f6chtest):",
-          "sensor_type": "Kontaktsensoren mit Schr\u00e4glage ausw\u00e4hlen:"
+          "sensor_type": "Kontaktsensoren mit Schr\u00e4glage ausw\u00e4hlen:",
+          "enable_cyclic_scene_polling": "Aktiviere zyklisches Szenenpolling",
+          "create_scene_activation_entities": "Erzeuge Szenenaktivierungsentit\u00e4ten",
+          "include_non_executable_scenes": "Nicht ausf\u00fchrbare Szenen einschlie\u00dfen"
         }
       }
     }
@@ -33,7 +36,10 @@
         "description": "",
         "data": {
           "exclude": "Ger\u00e4te l\u00f6schen (W\u00e4hle Ger\u00e4te, die du NICHT hinzuf\u00fcgen m\u00f6chtest):",
-          "sensor_type": "Kontaktsensoren mit Schr\u00e4glage ausw\u00e4hlen:"
+          "sensor_type": "Kontaktsensoren mit Schr\u00e4glage ausw\u00e4hlen:",
+          "enable_cyclic_scene_polling": "Zyklische Szenen-Abfrage aktivieren",
+          "create_scene_activation_entities": "Szenen-Aktivierungsentitäten erstellen",
+          "include_non_executable_scenes": "Nicht ausf\u00fchrbare Szenen einschlie\u00dfen"
         }
       }
     },
