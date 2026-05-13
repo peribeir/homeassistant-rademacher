@@ -193,7 +193,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     )
 
     if enable_cyclic_scene_polling:
-        _LOGGER.info("%s - Cyclic scene polling enabled with 15-second interval", entry.title)
+        _LOGGER.info("%s - Cyclic scene polling enabled with %s-second interval", entry.title, scene_update_interval)
     else:
         _LOGGER.info("%s - Cyclic scene polling disabled, scenes will be static", entry.title)
 
