@@ -125,6 +125,7 @@ class HomePilotLightEntity(HomePilotEntity, LightEntity):
     @property
     def color_temp_kelvin(self):
         device: HomePilotLight = self.coordinator.data[self.did]
+        # Convert mireds to Kelvin for HA 2026.3 compatibility
         return round(1000000 / device.color_temp_value) if device.has_color_temp else None
 
     @property
@@ -145,8 +146,13 @@ class HomePilotLightEntity(HomePilotEntity, LightEntity):
             await device.async_set_brightness(round(kwargs[ATTR_BRIGHTNESS]*100/255))
         if ATTR_RGB_COLOR in kwargs:
             await device.async_set_rgb(*kwargs[ATTR_RGB_COLOR])
+        
+        # New logic for Kelvin-based color temperature
         if ATTR_COLOR_TEMP_KELVIN in kwargs:
-            await device.async_set_color_temp(kwargs[ATTR_COLOR_TEMP_KELVIN])
+            # Convert Kelvin back to Mireds for the internal library
+            mireds = round(1000000 / kwargs[ATTR_COLOR_TEMP_KELVIN])
+            await device.async_set_color_temp(mireds)
+            
         async with asyncio.timeout(5):
             await self.coordinator.async_request_refresh()
 
