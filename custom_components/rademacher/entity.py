@@ -1,4 +1,6 @@
-from collections.abc import Mapping
+import asyncio
+import logging
+from collections.abc import Awaitable, Callable, Mapping
 from typing import Any
 
 from homepilot.device import HomePilotDevice
@@ -6,6 +8,8 @@ from homepilot.device import HomePilotDevice
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DOMAIN
+
+_LOGGER = logging.getLogger(__name__)
 
 
 class HomePilotEntity(CoordinatorEntity):
@@ -107,3 +111,27 @@ class HomePilotEntity(CoordinatorEntity):
     @property
     def entity_registry_enabled_default(self):
         return self._entity_registry_enabled_default
+
+    async def async_execute_and_poll(self, command_fn: Callable[[HomePilotDevice], Awaitable[None]], check_fn: Callable[[], bool], pre_poll_delay: float = 0) -> None:
+        device = self.coordinator.data[self.did]
+        try:
+            async with asyncio.timeout(5):
+                await command_fn(device)
+        except TimeoutError:
+            _LOGGER.warning("Timeout sending command to device %s(%s)", self.name, device.did)
+            return
+        if pre_poll_delay > 0:
+            await asyncio.sleep(pre_poll_delay)
+        try:
+            async with asyncio.timeout(10):
+                for _ in range(12):
+                    state = await device.api.async_get_device_state(device.did)
+                    await device.update_state(state, device.api)
+                    if check_fn():
+                        break
+                    await asyncio.sleep(0.75)
+            if not check_fn():
+                _LOGGER.warning("Device %s(%s) not yet updated.", self.name, device.did)
+            self.coordinator.async_set_updated_data(self.coordinator.data)
+        except TimeoutError:
+            _LOGGER.warning("Timeout refreshing state for device %s(%s)", self.name, device.did)
