@@ -10,7 +10,8 @@
           "sensor_type": "Selecciona los sensores de Contacto con posición inclinada:",
           "enable_cyclic_scene_polling": "Habilitar sondeo cíclico de escenas",
           "create_scene_activation_entities": "Crear entidades de activación de escenas",
-          "include_non_executable_scenes": "Incluir escenas no ejecutables"
+          "include_non_executable_scenes": "Incluir escenas no ejecutables",
+          "invert_cover_position": "Invertir la posición de la persiana"
         }
       }
     }
@@ -39,7 +40,8 @@
           "sensor_type": "Selecciona los sensores de Contacto con posición inclinada:",
           "include_non_executable_scenes": "Incluir escenas no ejecutables",
           "enable_cyclic_scene_polling": "Habilitar sondeo cíclico de escenas",
-          "create_scene_activation_entities": "Crear entidades de activación de escenas"
+          "create_scene_activation_entities": "Crear entidades de activación de escenas",
+          "invert_cover_position": "Invertir la posición de la persiana"
         }
       }
     },

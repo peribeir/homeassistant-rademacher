@@ -31,6 +31,7 @@ from .const import (
     DOMAIN,
     CONF_ENABLE_CYCLIC_SCENE_POLLING,
     CONF_INCLUDE_NON_EXECUTABLE_SCENES,
+    CONF_INVERT_COVER_POSITION,
 )
 
 # List of platforms to support. There should be a matching .py file for each,
@@ -202,6 +203,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             entry_options[CONF_EXCLUDE] = []
     if CONF_SENSOR_TYPE not in entry.options:
         entry_options[CONF_SENSOR_TYPE] = []
+    if CONF_INVERT_COVER_POSITION not in entry.options:
+        entry_options[CONF_INVERT_COVER_POSITION] = False
 
     hass.data[DOMAIN][entry.entry_id] = (
         manager,

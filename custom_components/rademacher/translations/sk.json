@@ -10,7 +10,8 @@
           "sensor_type": "Vyberte kontaktné senzory s naklonenou polohou:",
           "enable_cyclic_scene_polling": "Povoliť cyklické dotazovanie scén",
           "create_scene_activation_entities": "Vytvoriť entity aktivácie scén",
-          "include_non_executable_scenes": "Zahrnúť nevykonateľné scény"
+          "include_non_executable_scenes": "Zahrnúť nevykonateľné scény",
+          "invert_cover_position": "Invertovať polohu krytu"
         }
       }
     }
@@ -39,7 +40,8 @@
           "sensor_type": "Vyberte kontaktné senzory s naklonenou polohou:",
           "include_non_executable_scenes": "Zahrnúť nevykonateľné scény",
           "enable_cyclic_scene_polling": "Povoliť cyklické dotazovanie scén",
-          "create_scene_activation_entities": "Vytvoriť entity aktivácie scén"
+          "create_scene_activation_entities": "Vytvoriť entity aktivácie scén",
+          "invert_cover_position": "Invertovať polohu krytu"
         }
       }
     },

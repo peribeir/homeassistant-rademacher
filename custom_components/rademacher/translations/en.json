@@ -10,7 +10,8 @@
           "sensor_type": "Select Contact Sensors with Tilted Position:",
           "enable_cyclic_scene_polling": "Enable Cyclic Scene Polling",
           "create_scene_activation_entities": "Create Scene Activation Entities",
-          "include_non_executable_scenes": "Include Non Executable Scenes"
+          "include_non_executable_scenes": "Include Non Executable Scenes",
+          "invert_cover_position": "Invert cover position"
         }
       }
     }
@@ -39,7 +40,8 @@
           "sensor_type": "Select Contact Sensors with Tilted Position:",
           "enable_cyclic_scene_polling": "Enable Cyclic Scene Polling",
           "create_scene_activation_entities": "Create Scene Activation Entities",
-          "include_non_executable_scenes": "Include Non Executable Scenes"
+          "include_non_executable_scenes": "Include Non Executable Scenes",
+          "invert_cover_position": "Invert cover position"
         }
       }
     },

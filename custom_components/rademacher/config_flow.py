@@ -27,6 +27,7 @@ from .const import (
     CONF_ENABLE_CYCLIC_SCENE_POLLING,
     CONF_CREATE_SCENE_ACTIVATION_ENTITIES,
     CONF_INCLUDE_NON_EXECUTABLE_SCENES,
+    CONF_INVERT_COVER_POSITION,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -66,6 +67,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     CONF_ENABLE_CYCLIC_SCENE_POLLING: user_input.get(CONF_ENABLE_CYCLIC_SCENE_POLLING, False),
                     CONF_CREATE_SCENE_ACTIVATION_ENTITIES: user_input.get(CONF_CREATE_SCENE_ACTIVATION_ENTITIES, False),
                     CONF_INCLUDE_NON_EXECUTABLE_SCENES: user_input.get(CONF_INCLUDE_NON_EXECUTABLE_SCENES, False),
+                    CONF_INVERT_COVER_POSITION: user_input.get(CONF_INVERT_COVER_POSITION, False),
                 }
                 return self.async_create_entry(
                     title=f"{self.hostname} ({self.mac_address})", data=data, options=options
@@ -352,6 +354,11 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 vol.Optional(CONF_INCLUDE_NON_EXECUTABLE_SCENES, default=False): bool,
             }
         )
+        schema = schema.extend(
+            {
+                vol.Optional(CONF_INVERT_COVER_POSITION, default=False): bool,
+            }
+        )
         return schema
 
 
@@ -368,6 +375,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                 CONF_ENABLE_CYCLIC_SCENE_POLLING: user_input.get(CONF_ENABLE_CYCLIC_SCENE_POLLING, False),
                 CONF_CREATE_SCENE_ACTIVATION_ENTITIES: user_input.get(CONF_CREATE_SCENE_ACTIVATION_ENTITIES, False),
                 CONF_INCLUDE_NON_EXECUTABLE_SCENES: user_input.get(CONF_INCLUDE_NON_EXECUTABLE_SCENES, False),
+                CONF_INVERT_COVER_POSITION: user_input.get(CONF_INVERT_COVER_POSITION, False),
             }
             return self.async_create_entry(title=f"{self.hostname} ({self.mac_address})", data=data)
         self.host = self.config_entry.data[CONF_HOST]
@@ -411,10 +419,14 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
             previous_create_scene_activation_entities = self.config_entry.options.get(
                 CONF_CREATE_SCENE_ACTIVATION_ENTITIES, False
             )
+            previous_invert_cover_position = self.config_entry.options.get(
+                CONF_INVERT_COVER_POSITION, False
+            )
 
             data_schema_config = self.build_data_schema(
                 manager.devices, previous_excluded_devices, previous_ternary_contact_sensors,
-                previous_enable_scene_polling, previous_create_scene_activation_entities, previous_include_non_executable_scenes
+                previous_enable_scene_polling, previous_create_scene_activation_entities, previous_include_non_executable_scenes,
+                previous_invert_cover_position
             )
 
             return self.async_show_form(step_id="init", data_schema=data_schema_config)
@@ -423,7 +435,8 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
 
     def build_data_schema(
         self, devices, previous_excluded_devices, previous_ternary_contact_sensors,
-        previous_enable_scene_polling, previous_create_scene_activation_entities, previous_include_non_executable_scenes
+        previous_enable_scene_polling, previous_create_scene_activation_entities, previous_include_non_executable_scenes,
+        previous_invert_cover_position
     ):
         devices_to_exclude = {
             did: f"{devices[did].name} (id: {devices[did].did})" for did in devices
@@ -465,6 +478,13 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
             {
                 vol.Optional(
                     CONF_INCLUDE_NON_EXECUTABLE_SCENES, default=previous_include_non_executable_scenes
+                ): bool,
+            }
+        )
+        schema = schema.extend(
+            {
+                vol.Optional(
+                    CONF_INVERT_COVER_POSITION, default=previous_invert_cover_position
                 ): bool,
             }
         )
