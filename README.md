@@ -14,7 +14,7 @@ Works exclusively when devices are connected through HomePilot or Start2Smart Br
 
 **Bridges/Gateways from Rademacher are fully supported.**
 
-### **Supports Covers, Switches, Sensors, Dimmers, Thermostats and Wall Controllers.**
+### **Supports Covers, Switches, Sensors, Dimmers, Thermostats, Lights and Wall Controllers.**
 
 *See full device list support at the end.*
 
@@ -154,9 +154,16 @@ When configuring the Rademacher Bridge integration, either during the initial se
             <br />
             <sub><b>Mrweidenmr</b></sub>
         </a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/MrTomRocker">
+            <img src="https://avatars.githubusercontent.com/u/90800063?v=4" width="100;" alt="MrTomRocker"/>
+            <br />
+            <sub><b>MrTomRocker</b></sub>
+        </a>
     </td></tr>
 </table>
-<!-- readme: contributors,thmnxo4,MrWeidenMr -end -->
+<!-- readme: contributors,thmnxo4,MrWeidenMr,MrTomRocker -end -->
 
 # Supported Devices
 

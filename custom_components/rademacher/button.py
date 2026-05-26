@@ -1,5 +1,4 @@
 """Platform for Rademacher Bridge."""
-import asyncio
 import logging
 
 from homepilot.device import HomePilotDevice
@@ -172,6 +171,8 @@ class HomePilotButtonEntity(HomePilotEntity, ButtonEntity):
         return True
 
     async def async_press(self) -> None:
-        await self._device_command_method()
-        async with asyncio.timeout(5):
-            await self.coordinator.async_request_refresh()
+        await self.async_execute_and_poll(
+            lambda _: self._device_command_method(),
+            lambda: True,
+            pre_poll_delay=3.0,
+        )

@@ -97,18 +97,10 @@ class HomePilotSwitchEntity(HomePilotEntity, SwitchEntity):
         return self.coordinator.data[self.did].is_on
 
     async def async_turn_on(self, **kwargs):
-        """Turn the entity on."""
-        device: HomePilotSwitch = self.coordinator.data[self.did]
-        await device.async_turn_on()
-        async with asyncio.timeout(5):
-            await self.coordinator.async_request_refresh()
+        await self.async_execute_and_poll(lambda d: d.async_turn_on(), lambda: self.is_on)
 
     async def async_turn_off(self, **kwargs):
-        """Turn the entity off."""
-        device: HomePilotSwitch = self.coordinator.data[self.did]
-        await device.async_turn_off()
-        async with asyncio.timeout(5):
-            await self.coordinator.async_request_refresh()
+        await self.async_execute_and_poll(lambda d: d.async_turn_off(), lambda: not self.is_on)
 
     async def async_toggle(self, **kwargs):
         """Toggle the entity."""
@@ -139,18 +131,10 @@ class HomePilotLedSwitchEntity(HomePilotEntity, SwitchEntity):
         return device.led_status
 
     async def async_turn_on(self, **kwargs):
-        """Turn the entity on."""
-        device: HomePilotHub = self.coordinator.data[self.did]
-        await device.async_turn_led_on()
-        async with asyncio.timeout(5):
-            await self.coordinator.async_request_refresh()
+        await self.async_execute_and_poll(lambda d: d.async_turn_led_on(), lambda: self.is_on)
 
     async def async_turn_off(self, **kwargs):
-        """Turn the entity off."""
-        device: HomePilotHub = self.coordinator.data[self.did]
-        await device.async_turn_led_off()
-        async with asyncio.timeout(5):
-            await self.coordinator.async_request_refresh()
+        await self.async_execute_and_poll(lambda d: d.async_turn_led_off(), lambda: not self.is_on)
 
     async def async_toggle(self, **kwargs):
         """Toggle the entity."""
@@ -180,18 +164,10 @@ class HomePilotAutoUpdaeSwitchEntity(HomePilotEntity, SwitchEntity):
         return device.auto_update
 
     async def async_turn_on(self, **kwargs):
-        """Turn the entity on."""
-        device: HomePilotHub = self.coordinator.data[self.did]
-        await device.async_set_auto_update_on()
-        async with asyncio.timeout(5):
-            await self.coordinator.async_request_refresh()
+        await self.async_execute_and_poll(lambda d: d.async_set_auto_update_on(), lambda: self.is_on)
 
     async def async_turn_off(self, **kwargs):
-        """Turn the entity off."""
-        device: HomePilotHub = self.coordinator.data[self.did]
-        await device.async_set_auto_update_off()
-        async with asyncio.timeout(5):
-            await self.coordinator.async_request_refresh()
+        await self.async_execute_and_poll(lambda d: d.async_set_auto_update_off(), lambda: not self.is_on)
 
     async def async_toggle(self, **kwargs):
         """Toggle the entity."""
@@ -221,18 +197,10 @@ class HomePilotVentilationSwitchEntity(HomePilotEntity, SwitchEntity):
         return device.ventilation_position_mode
 
     async def async_turn_on(self, **kwargs):
-        """Turn the entity on."""
-        device: HomePilotCover = self.coordinator.data[self.did]
-        await device.async_set_ventilation_position_mode(True)
-        async with asyncio.timeout(5):
-            await self.coordinator.async_request_refresh()
+        await self.async_execute_and_poll(lambda d: d.async_set_ventilation_position_mode(True), lambda: self.is_on)
 
     async def async_turn_off(self, **kwargs):
-        """Turn the entity off."""
-        device: HomePilotCover = self.coordinator.data[self.did]
-        await device.async_set_ventilation_position_mode(False)
-        async with asyncio.timeout(5):
-            await self.coordinator.async_request_refresh()
+        await self.async_execute_and_poll(lambda d: d.async_set_ventilation_position_mode(False), lambda: not self.is_on)
 
     async def async_toggle(self, **kwargs):
         """Toggle the entity."""
@@ -262,18 +230,10 @@ class HomePilotAutoModeEntity(HomePilotEntity, SwitchEntity):
         return device.auto_mode_value
 
     async def async_turn_on(self, **kwargs):
-        """Turn the entity on."""
-        device: HomePilotAutoConfigDevice = self.coordinator.data[self.did]
-        await device.async_set_auto_mode(True)
-        async with asyncio.timeout(5):
-            await self.coordinator.async_request_refresh()
+        await self.async_execute_and_poll(lambda d: d.async_set_auto_mode(True), lambda: self.is_on)
 
     async def async_turn_off(self, **kwargs):
-        """Turn the entity off."""
-        device: HomePilotAutoConfigDevice = self.coordinator.data[self.did]
-        await device.async_set_auto_mode(False)
-        async with asyncio.timeout(5):
-            await self.coordinator.async_request_refresh()
+        await self.async_execute_and_poll(lambda d: d.async_set_auto_mode(False), lambda: not self.is_on)
 
     async def async_toggle(self, **kwargs):
         """Toggle the entity."""
@@ -304,18 +264,10 @@ class HomePilotTimeAutoModeEntity(HomePilotEntity, SwitchEntity):
         return device.time_auto_mode_value
 
     async def async_turn_on(self, **kwargs):
-        """Turn the entity on."""
-        device: HomePilotAutoConfigDevice = self.coordinator.data[self.did]
-        await device.async_set_time_auto_mode(True)
-        async with asyncio.timeout(5):
-            await self.coordinator.async_request_refresh()
+        await self.async_execute_and_poll(lambda d: d.async_set_time_auto_mode(True), lambda: self.is_on)
 
     async def async_turn_off(self, **kwargs):
-        """Turn the entity off."""
-        device: HomePilotAutoConfigDevice = self.coordinator.data[self.did]
-        await device.async_set_time_auto_mode(False)
-        async with asyncio.timeout(5):
-            await self.coordinator.async_request_refresh()
+        await self.async_execute_and_poll(lambda d: d.async_set_time_auto_mode(False), lambda: not self.is_on)
 
     async def async_toggle(self, **kwargs):
         """Toggle the entity."""
@@ -346,18 +298,10 @@ class HomePilotContactAutoModeEntity(HomePilotEntity, SwitchEntity):
         return device.contact_auto_mode_value
 
     async def async_turn_on(self, **kwargs):
-        """Turn the entity on."""
-        device: HomePilotAutoConfigDevice = self.coordinator.data[self.did]
-        await device.async_set_contact_auto_mode(True)
-        async with asyncio.timeout(5):
-            await self.coordinator.async_request_refresh()
+        await self.async_execute_and_poll(lambda d: d.async_set_contact_auto_mode(True), lambda: self.is_on)
 
     async def async_turn_off(self, **kwargs):
-        """Turn the entity off."""
-        device: HomePilotAutoConfigDevice = self.coordinator.data[self.did]
-        await device.async_set_contact_auto_mode(False)
-        async with asyncio.timeout(5):
-            await self.coordinator.async_request_refresh()
+        await self.async_execute_and_poll(lambda d: d.async_set_contact_auto_mode(False), lambda: not self.is_on)
 
     async def async_toggle(self, **kwargs):
         """Toggle the entity."""
@@ -388,18 +332,10 @@ class HomePilotWindAutoModeEntity(HomePilotEntity, SwitchEntity):
         return device.wind_auto_mode_value
 
     async def async_turn_on(self, **kwargs):
-        """Turn the entity on."""
-        device: HomePilotAutoConfigDevice = self.coordinator.data[self.did]
-        await device.async_set_wind_auto_mode(True)
-        async with asyncio.timeout(5):
-            await self.coordinator.async_request_refresh()
+        await self.async_execute_and_poll(lambda d: d.async_set_wind_auto_mode(True), lambda: self.is_on)
 
     async def async_turn_off(self, **kwargs):
-        """Turn the entity off."""
-        device: HomePilotAutoConfigDevice = self.coordinator.data[self.did]
-        await device.async_set_wind_auto_mode(False)
-        async with asyncio.timeout(5):
-            await self.coordinator.async_request_refresh()
+        await self.async_execute_and_poll(lambda d: d.async_set_wind_auto_mode(False), lambda: not self.is_on)
 
     async def async_toggle(self, **kwargs):
         """Toggle the entity."""
@@ -430,18 +366,10 @@ class HomePilotDawnAutoModeEntity(HomePilotEntity, SwitchEntity):
         return device.dawn_auto_mode_value
 
     async def async_turn_on(self, **kwargs):
-        """Turn the entity on."""
-        device: HomePilotAutoConfigDevice = self.coordinator.data[self.did]
-        await device.async_set_dawn_auto_mode(True)
-        async with asyncio.timeout(5):
-            await self.coordinator.async_request_refresh()
+        await self.async_execute_and_poll(lambda d: d.async_set_dawn_auto_mode(True), lambda: self.is_on)
 
     async def async_turn_off(self, **kwargs):
-        """Turn the entity off."""
-        device: HomePilotAutoConfigDevice = self.coordinator.data[self.did]
-        await device.async_set_dawn_auto_mode(False)
-        async with asyncio.timeout(5):
-            await self.coordinator.async_request_refresh()
+        await self.async_execute_and_poll(lambda d: d.async_set_dawn_auto_mode(False), lambda: not self.is_on)
 
     async def async_toggle(self, **kwargs):
         """Toggle the entity."""
@@ -472,18 +400,10 @@ class HomePilotDuskAutoModeEntity(HomePilotEntity, SwitchEntity):
         return device.dusk_auto_mode_value
 
     async def async_turn_on(self, **kwargs):
-        """Turn the entity on."""
-        device: HomePilotAutoConfigDevice = self.coordinator.data[self.did]
-        await device.async_set_dusk_auto_mode(True)
-        async with asyncio.timeout(5):
-            await self.coordinator.async_request_refresh()
+        await self.async_execute_and_poll(lambda d: d.async_set_dusk_auto_mode(True), lambda: self.is_on)
 
     async def async_turn_off(self, **kwargs):
-        """Turn the entity off."""
-        device: HomePilotAutoConfigDevice = self.coordinator.data[self.did]
-        await device.async_set_dusk_auto_mode(False)
-        async with asyncio.timeout(5):
-            await self.coordinator.async_request_refresh()
+        await self.async_execute_and_poll(lambda d: d.async_set_dusk_auto_mode(False), lambda: not self.is_on)
 
     async def async_toggle(self, **kwargs):
         """Toggle the entity."""
@@ -514,18 +434,10 @@ class HomePilotRainAutoModeEntity(HomePilotEntity, SwitchEntity):
         return device.rain_auto_mode_value
 
     async def async_turn_on(self, **kwargs):
-        """Turn the entity on."""
-        device: HomePilotAutoConfigDevice = self.coordinator.data[self.did]
-        await device.async_set_rain_auto_mode(True)
-        async with asyncio.timeout(5):
-            await self.coordinator.async_request_refresh()
+        await self.async_execute_and_poll(lambda d: d.async_set_rain_auto_mode(True), lambda: self.is_on)
 
     async def async_turn_off(self, **kwargs):
-        """Turn the entity off."""
-        device: HomePilotAutoConfigDevice = self.coordinator.data[self.did]
-        await device.async_set_rain_auto_mode(False)
-        async with asyncio.timeout(5):
-            await self.coordinator.async_request_refresh()
+        await self.async_execute_and_poll(lambda d: d.async_set_rain_auto_mode(False), lambda: not self.is_on)
 
     async def async_toggle(self, **kwargs):
         """Toggle the entity."""
@@ -556,18 +468,10 @@ class HomePilotSunAutoModeEntity(HomePilotEntity, SwitchEntity):
         return device.sun_auto_mode_value
 
     async def async_turn_on(self, **kwargs):
-        """Turn the entity on."""
-        device: HomePilotAutoConfigDevice = self.coordinator.data[self.did]
-        await device.async_set_sun_auto_mode(True)
-        async with asyncio.timeout(5):
-            await self.coordinator.async_request_refresh()
+        await self.async_execute_and_poll(lambda d: d.async_set_sun_auto_mode(True), lambda: self.is_on)
 
     async def async_turn_off(self, **kwargs):
-        """Turn the entity off."""
-        device: HomePilotAutoConfigDevice = self.coordinator.data[self.did]
-        await device.async_set_sun_auto_mode(False)
-        async with asyncio.timeout(5):
-            await self.coordinator.async_request_refresh()
+        await self.async_execute_and_poll(lambda d: d.async_set_sun_auto_mode(False), lambda: not self.is_on)
 
     async def async_toggle(self, **kwargs):
         """Toggle the entity."""

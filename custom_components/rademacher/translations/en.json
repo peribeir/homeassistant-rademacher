@@ -11,6 +11,8 @@
           "enable_cyclic_scene_polling": "Enable Cyclic Scene Polling",
           "create_scene_activation_entities": "Create Scene Activation Entities",
           "include_non_executable_scenes": "Include Non Executable Scenes",
+          "update_interval": "Update Interval (5–120 s)",
+          "scene_update_interval": "Scene Update Interval (10–120 s)",
           "invert_cover_position": "Invert cover position"
         }
       }
@@ -41,6 +43,8 @@
           "enable_cyclic_scene_polling": "Enable Cyclic Scene Polling",
           "create_scene_activation_entities": "Create Scene Activation Entities",
           "include_non_executable_scenes": "Include Non Executable Scenes",
+          "update_interval": "Update Interval (5–120 s)",
+          "scene_update_interval": "Scene Update Interval (10–120 s)",
           "invert_cover_position": "Invert cover position"
         }
       }
