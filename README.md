@@ -1,7 +1,7 @@
-[![release](https://img.shields.io/github/v/release/peribeir/homeassistant-rademacher)](https://github.com/peribeir/homeassistant-rademacher/releases/latest)
-[![downloads](https://img.shields.io/github/downloads/peribeir/homeassistant-rademacher/total)](https://github.com/peribeir/homeassistant-rademacher/releases/latest)
-[![issues](https://img.shields.io/github/issues/peribeir/homeassistant-rademacher)](https://github.com/peribeir/homeassistant-rademacher/issues)
-[![hacs_badge](https://img.shields.io/badge/HACS-Default-41BDF5.svg)](https://github.com/hacs/integration)
+![GitHub Release](https://img.shields.io/github/v/release/peribeir/homeassistant-rademacher)
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/peribeir/homeassistant-rademacher/total)
+![GitHub Issues or Pull Requests](https://img.shields.io/github/issues/peribeir/homeassistant-rademacher)
+[![hacs](https://img.shields.io/badge/HACS-Default-orange.svg)](https://github.com/custom-components/hacs)
 
 ![logo](https://github.com/peribeir/homeassistant-rademacher/raw/master/img/logo.png)
 A Home Assistant custom Integration for local handling of Devices connected to Rademacher bridge.
