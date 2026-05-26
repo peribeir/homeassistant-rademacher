@@ -31,6 +31,10 @@ from .const import (
     DOMAIN,
     CONF_ENABLE_CYCLIC_SCENE_POLLING,
     CONF_INCLUDE_NON_EXECUTABLE_SCENES,
+    CONF_UPDATE_INTERVAL,
+    DEFAULT_UPDATE_INTERVAL,
+    CONF_SCENE_UPDATE_INTERVAL,
+    DEFAULT_SCENE_UPDATE_INTERVAL,
 )
 
 # List of platforms to support. There should be a matching .py file for each,
@@ -133,6 +137,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     _LOGGER.debug("Device IDs: %s", list(manager.devices))
     _LOGGER.debug("Scene IDs: %s", list(manager.scenes))
 
+    update_interval = entry.options.get(CONF_UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL)
+    update_timeout = min(update_interval - 2, 10)
+
     async def async_update_data():
         """Fetch data from API endpoint.
 
@@ -142,8 +149,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         try:
             # Note: asyncio.TimeoutError and aiohttp.ClientError are already
             # handled by the data update coordinator.
-            async with asyncio.timeout(10):
-                _LOGGER.info("%s - Updating states for %s devices", entry.title, len(manager.devices))
+            async with asyncio.timeout(update_timeout):
+                _LOGGER.info("%s - Updating states for %s devices with %s-second timeout every %s-second interval", entry.title, len(manager.devices), update_timeout, update_interval)
                 return await manager.update_states()
         except AuthError as err:
             # Raising ConfigEntryAuthFailed will cancel future updates
@@ -153,13 +160,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     coordinator = DataUpdateCoordinator(
         hass,
         _LOGGER,
-        # Name of the data. For logging purposes.
         name="rademacher",
         update_method=async_update_data,
-        # Polling interval. Will only be polled if there are subscribers.
-        update_interval=timedelta(seconds=10),
+        update_interval=timedelta(seconds=update_interval),
     )
 
+    scene_update_interval = entry.options.get(CONF_SCENE_UPDATE_INTERVAL, DEFAULT_SCENE_UPDATE_INTERVAL)
+    scene_update_timeout = min(scene_update_interval - 2, 10)
     async def async_update_scene_data():
         """Fetch data from API endpoint.
         This is the place to pre-process the data to lookup tables
@@ -168,26 +175,25 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         try:
             # Note: asyncio.TimeoutError and aiohttp.ClientError are already
             # handled by the data update coordinator.
-            async with asyncio.timeout(15):
-                _LOGGER.info("%s - Updating states for %s scenes", entry.title, len(manager.scenes))
+            async with asyncio.timeout(scene_update_timeout):
+                _LOGGER.info("%s - Updating states for %s scenes with %s-second timeout every %s-second interval", entry.title, len(manager.scenes), scene_update_timeout, scene_update_interval)
                 return await manager.async_update_scenes()
         except AuthError as err:
             # Raising ConfigEntryAuthFailed will cancel future updates
             # and start a config flow with SOURCE_REAUTH (async_step_reauth)
             raise ConfigEntryAuthFailed from err
 
-    enable_cyclic_scene_polling = entry.options.get(CONF_ENABLE_CYCLIC_SCENE_POLLING, False)
+    enable_cyclic_scene_polling = entry.options.get(CONF_ENABLE_CYCLIC_SCENE_POLLING, False)    
     scene_coordinator = DataUpdateCoordinator(
         hass,
         _LOGGER,
-        # Name of the data. For logging purposes.
         name="rademacher_scene",
         update_method=async_update_scene_data,
-        update_interval=timedelta(seconds=15) if enable_cyclic_scene_polling else None,
+        update_interval=timedelta(seconds=scene_update_interval) if enable_cyclic_scene_polling else None,
     )
 
     if enable_cyclic_scene_polling:
-        _LOGGER.info("%s - Cyclic scene polling enabled with 15-second interval", entry.title)
+        _LOGGER.info("%s - Cyclic scene polling enabled with %s-second interval", entry.title, scene_update_interval)
     else:
         _LOGGER.info("%s - Cyclic scene polling disabled, scenes will be static", entry.title)
 

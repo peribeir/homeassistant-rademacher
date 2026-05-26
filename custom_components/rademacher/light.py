@@ -1,5 +1,4 @@
 """Platform for Rademacher Bridge."""
-import asyncio
 import logging
 from typing import Any
 
@@ -71,19 +70,25 @@ class HomePilotActuatorLightEntity(HomePilotEntity, LightEntity):
         return device.is_on
 
     async def async_turn_on(self, **kwargs: Any) -> None:
-        device: HomePilotActuator = self.coordinator.data[self.did]
-        if ATTR_BRIGHTNESS in kwargs:
-            await device.async_set_brightness(round(kwargs[ATTR_BRIGHTNESS]*100/255))
-        else:
-            await device.async_turn_on()
-        async with asyncio.timeout(5):
-            await self.coordinator.async_request_refresh()
+        async def _cmd(d):
+            if ATTR_BRIGHTNESS in kwargs:
+                await d.async_set_brightness(round(kwargs[ATTR_BRIGHTNESS] * 100 / 255))
+            else:
+                await d.async_turn_on()
+
+        def _check():
+            if not self.is_on:
+                return False
+            if ATTR_BRIGHTNESS in kwargs:
+                expected = round(round(kwargs[ATTR_BRIGHTNESS] * 100 / 255) * 255 / 100)
+                if self.brightness != expected:
+                    return False
+            return True
+
+        await self.async_execute_and_poll(_cmd, _check, 1.0)
 
     async def async_turn_off(self, **kwargs: Any) -> None:
-        device: HomePilotActuator = self.coordinator.data[self.did]
-        await device.async_turn_off()
-        async with asyncio.timeout(5):
-            await self.coordinator.async_request_refresh()
+        await self.async_execute_and_poll(lambda d: d.async_turn_off(), lambda: not self.is_on, 1.0)
 
 
 class HomePilotLightEntity(HomePilotEntity, LightEntity):
@@ -139,26 +144,33 @@ class HomePilotLightEntity(HomePilotEntity, LightEntity):
         return device.is_on
 
     async def async_turn_on(self, **kwargs: Any) -> None:
-        device: HomePilotActuator = self.coordinator.data[self.did]
-        if not device.is_on:
-            await device.async_turn_on()
-        if ATTR_BRIGHTNESS in kwargs:
-            await device.async_set_brightness(round(kwargs[ATTR_BRIGHTNESS]*100/255))
-        if ATTR_RGB_COLOR in kwargs:
-            await device.async_set_rgb(*kwargs[ATTR_RGB_COLOR])
-        
-        # New logic for Kelvin-based color temperature
-        if ATTR_COLOR_TEMP_KELVIN in kwargs:
-            # Convert Kelvin back to Mireds for the internal library
-            mireds = round(1000000 / kwargs[ATTR_COLOR_TEMP_KELVIN])
-            await device.async_set_color_temp(mireds)
-            
-        async with asyncio.timeout(5):
-            await self.coordinator.async_request_refresh()
+        async def _cmd(d):
+            if not d.is_on:
+                await d.async_turn_on()
+            if ATTR_BRIGHTNESS in kwargs:
+                await d.async_set_brightness(round(kwargs[ATTR_BRIGHTNESS] * 100 / 255))
+            if ATTR_RGB_COLOR in kwargs:
+                await d.async_set_rgb(*kwargs[ATTR_RGB_COLOR])
+            if ATTR_COLOR_TEMP_KELVIN in kwargs:
+                await d.async_set_color_temp(round(1000000 / kwargs[ATTR_COLOR_TEMP_KELVIN]))
+
+        def _check():
+            if not self.is_on:
+                return False
+            if ATTR_BRIGHTNESS in kwargs:
+                expected = round(round(kwargs[ATTR_BRIGHTNESS] * 100 / 255) * 255 / 100)
+                if self.brightness != expected:
+                    return False
+            if ATTR_RGB_COLOR in kwargs and self.rgb_color != kwargs[ATTR_RGB_COLOR]:
+                return False
+            if ATTR_COLOR_TEMP_KELVIN in kwargs:
+                expected = round(1000000 / round(1000000 / kwargs[ATTR_COLOR_TEMP_KELVIN]))
+                if self.color_temp_kelvin != expected:
+                    return False
+            return True
+
+        await self.async_execute_and_poll(_cmd, _check, 1.0)
 
     async def async_turn_off(self, **kwargs: Any) -> None:
-        device: HomePilotActuator = self.coordinator.data[self.did]
-        await device.async_turn_off()
-        async with asyncio.timeout(5):
-            await self.coordinator.async_request_refresh()
+        await self.async_execute_and_poll(lambda d: d.async_turn_off(), lambda: not self.is_on, 1.0)
 

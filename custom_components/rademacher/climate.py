@@ -1,5 +1,4 @@
 """Platform for Rademacher Bridge."""
-import asyncio
 import logging
 
 from homepilot.device import HomePilotDevice
@@ -72,16 +71,19 @@ class HomePilotClimateEntity(HomePilotEntity, ClimateEntity):
     async def async_set_hvac_mode(self, hvac_mode: str) -> None:
         device: HomePilotThermostat = self.coordinator.data[self.did]
         if device.has_auto_mode:
-            await device.async_set_auto_mode(hvac_mode == HVACMode.AUTO)
-            async with asyncio.timeout(5):
-                await self.coordinator.async_request_refresh()
+            await self.async_execute_and_poll(
+                lambda d: d.async_set_auto_mode(hvac_mode == HVACMode.AUTO),
+                lambda: self.hvac_mode == hvac_mode,
+            )
 
     async def async_set_temperature(self, **kwargs) -> None:
         device: HomePilotThermostat = self.coordinator.data[self.did]
         if device.can_set_target_temperature:
-            await device.async_set_target_temperature(kwargs["temperature"])
-            async with asyncio.timeout(5):
-                await self.coordinator.async_request_refresh()
+            temperature = kwargs["temperature"]
+            await self.async_execute_and_poll(
+                lambda d: d.async_set_target_temperature(temperature),
+                lambda: self.target_temperature == temperature,
+            )
 
     @property
     def current_temperature(self) -> float:
@@ -128,12 +130,10 @@ class HomePilotClimateEntity(HomePilotEntity, ClimateEntity):
         device: HomePilotThermostat = self.coordinator.data[self.did]
         if not device.has_boost_active:
             return
-        if preset_mode == PRESET_BOOST:
-            await device.async_set_boost_active_cfg(True)
-        else:
-            await device.async_set_boost_active_cfg(False)
-        async with asyncio.timeout(5):
-            await self.coordinator.async_request_refresh()
+        await self.async_execute_and_poll(
+            lambda d: d.async_set_boost_active_cfg(preset_mode == PRESET_BOOST),
+            lambda: self.preset_mode == preset_mode,
+        )
 
     @property
     def supported_features(self) -> int:

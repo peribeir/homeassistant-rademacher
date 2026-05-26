@@ -8,7 +8,7 @@ A Home Assistant custom Integration for local handling of Devices connected to R
 
 Works exclusively when devices are connected through HomePilot or Start2Smart Bridge.
 
-### **Supports Covers, Switches, Sensors and Thermostats.**
+### **Supports Covers, Switches, Sensors, Dimmers, Thermostats, Lights and Wall Controllers.**
 
 *See full device list support at the end.*
 
