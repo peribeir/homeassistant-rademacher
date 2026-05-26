@@ -105,7 +105,7 @@ When configuring the Rademacher Bridge integration, either during the initial se
 | **Scene Update Interval** | `scene_update_interval` | The interval (in seconds) at which the integration polls the bridge for scene updates. Adjustable between 10 and 120 seconds. | Number | `15` |
 | **Create Scene Activation Entities** | `create_scene_activation_entities` | If enabled, dedicated entities will be created to allow active triggering and control of scenes from Home Assistant. | Boolean | `false` |
 | **Include Non Executable Scenes** | `include_non_executable_scenes` | If enabled, scenes registered on the bridge that are marked as non-executable will also be imported. | Boolean | `false` |
-| **Create Inverted Cover Position Sensors** | `create_inverted_cover_position` | If enabled, dedicated diagnostic sensor entities will be created to report the inverted cover and tilt position to match actual Rademacher bridge behavior. | Boolean | `false` |
+| **Create Inverted Cover Position Sensors** | `create_inverted_cover_position` | If enabled, dedicated diagnostic sensor entities will be created to report the inverted cover and tilt position to match actual Rademacher bridge behavior. NOTE: If you disable this flag, you will need to manually delete the previously created entities so be careful when enabling it. | Boolean | `false` |
 
 # Direct and Indirect Contributors
 

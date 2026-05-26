@@ -192,19 +192,20 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                             entity_category=EntityCategory.DIAGNOSTIC,
                         )
                     )
-                    new_entities.append(
-                        HomePilotSensorEntity(
-                            coordinator=coordinator,
-                            device=device,
-                            id_suffix="inverted_cover_tilt_position",
-                            name_suffix="Inverted Cover Tilt Position",
-                            value_attr="cover_tilt_position",
-                            inverted=True,
-                            device_class=None,
-                            native_unit_of_measurement=PERCENTAGE,
-                            entity_category=EntityCategory.DIAGNOSTIC,
+                    if device.has_tilt:
+                        new_entities.append(
+                            HomePilotSensorEntity(
+                                coordinator=coordinator,
+                                device=device,
+                                id_suffix="inverted_cover_tilt_position",
+                                name_suffix="Inverted Cover Tilt Position",
+                                value_attr="cover_tilt_position",
+                                inverted=True,
+                                device_class=None,
+                                native_unit_of_measurement=PERCENTAGE,
+                                entity_category=EntityCategory.DIAGNOSTIC,
+                            )
                         )
-                    )
     # If we have any new devices, add them
     if new_entities:
         async_add_entities(new_entities)
