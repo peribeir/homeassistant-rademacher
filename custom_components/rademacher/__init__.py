@@ -224,6 +224,33 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             _LOGGER.info("Deleting device %s", did)
             device_registry.async_remove_device(device_entry.id)
 
+    # Remove stale devices not present in the API
+    api_device_ids = set(manager.devices)
+    _LOGGER.debug("Devices in API: %s", api_device_ids)
+
+    registered_devices = dr.async_entries_for_config_entry(device_registry, entry.entry_id)
+    for device_entry in registered_devices:
+        device_did = None
+        for domain, identifier in device_entry.identifiers:
+            if domain == DOMAIN:
+                if identifier == f"{entry.unique_id}_bridge" or identifier.endswith("_bridge"):
+                    # Keep the hub/bridge device
+                    device_did = None
+                    break
+
+                if "_" in identifier:
+                    parts = identifier.split("_")
+                    if parts[-1] == "bridge":
+                        device_did = None
+                        break
+                    device_did = parts[-1]
+                else:
+                    device_did = identifier
+
+        if device_did is not None and device_did not in api_device_ids:
+            _LOGGER.info("Removing stale device %s (ID: %s) from device registry as it is no longer present in the API", device_entry.name, device_did)
+            device_registry.async_remove_device(device_entry.id)
+
     _LOGGER.info("Starting entry setup for each platform")
     # This creates each HA object for each platform your device requires.
     # It's done by calling the `async_setup_entry` function in each platform module.

@@ -84,6 +84,12 @@ On the next dialog, Choose any device that you may want to exclude from managing
 
 You should now be presented with Device/Entities detected, you should select the HA Area where you want to add them.
 
+## 3. Automatic Stale Device Cleanup
+
+Whenever the integration is loaded (e.g. at Home Assistant startup or when reloading the integration), it automatically queries the Rademacher Bridge/Hub API and compares the active devices against those registered in Home Assistant.
+
+Any stale devices that are no longer present in the Bridge/Hub API (along with all of their associated entities) are automatically removed from the Home Assistant device and entity registries. This ensures your Home Assistant system stays perfectly clean and up-to-date with your physical devices.
+
 # Direct and Indirect Contributors
 
 <!-- readme: contributors,thmnxo4,MrWeidenMr,fritte87 -start -->
