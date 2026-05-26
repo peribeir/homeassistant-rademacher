@@ -21,12 +21,22 @@ from homeassistant.const import (
 from homeassistant.core import callback
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.device_registry import format_mac
+from homeassistant.helpers.selector import (
+    NumberSelector,
+    NumberSelectorConfig,
+    NumberSelectorMode,
+)
 
 from .const import (
     DOMAIN,
     CONF_ENABLE_CYCLIC_SCENE_POLLING,
     CONF_CREATE_SCENE_ACTIVATION_ENTITIES,
     CONF_INCLUDE_NON_EXECUTABLE_SCENES,
+    CONF_UPDATE_INTERVAL,
+    DEFAULT_UPDATE_INTERVAL,
+    CONF_SCENE_UPDATE_INTERVAL,
+    DEFAULT_SCENE_UPDATE_INTERVAL,
+    CONF_INVERT_COVER_POSITION,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -66,6 +76,9 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     CONF_ENABLE_CYCLIC_SCENE_POLLING: user_input.get(CONF_ENABLE_CYCLIC_SCENE_POLLING, False),
                     CONF_CREATE_SCENE_ACTIVATION_ENTITIES: user_input.get(CONF_CREATE_SCENE_ACTIVATION_ENTITIES, False),
                     CONF_INCLUDE_NON_EXECUTABLE_SCENES: user_input.get(CONF_INCLUDE_NON_EXECUTABLE_SCENES, False),
+                    CONF_UPDATE_INTERVAL: int(user_input.get(CONF_UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL)),
+                    CONF_SCENE_UPDATE_INTERVAL: int(user_input.get(CONF_SCENE_UPDATE_INTERVAL, DEFAULT_SCENE_UPDATE_INTERVAL)),
+                    CONF_INVERT_COVER_POSITION: user_input.get(CONF_INVERT_COVER_POSITION, False),
                 }
                 return self.async_create_entry(
                     title=f"{self.hostname} ({self.mac_address})", data=data, options=options
@@ -352,6 +365,21 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 vol.Optional(CONF_INCLUDE_NON_EXECUTABLE_SCENES, default=False): bool,
             }
         )
+        schema = schema.extend(
+            {
+                vol.Optional(CONF_UPDATE_INTERVAL, default=DEFAULT_UPDATE_INTERVAL): NumberSelector(
+                    NumberSelectorConfig(min=5, max=120, step=1, unit_of_measurement="s", mode=NumberSelectorMode.SLIDER)
+                ),
+                vol.Optional(CONF_SCENE_UPDATE_INTERVAL, default=DEFAULT_SCENE_UPDATE_INTERVAL): NumberSelector(
+                    NumberSelectorConfig(min=10, max=120, step=1, unit_of_measurement="s", mode=NumberSelectorMode.SLIDER)
+                ),
+            }
+        )
+        schema = schema.extend(
+            {
+                vol.Optional(CONF_INVERT_COVER_POSITION, default=False): bool,
+            }
+        )
         return schema
 
 
@@ -368,6 +396,9 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                 CONF_ENABLE_CYCLIC_SCENE_POLLING: user_input.get(CONF_ENABLE_CYCLIC_SCENE_POLLING, False),
                 CONF_CREATE_SCENE_ACTIVATION_ENTITIES: user_input.get(CONF_CREATE_SCENE_ACTIVATION_ENTITIES, False),
                 CONF_INCLUDE_NON_EXECUTABLE_SCENES: user_input.get(CONF_INCLUDE_NON_EXECUTABLE_SCENES, False),
+                CONF_UPDATE_INTERVAL: int(user_input.get(CONF_UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL)),
+                CONF_SCENE_UPDATE_INTERVAL: int(user_input.get(CONF_SCENE_UPDATE_INTERVAL, DEFAULT_SCENE_UPDATE_INTERVAL)),
+                CONF_INVERT_COVER_POSITION: user_input.get(CONF_INVERT_COVER_POSITION, False),
             }
             return self.async_create_entry(title=f"{self.hostname} ({self.mac_address})", data=data)
         self.host = self.config_entry.data[CONF_HOST]
@@ -411,10 +442,22 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
             previous_create_scene_activation_entities = self.config_entry.options.get(
                 CONF_CREATE_SCENE_ACTIVATION_ENTITIES, False
             )
+            previous_update_interval = self.config_entry.options.get(
+                CONF_UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL
+            )
+            previous_scene_update_interval = self.config_entry.options.get(
+                CONF_SCENE_UPDATE_INTERVAL, DEFAULT_SCENE_UPDATE_INTERVAL
+            )
+            previous_invert_cover_position = self.config_entry.options.get(
+                CONF_INVERT_COVER_POSITION, False
+            )
 
             data_schema_config = self.build_data_schema(
                 manager.devices, previous_excluded_devices, previous_ternary_contact_sensors,
-                previous_enable_scene_polling, previous_create_scene_activation_entities, previous_include_non_executable_scenes
+                previous_enable_scene_polling, previous_create_scene_activation_entities,
+                previous_include_non_executable_scenes, previous_update_interval,
+                previous_scene_update_interval,
+                previous_invert_cover_position
             )
 
             return self.async_show_form(step_id="init", data_schema=data_schema_config)
@@ -423,7 +466,10 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
 
     def build_data_schema(
         self, devices, previous_excluded_devices, previous_ternary_contact_sensors,
-        previous_enable_scene_polling, previous_create_scene_activation_entities, previous_include_non_executable_scenes
+        previous_enable_scene_polling, previous_create_scene_activation_entities,
+        previous_include_non_executable_scenes, previous_update_interval=DEFAULT_UPDATE_INTERVAL,
+        previous_scene_update_interval=DEFAULT_SCENE_UPDATE_INTERVAL,
+        previous_invert_cover_position=False
     ):
         devices_to_exclude = {
             did: f"{devices[did].name} (id: {devices[did].did})" for did in devices
@@ -465,6 +511,27 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
             {
                 vol.Optional(
                     CONF_INCLUDE_NON_EXECUTABLE_SCENES, default=previous_include_non_executable_scenes
+                ): bool,
+            }
+        )
+        schema = schema.extend(
+            {
+                vol.Optional(
+                    CONF_UPDATE_INTERVAL, default=previous_update_interval
+                ): NumberSelector(
+                    NumberSelectorConfig(min=5, max=120, step=1, unit_of_measurement="s", mode=NumberSelectorMode.SLIDER)
+                ),
+                vol.Optional(
+                    CONF_SCENE_UPDATE_INTERVAL, default=previous_scene_update_interval
+                ): NumberSelector(
+                    NumberSelectorConfig(min=10, max=120, step=1, unit_of_measurement="s", mode=NumberSelectorMode.SLIDER)
+                ),
+            }
+        )
+        schema = schema.extend(
+            {
+                vol.Optional(
+                    CONF_INVERT_COVER_POSITION, default=previous_invert_cover_position
                 ): bool,
             }
         )

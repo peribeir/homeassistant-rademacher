@@ -1,5 +1,4 @@
 """Platform for Rademacher Bridge."""
-import asyncio
 import logging
 
 from homepilot.cover import HomePilotCover
@@ -83,11 +82,10 @@ class HomePilotVentilationPositionEntity(HomePilotEntity, NumberEntity):
         return device.ventilation_position
 
     async def async_set_native_value(self, value):
-        """Turn the entity on."""
-        device: HomePilotCover = self.coordinator.data[self.did]
-        await device.async_set_ventilation_position(value)
-        async with asyncio.timeout(5):
-            await self.coordinator.async_request_refresh()
+        await self.async_execute_and_poll(
+            lambda d: d.async_set_ventilation_position(value),
+            lambda: self.native_value == value,
+        )
 
 class HomePilotTemperatureThresholdEntity(HomePilotEntity, NumberEntity):
     """This class represents Cover Ventilation Position."""
@@ -117,8 +115,8 @@ class HomePilotTemperatureThresholdEntity(HomePilotEntity, NumberEntity):
         return device.temperature_thresh_cfg_value[self._thresh_number-1]
 
     async def async_set_native_value(self, value):
-        """Turn the entity on."""
-        device: HomePilotThermostat = self.coordinator.data[self.did]
-        await device.async_set_temperature_thresh_cfg(self._thresh_number, value)
-        async with asyncio.timeout(5):
-            await self.coordinator.async_request_refresh()
+        thresh = self._thresh_number
+        await self.async_execute_and_poll(
+            lambda d: d.async_set_temperature_thresh_cfg(thresh, value),
+            lambda: self.native_value == value,
+        )

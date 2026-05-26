@@ -14,7 +14,7 @@ Works exclusively when devices are connected through HomePilot or Start2Smart Br
 
 **Bridges/Gateways from Rademacher are fully supported.**
 
-### **Supports Covers, Switches, Sensors, Dimmers, Thermostats and Wall Controllers.**
+### **Supports Covers, Switches, Sensors, Dimmers, Thermostats, Lights and Wall Controllers.**
 
 *See full device list support at the end.*
 
@@ -90,6 +90,23 @@ Whenever the integration is loaded (e.g. at Home Assistant startup or when reloa
 
 Any stale devices that are no longer present in the Bridge/Hub API (along with all of their associated entities) are automatically removed from the Home Assistant device and entity registries. This ensures your Home Assistant system stays perfectly clean and up-to-date with your physical devices.
 
+# Configuration Parameters
+
+When configuring the Rademacher Bridge integration, either during the initial setup flow or by clicking **Configure** on the integration card under **Settings > Devices & Services**, the following configuration parameters are available:
+
+| Parameter | Key | Description | Type | Default |
+| :--- | :--- | :--- | :--- | :--- |
+| **Hostname/IP Address** | `host` | The IP address or local hostname of your Rademacher Bridge (e.g., `bridge.local` or `192.168.1.60`). | String | *Required* |
+| **Password** | `password` | The password of your Rademacher Bridge, if authentication is configured/enabled on the device. | String | *Optional* |
+| **EXCLUDE Devices** | `exclude` | A multi-select list to choose specific devices registered on the bridge that you **do not** want to import into Home Assistant. | List | `[]` |
+| **Select Contact Sensors with Tilted Position** | `sensor_type` | A multi-select list to designate specific contact sensors (like window/door sensors) that should report a tilted position state. | List | `[]` |
+| **Update Interval** | `update_interval` | The interval (in seconds) at which the integration polls the bridge for device updates. Adjustable between 5 and 120 seconds. | Number | `10` |
+| **Enable Cyclic Scene Polling** | `enable_cyclic_scene_polling` | If enabled, the integration will regularly poll the bridge to fetch and update the status of scenes. | Boolean | `false` |
+| **Scene Update Interval** | `scene_update_interval` | The interval (in seconds) at which the integration polls the bridge for scene updates. Adjustable between 10 and 120 seconds. | Number | `15` |
+| **Create Scene Activation Entities** | `create_scene_activation_entities` | If enabled, dedicated entities will be created to allow active triggering and control of scenes from Home Assistant. | Boolean | `false` |
+| **Include Non Executable Scenes** | `include_non_executable_scenes` | If enabled, scenes registered on the bridge that are marked as non-executable will also be imported. | Boolean | `false` |
+| **Invert Cover Position** | `invert_cover_position` | If enabled, the position values for cover entities (including current position and current tilt position) will be inverted to align with your setup. | Boolean | `false` |
+
 # Direct and Indirect Contributors
 
 <!-- readme: contributors,thmnxo4,MrWeidenMr,fritte87 -start -->
@@ -145,9 +162,16 @@ Any stale devices that are no longer present in the Bridge/Hub API (along with a
             <br />
             <sub><b>Mrweidenmr</b></sub>
         </a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/MrTomRocker">
+            <img src="https://avatars.githubusercontent.com/u/90800063?v=4" width="100;" alt="MrTomRocker"/>
+            <br />
+            <sub><b>MrTomRocker</b></sub>
+        </a>
     </td></tr>
 </table>
-<!-- readme: contributors,thmnxo4,MrWeidenMr -end -->
+<!-- readme: contributors,thmnxo4,MrWeidenMr,MrTomRocker -end -->
 
 # Supported Devices
 

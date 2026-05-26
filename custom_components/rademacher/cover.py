@@ -1,5 +1,4 @@
 """Platform for Rademacher Bridge."""
-import asyncio
 import logging
 from typing import Any
 
@@ -17,7 +16,7 @@ from homeassistant.components.cover import (
 from homeassistant.const import CONF_EXCLUDE
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
-from .const import DOMAIN
+from .const import DOMAIN, CONF_INVERT_COVER_POSITION
 from .entity import HomePilotEntity
 
 _LOGGER = logging.getLogger(__name__)
@@ -75,13 +74,27 @@ class HomePilotCoverEntity(HomePilotEntity, CoverEntity):
         return self._supported_features
 
     @property
+    def _invert_position(self) -> bool:
+        if self.coordinator.config_entry is None:
+            return False
+        return self.coordinator.config_entry.options.get(CONF_INVERT_COVER_POSITION, False)
+
+    @property
     def current_cover_position(self):
         device: HomePilotCover = self.coordinator.data[self.did]
+        if device.cover_position is None:
+            return None
+        if self._invert_position:
+            return 100 - device.cover_position
         return device.cover_position
 
     @property
     def current_cover_tilt_position(self):
         device: HomePilotCover = self.coordinator.data[self.did]
+        if device.cover_tilt_position is None:
+            return None
+        if self._invert_position:
+            return 100 - device.cover_tilt_position
         return device.cover_tilt_position
 
     @property
@@ -97,52 +110,36 @@ class HomePilotCoverEntity(HomePilotEntity, CoverEntity):
     @property
     def is_closed(self):
         device: HomePilotCover = self.coordinator.data[self.did]
+        if self._invert_position:
+            return device.cover_position == 100 if device.cover_position is not None else None
         return device.is_closed
 
     async def async_open_cover(self, **kwargs: Any) -> None:
-        device: HomePilotCover = self.coordinator.data[self.did]
-        await device.async_open_cover()
-        async with asyncio.timeout(5):
-            await self.coordinator.async_request_refresh()
+        await self.async_execute_and_poll(lambda d: d.async_open_cover(), lambda: True, pre_poll_delay=2.0)
 
     async def async_close_cover(self, **kwargs: Any) -> None:
-        device: HomePilotCover = self.coordinator.data[self.did]
-        await device.async_close_cover()
-        async with asyncio.timeout(5):
-            await self.coordinator.async_request_refresh()
+        await self.async_execute_and_poll(lambda d: d.async_close_cover(), lambda: True, pre_poll_delay=2.0)
 
     async def async_set_cover_position(self, **kwargs: Any) -> None:
-        device: HomePilotCover = self.coordinator.data[self.did]
-        await device.async_set_cover_position(kwargs[ATTR_POSITION])
-        async with asyncio.timeout(5):
-            await self.coordinator.async_request_refresh()
+        pos = kwargs[ATTR_POSITION]
+        if self._invert_position:
+            pos = 100 - pos
+        await self.async_execute_and_poll(lambda d: d.async_set_cover_position(pos), lambda: True, pre_poll_delay=2.0)
 
     async def async_stop_cover(self, **kwargs: Any) -> None:
-        device: HomePilotCover = self.coordinator.data[self.did]
-        await device.async_stop_cover()
-        async with asyncio.timeout(5):
-            await self.coordinator.async_request_refresh()
+        await self.async_execute_and_poll(lambda d: d.async_stop_cover(), lambda: True, pre_poll_delay=2.0)
 
     async def async_open_cover_tilt(self, **kwargs: Any) -> None:
-        device: HomePilotCover = self.coordinator.data[self.did]
-        await device.async_open_cover_tilt()
-        async with asyncio.timeout(5):
-            await self.coordinator.async_request_refresh()
+        await self.async_execute_and_poll(lambda d: d.async_open_cover_tilt(), lambda: True, pre_poll_delay=2.0)
 
     async def async_close_cover_tilt(self, **kwargs: Any) -> None:
-        device: HomePilotCover = self.coordinator.data[self.did]
-        await device.async_close_cover_tilt()
-        async with asyncio.timeout(5):
-            await self.coordinator.async_request_refresh()
+        await self.async_execute_and_poll(lambda d: d.async_close_cover_tilt(), lambda: True, pre_poll_delay=2.0)
 
     async def async_set_cover_tilt_position(self, **kwargs: Any) -> None:
-        device: HomePilotCover = self.coordinator.data[self.did]
-        await device.async_set_cover_tilt_position(kwargs[ATTR_TILT_POSITION])
-        async with asyncio.timeout(5):
-            await self.coordinator.async_request_refresh()
+        pos = kwargs[ATTR_TILT_POSITION]
+        if self._invert_position:
+            pos = 100 - pos
+        await self.async_execute_and_poll(lambda d: d.async_set_cover_tilt_position(pos), lambda: True, pre_poll_delay=2.0)
 
     async def async_stop_cover_tilt(self, **kwargs: Any) -> None:
-        device: HomePilotCover = self.coordinator.data[self.did]
-        await device.async_stop_cover_tilt()
-        async with asyncio.timeout(5):
-            await self.coordinator.async_request_refresh()
+        await self.async_execute_and_poll(lambda d: d.async_stop_cover_tilt(), lambda: True, pre_poll_delay=2.0)

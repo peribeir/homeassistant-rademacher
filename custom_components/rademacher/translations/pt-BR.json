@@ -10,7 +10,10 @@
           "sensor_type": "Marque os Sensores de Contato com posição de inclinado:",
           "enable_cyclic_scene_polling": "Habilitar sondagem cíclica de cenas",
           "create_scene_activation_entities": "Criar entidades de ativação de cenas",
-          "include_non_executable_scenes": "Incluir cenas não executáveis"
+          "include_non_executable_scenes": "Incluir cenas não executáveis",
+          "update_interval": "Intervalo de atualização (5–120 s)",
+          "scene_update_interval": "Intervalo de atualização de cenas (10–120 s)",
+          "invert_cover_position": "Inverter a posição da persiana"
         }
       }
     }
@@ -39,7 +42,10 @@
           "sensor_type": "Marque os Sensores de Contato com posição de inclinado:",
           "include_non_executable_scenes": "Incluir cenas não executáveis",
           "enable_cyclic_scene_polling": "Habilitar sondagem cíclica de cenas",
-          "create_scene_activation_entities": "Criar entidades de ativação de cenas"
+          "create_scene_activation_entities": "Criar entidades de ativação de cenas",
+          "update_interval": "Intervalo de atualização (5–120 s)",
+          "scene_update_interval": "Intervalo de atualização de cenas (10–120 s)",
+          "invert_cover_position": "Inverter a posição da persiana"
         }
       }
     },
