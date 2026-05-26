@@ -94,7 +94,9 @@ When configuring the Rademacher Bridge integration, either during the initial se
 | **Password** | `password` | The password of your Rademacher Bridge, if authentication is configured/enabled on the device. | String | *Optional* |
 | **EXCLUDE Devices** | `exclude` | A multi-select list to choose specific devices registered on the bridge that you **do not** want to import into Home Assistant. | List | `[]` |
 | **Select Contact Sensors with Tilted Position** | `sensor_type` | A multi-select list to designate specific contact sensors (like window/door sensors) that should report a tilted position state. | List | `[]` |
+| **Update Interval** | `update_interval` | The interval (in seconds) at which the integration polls the bridge for device updates. Adjustable between 5 and 120 seconds. | Number | `10` |
 | **Enable Cyclic Scene Polling** | `enable_cyclic_scene_polling` | If enabled, the integration will regularly poll the bridge to fetch and update the status of scenes. | Boolean | `false` |
+| **Scene Update Interval** | `scene_update_interval` | The interval (in seconds) at which the integration polls the bridge for scene updates. Adjustable between 10 and 120 seconds. | Number | `15` |
 | **Create Scene Activation Entities** | `create_scene_activation_entities` | If enabled, dedicated entities will be created to allow active triggering and control of scenes from Home Assistant. | Boolean | `false` |
 | **Include Non Executable Scenes** | `include_non_executable_scenes` | If enabled, scenes registered on the bridge that are marked as non-executable will also be imported. | Boolean | `false` |
 | **Invert Cover Position** | `invert_cover_position` | If enabled, the position values for cover entities (including current position and current tilt position) will be inverted to align with your setup. | Boolean | `false` |
