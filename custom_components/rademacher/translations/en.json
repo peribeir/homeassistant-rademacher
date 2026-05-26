@@ -13,7 +13,7 @@
           "include_non_executable_scenes": "Include Non Executable Scenes",
           "update_interval": "Update Interval (5–120 s)",
           "scene_update_interval": "Scene Update Interval (10–120 s)",
-          "invert_cover_position": "Invert cover position"
+          "create_inverted_cover_position": "Create inverted cover position sensors"
         }
       }
     }
@@ -45,7 +45,7 @@
           "include_non_executable_scenes": "Include Non Executable Scenes",
           "update_interval": "Update Interval (5–120 s)",
           "scene_update_interval": "Scene Update Interval (10–120 s)",
-          "invert_cover_position": "Invert cover position"
+          "create_inverted_cover_position": "Create inverted cover position sensors"
         }
       }
     },

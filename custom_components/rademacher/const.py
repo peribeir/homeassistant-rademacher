@@ -8,7 +8,7 @@ CONF_CREATE_SCENE_ACTIVATION_ENTITIES = "create_scene_activation_entities"
 CONF_INCLUDE_NON_EXECUTABLE_SCENES = "include_non_executable_scenes"
 CONF_UPDATE_INTERVAL = "update_interval"
 CONF_SCENE_UPDATE_INTERVAL = "scene_update_interval"
-CONF_INVERT_COVER_POSITION = "invert_cover_position"
+CONF_CREATE_INVERTED_COVER_POSITION = "create_inverted_cover_position"
 
 DEFAULT_UPDATE_INTERVAL = 10  # seconds
 DEFAULT_SCENE_UPDATE_INTERVAL = 15  # seconds

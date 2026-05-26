@@ -2,6 +2,9 @@
 from enum import Enum
 import logging
 
+from .const import CONF_CREATE_INVERTED_COVER_POSITION
+
+from homepilot.cover import HomePilotCover
 from homepilot.device import HomePilotDevice
 from homepilot.manager import HomePilotManager
 from homepilot.sensor import ContactState, HomePilotSensor
@@ -37,6 +40,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     coordinator: DataUpdateCoordinator = entry[1]
     exclude_devices: list[str] = entry[3][CONF_EXCLUDE]
     ternary_contact_sensors: list[str] = entry[3][CONF_SENSOR_TYPE]
+    create_inverted_cover_position: bool = entry[3][CONF_CREATE_INVERTED_COVER_POSITION]
     new_entities = []
     for did in manager.devices:
         if did not in exclude_devices:
@@ -170,6 +174,37 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                             entity_category=EntityCategory.DIAGNOSTIC,
                         )
                     )
+            if isinstance(device, (HomePilotSensor, HomePilotThermostat)):
+                if create_inverted_cover_position:
+                    _LOGGER.info(
+                        "Found Inverted Cover Position Sensor for Device ID: %s", device.did
+                    )
+                    new_entities.append(
+                        HomePilotSensorEntity(
+                            coordinator=coordinator,
+                            device=device,
+                            id_suffix="inverted_cover_position",
+                            name_suffix="Inverted Cover Position",
+                            value_attr="cover_position",
+                            inverted=True,
+                            device_class=None,
+                            native_unit_of_measurement=PERCENTAGE,
+                            entity_category=EntityCategory.DIAGNOSTIC,
+                        )
+                    )
+                    new_entities.append(
+                        HomePilotSensorEntity(
+                            coordinator=coordinator,
+                            device=device,
+                            id_suffix="inverted_cover_tilt_position",
+                            name_suffix="Inverted Cover Tilt Position",
+                            value_attr="cover_tilt_position",
+                            inverted=True,
+                            device_class=None,
+                            native_unit_of_measurement=PERCENTAGE,
+                            entity_category=EntityCategory.DIAGNOSTIC,
+                        )
+                    )
     # If we have any new devices, add them
     if new_entities:
         async_add_entities(new_entities)
@@ -187,6 +222,7 @@ class HomePilotSensorEntity(HomePilotEntity, SensorEntity):
         value_attr,
         device_class=None,
         native_unit_of_measurement=None,
+        inverted=False,
         icon=None,
         icon_template=None,
         entity_category=None,
@@ -207,6 +243,7 @@ class HomePilotSensorEntity(HomePilotEntity, SensorEntity):
         self._attr_native_unit_of_measurement = native_unit_of_measurement
         self._attr_options = options
         self._attr_state_class = state_class
+        self._inverted = inverted
 
     @property
     def value_attr(self):
@@ -218,7 +255,10 @@ class HomePilotSensorEntity(HomePilotEntity, SensorEntity):
     @property
     def native_value(self):
         value = getattr(self.coordinator.data[self.did], self.value_attr)
-        return value.name.capitalize() if isinstance(value, Enum) else value
+        value = value.name.capitalize() if isinstance(value, Enum) else value
+        if self._inverted:
+            return 100 - value
+        return value
 
     @property
     def icon(self):

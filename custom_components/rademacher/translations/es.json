@@ -13,7 +13,7 @@
           "include_non_executable_scenes": "Incluir escenas no ejecutables",
           "update_interval": "Intervalo de actualización (5–120 s)",
           "scene_update_interval": "Intervalo de actualización de escenas (10–120 s)",
-          "invert_cover_position": "Invertir la posición de la persiana"
+          "create_inverted_cover_position": "Crear sensores de posición invertida de la persiana"
         }
       }
     }
@@ -45,7 +45,7 @@
           "create_scene_activation_entities": "Crear entidades de activación de escenas",
           "update_interval": "Intervalo de actualización (5–120 s)",
           "scene_update_interval": "Intervalo de actualización de escenas (10–120 s)",
-          "invert_cover_position": "Invertir la posición de la persiana"
+          "create_inverted_cover_position": "Crear sensores de posición invertida de la persiana"
         }
       }
     },

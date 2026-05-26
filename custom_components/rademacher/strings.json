@@ -10,7 +10,7 @@
           "sensor_type": "[%key:common::config_flow::data::sensor_type%]",
           "update_interval": "Update Interval",
           "scene_update_interval": "Scene Update Interval",
-          "invert_cover_position": "[%key:common::config_flow::data::invert_cover_position%]"
+          "create_inverted_cover_position": "[%key:common::config_flow::data::create_inverted_cover_position%]"
         }
       }
     }
@@ -39,7 +39,7 @@
           "sensor_type": "[%key:common::config_flow::data::sensor_type%]",
           "update_interval": "Update Interval",
           "scene_update_interval": "Scene Update Interval",
-          "invert_cover_position": "[%key:common::config_flow::data::invert_cover_position%]"
+          "create_inverted_cover_position": "[%key:common::config_flow::data::create_inverted_cover_position%]"
         }
       }
     },

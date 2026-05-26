@@ -13,7 +13,7 @@
           "include_non_executable_scenes": "Nicht ausf\u00fchrbare Szenen einschlie\u00dfen",
           "update_interval": "Aktualisierungsintervall (5\u2013120 s)",
           "scene_update_interval": "Szenen-Aktualisierungsintervall (10\u2013120 s)",
-          "invert_cover_position": "Rollladenposition invertieren"
+          "create_inverted_cover_position": "Sensoren für invertierte Rollladenposition erstellen"
         }
       }
     }
@@ -45,7 +45,7 @@
           "include_non_executable_scenes": "Nicht ausf\u00fchrbare Szenen einschlie\u00dfen",
           "update_interval": "Aktualisierungsintervall (5\u2013120 s)",
           "scene_update_interval": "Szenen-Aktualisierungsintervall (10\u2013120 s)",
-          "invert_cover_position": "Rollladenposition invertieren"
+          "create_inverted_cover_position": "Sensoren für invertierte Rollladenposition erstellen"
         }
       }
     },

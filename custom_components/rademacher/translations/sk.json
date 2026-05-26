@@ -13,7 +13,7 @@
           "include_non_executable_scenes": "Zahrnúť nevykonateľné scény",
           "update_interval": "Interval aktualizácie (5–120 s)",
           "scene_update_interval": "Interval aktualizácie scén (10–120 s)",
-          "invert_cover_position": "Invertovať polohu krytu"
+          "create_inverted_cover_position": "Vytvoriť senzory polohy krytu s invertovanou pozíciou"
         }
       }
     }
@@ -45,7 +45,7 @@
           "create_scene_activation_entities": "Vytvoriť entity aktivácie scén",
           "update_interval": "Interval aktualizácie (5–120 s)",
           "scene_update_interval": "Interval aktualizácie scén (10–120 s)",
-          "invert_cover_position": "Invertovať polohu krytu"
+          "create_inverted_cover_position": "Vytvoriť senzory polohy krytu s invertovanou pozíciou"
         }
       }
     },
