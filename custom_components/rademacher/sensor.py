@@ -174,7 +174,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                             entity_category=EntityCategory.DIAGNOSTIC,
                         )
                     )
-            if isinstance(device, (HomePilotSensor, HomePilotThermostat)):
+            if isinstance(device, HomePilotCover):
                 if create_inverted_cover_position:
                     _LOGGER.info(
                         "Found Inverted Cover Position Sensor for Device ID: %s", device.did
