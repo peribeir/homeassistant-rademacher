@@ -31,7 +31,7 @@ from .const import (
     DOMAIN,
     CONF_ENABLE_CYCLIC_SCENE_POLLING,
     CONF_INCLUDE_NON_EXECUTABLE_SCENES,
-    CONF_INVERT_COVER_POSITION,
+    CONF_CREATE_INVERTED_COVER_POSITION,
     CONF_UPDATE_INTERVAL,
     DEFAULT_UPDATE_INTERVAL,
     CONF_SCENE_UPDATE_INTERVAL,
@@ -209,8 +209,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             entry_options[CONF_EXCLUDE] = []
     if CONF_SENSOR_TYPE not in entry.options:
         entry_options[CONF_SENSOR_TYPE] = []
-    if CONF_INVERT_COVER_POSITION not in entry.options:
-        entry_options[CONF_INVERT_COVER_POSITION] = False
+    if CONF_CREATE_INVERTED_COVER_POSITION not in entry.options:
+        entry_options[CONF_CREATE_INVERTED_COVER_POSITION] = False
 
     hass.data[DOMAIN][entry.entry_id] = (
         manager,
