@@ -12,7 +12,8 @@
           "create_scene_activation_entities": "Vytvoriť entity aktivácie scén",
           "include_non_executable_scenes": "Zahrnúť nevykonateľné scény",
           "update_interval": "Interval aktualizácie (5–120 s)",
-          "scene_update_interval": "Interval aktualizácie scén (10–120 s)"
+          "scene_update_interval": "Interval aktualizácie scén (10–120 s)",
+          "invert_cover_position": "Invertovať polohu krytu"
         }
       }
     }
@@ -43,7 +44,8 @@
           "enable_cyclic_scene_polling": "Povoliť cyklické dotazovanie scén",
           "create_scene_activation_entities": "Vytvoriť entity aktivácie scén",
           "update_interval": "Interval aktualizácie (5–120 s)",
-          "scene_update_interval": "Interval aktualizácie scén (10–120 s)"
+          "scene_update_interval": "Interval aktualizácie scén (10–120 s)",
+          "invert_cover_position": "Invertovať polohu krytu"
         }
       }
     },
