@@ -217,7 +217,7 @@ class HomePilotSensorEntity(HomePilotEntity, SensorEntity):
     def __init__(
         self,
         coordinator,
-        device: HomePilotSensor,
+        device: HomePilotDevice,
         id_suffix,
         name_suffix,
         value_attr,
@@ -257,7 +257,7 @@ class HomePilotSensorEntity(HomePilotEntity, SensorEntity):
     def native_value(self):
         value = getattr(self.coordinator.data[self.did], self.value_attr)
         value = value.name.capitalize() if isinstance(value, Enum) else value
-        if self._inverted:
+        if self._inverted and isinstance(value, (int,float)):
             return 100 - value
         return value
 

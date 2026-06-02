@@ -228,7 +228,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Deleting excluded devices
     device_registry: DeviceRegistry = dr.async_get(hass)
     for did in entry.options[CONF_EXCLUDE]:
-        device_entry: DeviceEntry = device_registry.async_get_device({(DOMAIN, did)})
+        device_entry: DeviceEntry | None = device_registry.async_get_device({(DOMAIN, did)})
         if device_entry is not None:
             _LOGGER.info("Deleting device %s", did)
             device_registry.async_remove_device(device_entry.id)

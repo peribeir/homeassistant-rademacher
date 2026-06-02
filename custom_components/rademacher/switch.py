@@ -482,17 +482,17 @@ class HomePilotSunAutoModeEntity(HomePilotEntity, SwitchEntity):
 
 class HomePilotRademacherSceneEnabledEntity(CoordinatorEntity, SwitchEntity):
     """This class represents the Switch which controls the enableing of a rademacher scene."""
-    _sid: int
+    _sid: str
 
     def __init__(
         self, coordinator: DataUpdateCoordinator, scene: HomePilotScene, entity_registry_enabled_default=False
     ) -> None:
         super().__init__(coordinator)
-        self._sid = scene.sid
+        self._sid = str(scene.sid)
         hub_mac = coordinator.config_entry.unique_id or "unknown"
         self._unique_id = f"{hub_mac}_{scene.sid}_scene_enabled"
         self._name = f"{scene.name} Enabled"
-        self._device_class = SwitchDeviceClass.SWITCH.value
+        self._device_class = SwitchDeviceClass.SWITCH
         self._entity_category = EntityCategory.CONFIG
         self._entity_registry_enabled_default = entity_registry_enabled_default
 

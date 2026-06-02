@@ -31,7 +31,7 @@ class HomePilotEntity(CoordinatorEntity):
         self._device_class = device_class
         self._entity_category = entity_category
         self._icon = icon
-        self._did = device.did
+        self._did = str(device.did)
         self._model = device.model
         self._entity_registry_enabled_default = entity_registry_enabled_default
 
@@ -85,7 +85,7 @@ class HomePilotEntity(CoordinatorEntity):
             "name": self.device_name,
             "sw_version": device.fw_version,
             "model": self.model,
-            "model_id": str(self.did),
+            "model_id": self.did,
             "manufacturer": "Rademacher",
             "serial_number": device.uid.split('_')[0] if device.uid else None,
         }

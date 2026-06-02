@@ -270,7 +270,7 @@ class HomePilotBinarySensorEntity(HomePilotEntity, BinarySensorEntity):
     def __init__(
         self,
         coordinator,
-        device: HomePilotSensor,
+        device: HomePilotDevice,
         id_suffix,
         name_suffix,
         value_attr,
@@ -345,7 +345,7 @@ class HomePilotBinaryInternalExternalSensorEntity(HomePilotEntity, BinarySensorE
     def __init__(
         self,
         coordinator,
-        device: HomePilotSensor,
+        device: HomePilotDevice,
         id_suffix,
         name_suffix,
         value_attr,

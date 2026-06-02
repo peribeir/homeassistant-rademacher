@@ -86,19 +86,19 @@ class HomePilotClimateEntity(HomePilotEntity, ClimateEntity):
             )
 
     @property
-    def current_temperature(self) -> float:
+    def current_temperature(self) -> float|None:
         device: HomePilotThermostat = self.coordinator.data[self.did]
         return device.temperature_value if device.has_temperature else None
 
     @property
-    def target_temperature(self) -> float:
+    def target_temperature(self) -> float|None:
         device: HomePilotThermostat = self.coordinator.data[self.did]
         return (
             device.target_temperature_value if device.has_target_temperature else None
         )
 
     @property
-    def hvac_mode(self) -> str:
+    def hvac_mode(self) -> HVACMode|None:
         device: HomePilotThermostat = self.coordinator.data[self.did]
         return (
             HVACMode.AUTO
@@ -107,11 +107,11 @@ class HomePilotClimateEntity(HomePilotEntity, ClimateEntity):
         )
 
     @property
-    def hvac_action(self) -> str:
+    def hvac_action(self) -> HVACAction|None:
         device: HomePilotThermostat = self.coordinator.data[self.did]
         if not device.has_relais_status:
             return None
-        if device.relais_status:
+        if device.relais_status and self.current_temperature is not None and self.target_temperature is not None:
             if self.current_temperature < self.target_temperature:
                 return HVACAction.HEATING
             else:
@@ -136,8 +136,8 @@ class HomePilotClimateEntity(HomePilotEntity, ClimateEntity):
         )
 
     @property
-    def supported_features(self) -> int:
+    def supported_features(self) -> ClimateEntityFeature:
         device: HomePilotThermostat = self.coordinator.data[self.did]
         feature = ClimateEntityFeature.TARGET_TEMPERATURE if device.can_set_target_temperature else 0
         feature |= ClimateEntityFeature.PRESET_MODE if device.has_boost_active else 0
-        return feature
+        return ClimateEntityFeature(feature)
