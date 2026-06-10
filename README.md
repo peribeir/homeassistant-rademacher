@@ -107,6 +107,16 @@ When configuring the Rademacher Bridge integration, either during the initial se
 | **Include Non Executable Scenes** | `include_non_executable_scenes` | If enabled, scenes registered on the bridge that are marked as non-executable will also be imported. | Boolean | `false` |
 | **Create Inverted Cover Position Sensors** | `create_inverted_cover_position` | If enabled, dedicated diagnostic sensor entities will be created to report the inverted cover and tilt position to match actual Rademacher bridge behavior. NOTE: If you disable this flag, you will need to manually delete the previously created entities so be careful when enabling it. | Boolean | `false` |
 
+# Automatic Modes, Command Buttons & Program-Active Sensors
+
+Many Rademacher devices (covers, switches/actuators, thermostats, …) can react automatically to environmental events (sun, wind, rain, dawn, dusk, time, contact). Where a device exposes them, the integration creates:
+
+- **Auto-mode switches** – `Auto Mode` plus per-function switches (`Sun`/`Wind`/`Rain`/`Dawn`/`Dusk`/`Time`/`Contact Auto Mode`) to turn each automatic function on or off. On thermostats the general auto mode is represented as the climate entity's HVAC mode instead of a switch.
+- **Command buttons** – `Sun`/`Wind`/`Rain Start`/`Stop`, `Goto Dawn`/`Dusk Position`, `Contact Open`/`Close`. They trigger the matching command once and are **disabled by default** (enable them per entity if needed). A command button is only *available* while its matching auto-mode switch is on, and always available when the device has no such switch.
+- **Program-active sensors** – binary sensors (`Sun`/`Wind`/`Rain Program Active`) reporting whether the respective automatic program is currently running.
+
+> **Note:** This integration maps the Rademacher devices together with the specific HomePilot/Start2Smart bridge in use and mirrors exactly what that bridge reports through its API. Which of the entities above are created — and how they behave — therefore depends on the individual device and the used bridge.
+
 # Direct and Indirect Contributors
 
 <!-- readme: contributors,thmnxo4,MrWeidenMr,fritte87 -start -->
