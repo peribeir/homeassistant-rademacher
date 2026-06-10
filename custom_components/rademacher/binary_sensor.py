@@ -3,7 +3,7 @@ from datetime import timedelta
 import logging
 
 from homepilot.cover import HomePilotCover
-from homepilot.device import HomePilotDevice
+from homepilot.device import HomePilotDevice, HomePilotAutoConfigDevice
 from homepilot.manager import HomePilotManager
 from homepilot.sensor import HomePilotSensor
 from homepilot.wallcontroller import HomePilotWallController
@@ -153,6 +153,9 @@ async def async_setup_entry(hass, config_entry: ConfigEntry, async_add_entities)
                             entity_category=EntityCategory.DIAGNOSTIC,
                         )
                     )
+            # Weather program "active" sensors are provided by any auto config
+            # device that advertises the corresponding *_PROG_ACTIVE_EVT event.
+            if isinstance(device, HomePilotAutoConfigDevice):
                 if device.has_rain_prog_active:
                     _LOGGER.info(
                         "Found Rain Program Active Sensor for Device ID: %s", device.did
