@@ -18,8 +18,8 @@
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/peribeir/homeassistant-rademacher/issues",
   "requirements": [
-    "pyrademacher==0.16.0",
+    "pyrademacher==0.17.0",
     "asyncio>=3.4.3"
   ],
-  "version": "2.4.2"
+  "version": "2.4.3"
 }

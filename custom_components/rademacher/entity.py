@@ -31,7 +31,7 @@ class HomePilotEntity(CoordinatorEntity):
         self._device_class = device_class
         self._entity_category = entity_category
         self._icon = icon
-        self._did = str(device.did)
+        self._did = device.did
         self._model = device.model
         self._entity_registry_enabled_default = entity_registry_enabled_default
 
