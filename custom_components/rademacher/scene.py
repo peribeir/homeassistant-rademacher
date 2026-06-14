@@ -41,7 +41,7 @@ class HomePilotSceneEntity(CoordinatorEntity, Scene):
         CoordinatorEntity.__init__(self, coordinator)
         Scene.__init__(self)
 
-        self._sid = str(scene.sid)
+        self._sid = scene.sid
         # Use hub MAC + scene sid for globally unique ID, similar to device entities
         hub_mac = coordinator.config_entry.unique_id or "unknown"
         self._attr_unique_id = f"{hub_mac}_scene_{scene.sid}"

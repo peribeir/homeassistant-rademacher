@@ -488,7 +488,7 @@ class HomePilotRademacherSceneEnabledEntity(CoordinatorEntity, SwitchEntity):
         self, coordinator: DataUpdateCoordinator, scene: HomePilotScene, entity_registry_enabled_default=False
     ) -> None:
         super().__init__(coordinator)
-        self._sid = str(scene.sid)
+        self._sid = scene.sid
         hub_mac = coordinator.config_entry.unique_id or "unknown"
         self._unique_id = f"{hub_mac}_{scene.sid}_scene_enabled"
         self._name = f"{scene.name} Enabled"
