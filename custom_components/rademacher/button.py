@@ -1,6 +1,8 @@
 """Platform for Rademacher Bridge."""
+from typing import Callable
 import logging
 
+from homepilot.cover import HomePilotCover
 from homepilot.device import HomePilotDevice, HomePilotAutoConfigDevice
 from homepilot.manager import HomePilotManager
 
@@ -49,8 +51,9 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                         name_suffix="Contact Open",
                         device_command_method=device.async_contact_open_cmd,
                         entity_registry_enabled_default=False,
-                        auto_mode_has=lambda d: d.has_contact_auto_mode,
-                        auto_mode_value=lambda d: d.contact_auto_mode_value,
+                        available_condition=lambda d:
+                            isinstance(d, HomePilotAutoConfigDevice) and
+                            (not d.has_contact_auto_mode or d.contact_auto_mode_value),
                     ))
                 if device.has_contact_close_cmd:
                     _LOGGER.info("Found Contact Close Command Button for Device ID: %s", device.did)
@@ -61,8 +64,9 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                         name_suffix="Contact Close",
                         device_command_method=device.async_contact_close_cmd,
                         entity_registry_enabled_default=False,
-                        auto_mode_has=lambda d: d.has_contact_auto_mode,
-                        auto_mode_value=lambda d: d.contact_auto_mode_value,
+                        available_condition=lambda d:
+                            isinstance(d, HomePilotAutoConfigDevice) and
+                            (not d.has_contact_auto_mode or d.contact_auto_mode_value),
                     ))
                 if device.has_sun_start_cmd:
                     _LOGGER.info("Found Sun Start Command Button for Device ID: %s", device.did)
@@ -73,8 +77,9 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                         name_suffix="Sun Start",
                         device_command_method=device.async_sun_start_cmd,
                         entity_registry_enabled_default=False,
-                        auto_mode_has=lambda d: d.has_sun_auto_mode,
-                        auto_mode_value=lambda d: d.sun_auto_mode_value,
+                        available_condition=lambda d:
+                            isinstance(d, HomePilotAutoConfigDevice) and
+                            (not d.has_sun_auto_mode or d.sun_auto_mode_value),
                     ))
                 if device.has_sun_stop_cmd:
                     _LOGGER.info("Found Sun Stop Command Button for Device ID: %s", device.did)
@@ -85,8 +90,8 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                         name_suffix="Sun Stop",
                         device_command_method=device.async_sun_stop_cmd,
                         entity_registry_enabled_default=False,
-                        auto_mode_has=lambda d: d.has_sun_auto_mode,
-                        auto_mode_value=lambda d: d.sun_auto_mode_value,
+                        available_condition=lambda d:
+                            isinstance(d, HomePilotAutoConfigDevice) and (not d.has_sun_auto_mode or d.sun_auto_mode_value),
                     ))
                 if device.has_wind_start_cmd:
                     _LOGGER.info("Found Wind Start Command Button for Device ID: %s", device.did)
@@ -97,8 +102,9 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                         name_suffix="Wind Start",
                         device_command_method=device.async_wind_start_cmd,
                         entity_registry_enabled_default=False,
-                        auto_mode_has=lambda d: d.has_wind_auto_mode,
-                        auto_mode_value=lambda d: d.wind_auto_mode_value,
+                        available_condition=lambda d:
+                            isinstance(d, HomePilotAutoConfigDevice) and
+                            (not d.has_wind_auto_mode or d.wind_auto_mode_value),
                     ))
                 if device.has_wind_stop_cmd:
                     _LOGGER.info("Found Wind Stop Command Button for Device ID: %s", device.did)
@@ -109,8 +115,9 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                         name_suffix="Wind Stop",
                         device_command_method=device.async_wind_stop_cmd,
                         entity_registry_enabled_default=False,
-                        auto_mode_has=lambda d: d.has_wind_auto_mode,
-                        auto_mode_value=lambda d: d.wind_auto_mode_value,
+                        available_condition=lambda d:
+                            isinstance(d, HomePilotAutoConfigDevice) and
+                            (not d.has_wind_auto_mode or d.wind_auto_mode_value),
                     ))
                 if device.has_rain_start_cmd:
                     _LOGGER.info("Found Rain Start Command Button for Device ID: %s", device.did)
@@ -121,8 +128,9 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                         name_suffix="Rain Start",
                         device_command_method=device.async_rain_start_cmd,
                         entity_registry_enabled_default=False,
-                        auto_mode_has=lambda d: d.has_rain_auto_mode,
-                        auto_mode_value=lambda d: d.rain_auto_mode_value,
+                        available_condition=lambda d:
+                            isinstance(d, HomePilotAutoConfigDevice) and
+                            (not d.has_rain_auto_mode or d.rain_auto_mode_value),
                     ))
                 if device.has_rain_stop_cmd:
                     _LOGGER.info("Found Rain Stop Command Button for Device ID: %s", device.did)
@@ -133,8 +141,9 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                         name_suffix="Rain Stop",
                         device_command_method=device.async_rain_stop_cmd,
                         entity_registry_enabled_default=False,
-                        auto_mode_has=lambda d: d.has_rain_auto_mode,
-                        auto_mode_value=lambda d: d.rain_auto_mode_value,
+                        available_condition=lambda d:
+                            isinstance(d, HomePilotAutoConfigDevice) and
+                            (not d.has_rain_auto_mode or d.rain_auto_mode_value),
                     ))
                 if device.has_goto_dawn_pos_cmd:
                     _LOGGER.info("Found Goto Dawn Position Command Button for Device ID: %s", device.did)
@@ -145,8 +154,9 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                         name_suffix="Goto Dawn Position",
                         device_command_method=device.async_goto_dawn_pos_cmd,
                         entity_registry_enabled_default=False,
-                        auto_mode_has=lambda d: d.has_dawn_auto_mode,
-                        auto_mode_value=lambda d: d.dawn_auto_mode_value,
+                        available_condition=lambda d:
+                            isinstance(d, HomePilotAutoConfigDevice) and
+                            (not d.has_dawn_auto_mode or d.dawn_auto_mode_value),
                     ))
                 if device.has_goto_dusk_pos_cmd:
                     _LOGGER.info("Found Goto Dusk Position Command Button for Device ID: %s", device.did)
@@ -157,8 +167,22 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                         name_suffix="Goto Dusk Position",
                         device_command_method=device.async_goto_dusk_pos_cmd,
                         entity_registry_enabled_default=False,
-                        auto_mode_has=lambda d: d.has_dusk_auto_mode,
-                        auto_mode_value=lambda d: d.dusk_auto_mode_value,
+                        available_condition=lambda d:
+                            isinstance(d, HomePilotAutoConfigDevice) and
+                            (not d.has_dusk_auto_mode or d.dusk_auto_mode_value),
+                    ))
+            if isinstance(device, HomePilotCover):
+                if device.has_ventilation_position_config:
+                    _LOGGER.info("Found Goto Ventilation Position Command Button for Device ID: %s", device.did)
+                    new_entities.append(HomePilotButtonEntity(
+                        coordinator,
+                        device,
+                        id_suffix="goto_ventilation_pos",
+                        name_suffix="Goto Ventilation Position",
+                        device_command_method=device.async_goto_ventilation_position,
+                        entity_registry_enabled_default=False,
+                        available_condition=lambda d:
+                            isinstance(d, HomePilotCover) and d.ventilation_position_mode,
                     ))
     if new_entities:
         async_add_entities(new_entities)
@@ -175,8 +199,7 @@ class HomePilotButtonEntity(HomePilotEntity, ButtonEntity):
         device_command_method,
         entity_category=None,
         entity_registry_enabled_default=False,
-        auto_mode_has=None,
-        auto_mode_value=None,
+        available_condition: Callable[[HomePilotDevice], bool] = lambda d: True,
     ) -> None:
         super().__init__(
             coordinator,
@@ -187,20 +210,12 @@ class HomePilotButtonEntity(HomePilotEntity, ButtonEntity):
             entity_registry_enabled_default=entity_registry_enabled_default,
         )
         self._device_command_method = device_command_method
-        self._auto_mode_has = auto_mode_has
-        self._auto_mode_value = auto_mode_value
+        self._available_condition = available_condition
 
     @property
     def available(self):
-        # Buttons without an associated auto mode (e.g. ping) are always available.
-        if self._auto_mode_has is None:
-            return True
         device: HomePilotDevice = self.coordinator.data[self.did]
-        # If the device exposes no auto mode switch for this event, the button is
-        # always available; otherwise it is only available while that switch is on.
-        if not self._auto_mode_has(device):
-            return True
-        return self._auto_mode_value(device)
+        return self._available_condition(device)
 
     async def async_press(self) -> None:
         await self.async_execute_and_poll(
