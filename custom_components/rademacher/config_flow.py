@@ -383,7 +383,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return schema
 
 
-class OptionsFlowHandler(config_entries.OptionsFlow):
+class OptionsFlowHandler(config_entries.OptionsFlowWithReload):
     host: str
     password: str
 
